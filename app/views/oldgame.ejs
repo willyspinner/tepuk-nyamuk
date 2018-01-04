@@ -1,0 +1,49 @@
+<html>
+<head>
+          <% include partials/head.ejs %>
+</head>
+<body>
+          <div class="container">
+                    <div class="row" align="center">
+                              <h1 align="center">Game</h1>
+                    </div>
+                    <div class="row" align="center">
+                              <img src="fly.png" height=300 width=300 />
+                    </div>
+                    <div class="row" id="display">
+
+
+                    </div>
+                    <div class = "row">
+
+                              <h3> You are: <%=player %></h3>
+                    </div>
+                    <div class="row" id="players">
+                              <% playersdata.forEach((player)=>{ %>
+                              <div class="card border-primary mb-3 text-center">
+                                <div class="card-body">
+                                  <blockquote class="card-blockquote">
+                                            <h2>player:<%= player.username%></h2>
+                                    <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
+                                      ante.</p>-->
+                                    <footer>
+                                               <%= player.hand.length%> cards left
+                                    </footer>
+
+                                        </footer>
+                                  </blockquote>
+                                </div>
+                              </div>
+                              <% }) %>
+
+                    </div>
+
+
+          </div>
+
+
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+
+</html>

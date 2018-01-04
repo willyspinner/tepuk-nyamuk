@@ -1,0 +1,156 @@
+<html>
+<head>
+          <% include partials/head.ejs %>
+</head>
+<body>
+          <div class="container">
+                    <div class="row" align="center">
+                              <h1 align="center">Tepuk Nyamuk</h1>
+                    </div>
+                    <div class="row" align="center">
+                              <img src="fly.png" height=200 width=200 />
+                    </div>
+                    <div class="row">
+                              <h3 align="center" id="numberOfPlayers">0 Players</h1>
+                    </div>
+                    <div class="row" id="inputForm">
+                              <div class="col">
+                                        <div class="input-group" align="center" id="usernameSubmitDiv" >
+                                                  <input type="text" class="form-control" id="textField" placeholder="Enter your username to play!">
+                                                  <span class="input-group-btn">
+                                                            <a class="btn btn-outline-primary btn-block" id="usernameSubmit">Let's roll</a>
+                                                  </span>
+                                                  </div>
+                              </div>
+                    </div>
+                    <div class="row">
+
+                              <ul class="list-group" id="listOfPlayers" align="center">
+                                       <% playersdata.forEach((player)=>{ %>
+                                        <li class="list-group-item" id="<%= player.username %>"><%= player.username %></li>
+                                       <% }) %>
+
+                              </ul>
+                    </div>
+
+
+
+          </div>
+
+
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+//----------------RUN THESE SCRIPTS BELOW UPON EVERY USER LANDING. ---------------------
+
+var names =[];
+var counter= <%= playersdata.length %>
+playerCounter(counter);
+var username=''
+let isGoingToGame = false;
+var socket = io.connect("<%= url %>");
+//************Everyone joins for the sake of real-time updates of whos leaving and joining.(via socket.io communication).
+socket.on('connect', ()=>{});//socket needs to beconnected. Joining the room, however is another matter.
+//*************When a user joins.*******************
+socket.on('userJoin', function(user){
+          //if a username hasn't been defined yet, OR the username doesn't equal the joined username.
+          if(user.username != username)
+          {
+                    console.log('userJoin emitted:'+user.username);
+                    //if( user.username !== username){
+                              names.push(user.username);
+                              $("ul#listOfPlayers").append($("<li class=\"list-group-item\"id=\""+user.username+"\">").text(user.username)).slideDown(800);
+                              counter++;
+                              playerCounter(counter);
+                    //}
+          }
+});
+//************when a user disconnects.****************
+socket.on('userDisconnect',function(data){
+          console.log(data.username+" disconnected");
+          $("ul#listOfPlayers > li#"+data.username).slideUp(500);
+          counter--;
+          playerCounter(counter);
+});
+socket.on('gamestart',function(/*no data needed as will be provided by express serv.*/){
+          //alert(`the following users are gonna join: ${data}`);
+          isGoingToGame=true;
+          window.location.replace('/game/username='+username);
+
+})
+
+$("input#textField").on("keypress",(evt)=>{
+          console.log("I pressed:"+evt.charCode);
+          if (evt.charCode==13)
+                    submit(evt);
+});
+
+$("a#usernameSubmit").on('click',(evt)=>{
+          submit(evt);
+});
+
+//---------------------------------------------_FUNCTIONS ------------------------------------------------------
+//TODO names duplication validation. TODO
+/* SUBMIT */
+
+function submit(evt){
+
+           username = $("input#textField.form-control").val();
+                    console.log('I submitted:'+username);
+
+          //console.log('client submission of name. namesList:');
+          console.log(names);
+          console.log('includes?'+names.includes(username))
+          if (username =='' || names.includes(username))
+                    {alert("enter a good username please!");}
+          else{
+                    names.push(username);
+                    console.log(`username:${username}`);
+                    $("div.input-group#usernameSubmitDiv").slideUp(500,()=>{
+                              $("ul#listOfPlayers").append($("<li class=\"list-group-item\" id="+username+">").text(username));
+                              $("div#inputForm").after("<div class=\"alert alert-primary\" role=\"alert\"><strong>Alrighty "+username+"! </strong>Please wait for the gamemaster to start!</div>");
+
+                              //var socket = io.connect('http://localhost:3000');
+                              //socket.on('connect', ()=>{
+                                        counter++;
+                                        playerCounter(counter);
+                                        socket.emit('iJoin',{'username':username});
+                              //});
+                              /*
+                              socket.on('userJoin', function(user){
+                                        if( user.username !== username){
+                                                  names.push(user.username);
+                                                  $("ul#listOfPlayers").append($("<li class=\"list-group-item\"id=\""+user.username+"\">").text(user.username)).slideDown(800);
+                                                  counter++;
+                                                  playerCounter(counter);
+                                        }
+                              });
+                              */
+                              //************ when YOU leave the browser ----------
+                              window.addEventListener("beforeunload", function( event ) {
+                                        //socket.emit('userDisconnect',{'username':username});
+                                        if(!isGoingToGame)
+                                        socket.emit('iDisconnect',{'username':username});
+                              });
+
+
+                    });
+
+          }
+}
+
+function playerCounter(num){
+          if (num == 1 )
+                    $("#numberOfPlayers").text("1 Player");
+          else{
+                    $("#numberOfPlayers").text(num+" Players");
+          }
+}
+
+
+
+</script>
+
+</html>

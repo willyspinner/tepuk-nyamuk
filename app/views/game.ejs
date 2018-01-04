@@ -1,0 +1,218 @@
+<html>
+<head>
+          <% include partials/head.ejs %>
+</head>
+<body>
+          <div class="container">
+                    <div class="row" align="center">
+                              <h1 align="center">Game</h1>
+                    </div>
+                    <div class="row" align="center" id = "match">
+                              <!--<img src="fly.png" height=300 width=300 />-->
+                    </div>
+                    <div class="row" id="display">
+                              <div class="col-sm-6" id='currentCard'>
+                                        <h3>CURRENT CARD</h3>
+                              </div>
+                              <div class="col-sm-6" id='currentCounter'>
+                                        <h3>CURRENT COUNTER</h3>
+                              </div>
+                    </div>
+                    <div class = "row">
+                              <h3> You are: <%=player %></h3>
+                    </div>
+                    <div class="row" id="players">
+                              <% playersdata.forEach((player)=>{ %>
+                              <div class="card border-primary mb-3 text-center" id="<%=player.username%>">
+                                <div class="card-body">
+                                  <blockquote class="card-blockquote">
+                                            <h3>player:<%= player.username%></h3>
+                                    <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
+                                      ante.</p>-->
+                                    <footer>
+                                               <%= player.hand.length%> cards left
+                                    </footer>
+
+                                        </footer>
+                                  </blockquote>
+                                </div>
+                              </div>
+                              <% }) %>
+
+                    </div>
+                    <div class="row" id="cardsInPile">
+                              <h3>no cards in pile</h3>
+                    </div>
+                    <div class="row" id="matchSlap">
+                              <div class="alert alert-primary" role="alert" id="alert">
+                              </div>
+                    </div>
+                    <div class="row">
+                              <div class="col-sm-6">
+                                        <strong>history of matches: </strong>
+                                        <br ></br>
+                                        <ul class="list-group" id="listOfMatches">
+                                        </ul>
+                              </div>
+                              <div class="col-sm-6">
+                                        <strong> Average match pile</strong>
+                                        <h3 id="averageMatchPile">0</h3>
+                              </div>
+                    </div>
+          </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+//*****************INITIALISE variables *******************
+var counter = -1;
+var ONMATCH=false;
+var nCardsInPile=0;
+var nMatches=0;
+var totalThrows=0;
+var socket='nothingyet';
+var username = "<%=player%>"
+var myPlayerObject =null;
+var myIdx=-1
+var playersData=<%-JSON.stringify(playersdata) %>;
+playersData.forEach((player,idx)=>{
+          //playersData.push(player);
+          if(player.username == username){
+                    myPlayerObject=player;
+                    myIdx=idx;
+          }
+});
+var playerInTurn= playersData[<%=startingPlayerIdx%>].username;
+var slapReactionTime=0;
+
+//*******************GAME MECHANISM w SOCKET.IO *********************************
+$(document).ready(()=>{
+          socket = io.connect("<%= url %>"/*+"/"+username*/);
+          console.log('socket connecting to '+"<%= url %>"/*+"/"+username*/);
+          $("div#"+playerInTurn).css('border','9px solid blue');
+          socket.on('connect', ()=>{});
+          socket.on('userThrew',function(threw){
+                    //if (card.username != username){ //FIX: this if statement not needed.
+                                        $("div#"+playerInTurn).css('border','');
+                                        updateCards(threw.card);
+                                        $("div#"+threw.username+" footer").html(threw.left+" cards left");
+
+                                        //--- next player in turn ------. update local copy and update next player.
+                                        //TODO : CONSIDER. Do we even have to update the local copy? This is not efficient.
+                                        if(threw.username != username){
+                                                  playersData[threw.previousIdx].hand.pop();
+                                        }
+                                        console.log('playerinturn idx now is: '+threw.playerInTurnIdx);
+                                        playerInTurn=playersData[threw.playerInTurnIdx].username;// PROBLEM: we're accessing outof bounds.
+                                        $("div#"+playerInTurn).css('border','9px solid blue');
+
+          //          }
+          });
+          socket.on('match',function(){
+                    ONMATCH=true;
+                    slapReactionTime = new Date();
+                    $("div#match").append("<h1>MATCH!</h1>");
+
+          });
+          socket.on('matchResult',function(results){
+                    alert('received matchResult. '+results.loser+" lost.");
+                    let loser = results.loser;
+                    $("div#"+loser).css('border','9px solid red');
+                    $("div#"+loser+" footer").html("added "+results.pile+' to his/her hand');
+                    if (loser == username){
+                              //------------ Add pile to user's hand.---------------
+                              //myPlayerObject.hand.push(results.pile)
+                              Array.prototype.push.apply(myPlayerObject.hand, results.pile);
+                    }
+                    playerInTurn = username;
+                    $("div#match h1").slideUp(500);
+                    $("div#match").remove("h1");
+                    playersData.forEach((player)=>{
+                              if (!player.username == loser)
+                                        $("div#"+player.username).css('border','');
+                    });
+                    //setTimeout(function(){
+                              $("div#"+loser).css('border','9px solid blue');
+                              $("div#matchSlap > div#alert").html('');
+                              nCardsInPile = 0;
+                              counter = -1;
+                              //TODO functionalise these things. They tend to be repetitive.
+                              $("div#currentCard > h3").remove();
+                              $("div#currentCounter > h3").text(/*counter % 13 +1*/loser+", start it!");
+                              $("div#cardsInPile h3").text(`${nCardsInPile} cards in pile`);
+                              $("div#currentCard").append("<h3>currentCard: </h3>");
+                              ONMATCH=false;
+                    //}, 600);
+
+
+          })
+});
+function updateCards(newCardNumber){
+          $("div#currentCard > h3").slideUp(120,()=>{
+                    counter++;
+                    nCardsInPile++;
+                    $("div#currentCard > h3").remove();
+          //          $("div#currentCounter > h3").slideUp(50).slideDown(50);
+                    $("div#currentCounter > h3").text(counter % 13 +1);
+
+                    $("div#cardsInPile h3").text(`${nCardsInPile} cards in pile`);
+                    $("div#currentCard").append("<h3>currentCard: "+newCardNumber+"</h3>");
+
+});}
+
+
+$(document).on('keypress',function (evt){
+          //alert(evt.charCode);
+          //NOTE: in real socket client server setting, the clients can only send event emits to the server as to
+          //not mess up ssynchronization. e.g. when a match happens, players can't throw in more cards ( and if they do, they take the pile.)
+          //Here, on the other hand, this can obviously happen.
+          console.log('keypressed: '+evt.charCode);
+          if (evt.charCode==116 && playerInTurn == username && ! ONMATCH){//space:32.  't' : 116. 't' for throw card
+                   let cardPopped = myPlayerObject.hand.pop();
+                    console.log('emitting iThrew');
+                    console.log('popped:'+cardPopped)
+                    socket.emit('iThrew', {'username':username,
+                                                            'playerIdx':myIdx,
+                                                            'card':cardPopped,
+                                                            'left':myPlayerObject.hand.length});
+
+                              /*counter++;
+                              nCardsInPile++;
+                              $("div#currentCard > h3").remove();
+                    //          $("div#currentCounter > h3").slideUp(50).slideDown(50);
+                              $("div#currentCounter > h3").text(counter % 13 +1);
+
+                              $("div#cardsInPile h3").text(`${nCardsInPile} cards in pile`);
+*/
+
+
+                              //$("div#currentCard").append("<h3>nextTing: "+cardNum+"</h3>");
+                              //console.log(`cardNum: ${cardNum}, counter: ${counter % 13 +1 }`)
+          }
+          else if(ONMATCH && evt.charCode == 32){
+                    slapReactionTime = ((new Date()) - slapReactionTime) / 1000;
+                    console.log('sent slap for username: '+username);
+                    socket.emit('iSlap',{'username':username,
+                                                  'slapReactionTime':slapReactionTime,
+                                                  'playerIdx':myIdx});
+                    $("div#matchSlap > div#alert").html("<h4 class=\"alert-heading\">Slapped! slapReactionTime: "+slapReactionTime+" secs.</h4>");
+                    $("div#matchSlap h4.alert-heading").css('color','green');
+          }
+});
+</script>
+</html>
+<!-- NOT USED
+<script>
+ONMATCH=true;
+$("ul#listOfMatches").append("<li class=\"list-group-item\"> "+nCardsInPile+" cards in pile</li>");
+$("div#match").append("<h1>MATCH!</h1>");
+totalThrows+=nCardsInPile;
+nMatches++;
+$("h3#averageMatchPile").html(parseFloat(totalThrows/nMatches*1.0).toFixed(2));
+$("div#match h1").slideUp(1200,()=>{
+          ONMATCH=false;// <li class="list-group-item">Cras justo odio</li>
+          nCardsInPile=0;
+          $("div#cardsInPile h3").text(`no cards in pile`);
+          $("div#match h1").remove(); // FIX: This removal is imporrtant as slideUp is called multiple times. Which is dangerous.
+          //DO SOMETHING WITH THIS MATCH.
+});
+</script>-->

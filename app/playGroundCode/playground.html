@@ -1,0 +1,132 @@
+<!--NOTE TO WILLY:
+SIMPLY COPY AND PASTE THIS CODE (change the head tho) TO game.ejs
+AND THE MECHANISMS R READY TO GO.
+-->
+
+<html>
+<head>
+          <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+          -->
+          <link rel="stylesheet" href="http://localhost:3000/css/bootstrap.css" type='text/css' />
+          <!--
+          <link rel='stylesheet' href='/css/style.css' />-->
+          <script src="http://localhost:3000/js/jquery-3.2.1.min.js"></script>
+          <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+          <link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto+Slab' rel='stylesheet' type='text/css'>
+
+</head>
+<body>
+          <div class="container">
+                    <div class="row" align="center">
+                              <h1 align="center">Game</h1>
+                    </div>
+                    <div class="row" align="center" id = "match">
+                              <!--<img src="fly.png" height=300 width=300 />-->
+                    </div>
+                    <div class="row" id="display">
+                              <div class="col-sm-6" id='currentCard'>
+                                        <h3>CURRENT CARD</h3>
+                              </div>
+                              <div class="col-sm-6" id='currentCounter'>
+                                        <h3>CURRENT COUNTER</h3>
+                              </div>
+                    </div>
+                    <div class = "row">
+                              <h3> You are: <%=player %></h3>
+                    </div>
+                    <div class="row" id="players">
+                              <% playersdata.forEach((player)=>{ %>
+                              <div class="card border-primary mb-3 text-center">
+                                <div class="card-body">
+                                  <blockquote class="card-blockquote">
+                                            <h3>player:<%= player.username%></h3>
+                                    <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
+                                      ante.</p>-->
+                                    <footer>
+                                               <%= player.hand.length%> cards left
+                                    </footer>
+
+                                        </footer>
+                                  </blockquote>
+                                </div>
+                              </div>
+                              <% }) %>
+
+                    </div>
+                    <div class="row" id="cardsInPile">
+                              <h3>no cards in pile</h3>
+                    </div>
+
+                    <div class="row">
+                              <div class="col-sm-6">
+                                        <strong>history of matches: </strong>
+                                        <br ></br>
+                                        <ul class="list-group" id="listOfMatches">
+                                        </ul>
+                              </div>
+                              <div class="col-sm-6">
+                                        <strong> Average match pile</strong>
+                                        <h3 id="averageMatchPile">0</h3>
+                              </div>
+
+                    </div>
+
+
+          </div>
+
+
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+//*****************DUMMY variables *******************
+var counter = -1;
+var ONMATCH=false;
+var nCardsInPile=0;
+var nMatches=0;
+var totalThrows=0;
+//****************************************************
+$(document).on('keypress',function (evt){
+          //alert(evt.charCode);
+          //NOTE: in real socket client server setting, the clients can only send event emits to the server as to
+          //not mess up ssynchronization. e.g. when a match happens, players can't throw in more cards ( and if they do, they take the pile.)
+          //Here, on the other hand, this can obviously happen.
+          if (evt.charCode==116 && !ONMATCH){//space:32.  't' : 116. 't' for throw card
+
+                    $("div#currentCard > h3").slideUp(120,()=>{
+                              counter++;
+                              nCardsInPile++;
+                              $("div#currentCard > h3").remove();
+                    //          $("div#currentCounter > h3").slideUp(50).slideDown(50);
+                              $("div#currentCounter > h3").text(counter % 13 +1);
+
+                              $("div#cardsInPile h3").text(`${nCardsInPile} cards in pile`);
+                              let cardNum = Math.ceil(Math.random()*13); //TODO: replace this with actual code later!
+
+                              if (cardNum == (counter % 13+ 1)){
+                                        ONMATCH=true;
+                                        $("ul#listOfMatches").append("<li class=\"list-group-item\"> "+nCardsInPile+" cards in pile</li>");
+                                        $("div#match").append("<h1>MATCH!</h1>");
+                                        totalThrows+=nCardsInPile;
+                                        nMatches++;
+                                        $("h3#averageMatchPile").html(parseFloat(totalThrows/nMatches*1.0).toFixed(2));
+                                        $("div#match h1").slideUp(1200,()=>{
+                                                  ONMATCH=false;// <li class="list-group-item">Cras justo odio</li>
+                                                  nCardsInPile=0;
+                                                  $("div#cardsInPile h3").text(`no cards in pile`);
+                                                  $("div#match h1").remove(); // FIX: This removal is imporrtant as slideUp is called multiple times. Which is dangerous.
+                                                  //DO SOMETHING WITH THIS MATCH.
+                                        });
+                              }
+                              else{
+                                        //WHEN THERE IS NO MATCH.
+                              }
+                              $("div#currentCard").append("<h3>nextTing: "+cardNum+"</h3>");
+                              //console.log(`cardNum: ${cardNum}, counter: ${counter % 13 +1 }`)
+
+                    });
+
+          }
+});
+</script>
+</html>
