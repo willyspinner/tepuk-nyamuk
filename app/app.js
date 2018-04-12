@@ -50,12 +50,18 @@ fs.writeFile(app.get('dataURI'), '[]', 'utf8', function(err) {
                               console.log(playersData);
                               //Find data's index in our array.
                               //TODO ---- This is an  O(n) deletion solution. Surely there's a more efficient way??
+                              playersData.filter((player)=>(
+                                  player.username != data.username
+                                  )
+                              );
+                        /*
                               playersData.forEach((player,idx)=>{
                                         if (player.username == data.username){
                                                   playersData.splice(idx,1);
                                                   return;
                                         }
                               });
+                              */
                               //playersData.splice(playersData.indexOf(data.username),1);//NO, this doesn't work.
                               fs.writeFile(app.get('dataURI'), JSON.stringify(playersData), 'utf8', function(err) {
                                         if (err)
