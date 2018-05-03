@@ -1,0 +1,22 @@
+
+.gameList__container {
+  display:flex;
+  flex: 1;
+  flex-direction:row;
+  flex-wrap:wrap;
+  justify-content: flex-start;
+}
+.gameList__item {
+  margin: $xs-size;
+
+}
+.gamePageContainer {
+  display:flex;
+  flex: 1;
+  flex-direction:column;
+  justify-content: flex-start;
+  margin-left:$s-size;
+}
+.gamePageHeader {
+  text-align:center;
+}

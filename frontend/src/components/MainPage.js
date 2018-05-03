@@ -6,7 +6,8 @@ class MainPage extends Component {
 render (){
 
     return (
-    <div>
+    <div className="gamePageContainer">
+        <h1 className="gamePageHeader"> Game Page </h1>
         Main page here.
         You should be able to :
         -> See the list of open games (not in progress yet)

@@ -1,8 +1,9 @@
-import uuid from 'uuid';
-import database from '../firebase/firebase';
 export const addGame = ( game )=> ({
   type: 'ADD_GAME',
-    game
+    game:{
+        ...game,
+        players:[game.creator]
+    }
 });
 
 export const startAddGame = (expenseData = {}) => {
