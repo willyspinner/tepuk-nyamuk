@@ -1,0 +1,2 @@
+Put your base styles in _base,scss, and your constants in settings.scss
+
