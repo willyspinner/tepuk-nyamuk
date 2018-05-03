@@ -5,7 +5,17 @@ export const addGame = ( game )=> ({
         players:[game.creator]
     }
 });
+export const joinGame = (gameId,username) => ({
+    type :'JOIN_GAME',
+    gameId,
+    username
+})
+export const startJoinGame = (gameId,username) => {
+    return (reduxDispatch,getState) => {
+        //TODO: send an axios POST to join
 
+    }
+}
 export const startAddGame = (expenseData = {}) => {
 
     return (reduxDispatch, getState) => {
