@@ -27,6 +27,19 @@ class MainPage extends Component {
             alert("name can't be empty!");
             return;
         }
+        let isValidName = true;
+        this.props.games.forEach((game)=>{
+            game.players.forEach((player_username)=>{
+                if(player_username === e.target.value){
+                    // TODO: clientside duplicate validation to be replaced with
+                    //serverside duplicate validation
+                    alert(`username ${e.target.value} already taken.`)
+                    isValidName= false;
+                }
+            })
+        })
+        if (!isValidName)
+            return;
         this.props.dispatch(registerUser(e.target.value));
         this.setState({
             username: e.target.value
