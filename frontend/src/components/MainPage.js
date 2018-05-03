@@ -14,8 +14,9 @@ class MainPage extends Component {
     onGameJoinHandler= (gameId)=>{
         this.setState({isJoiningGame:true});
         this.props.dispatch(startJoinGame(gameId,this.state.username)).then((/*empty resolve arg*/)=>{
-
              this.props.history.push(`/game/lobby/${gameId}`);
+        }).catch((e)=>{
+            alert("Sorry! There was a server error.");
         })
         //TODO: axios returns promise from action.
         // we render a modal for loading until the promise is returned.
@@ -32,6 +33,7 @@ class MainPage extends Component {
             game.players.forEach((player_username)=>{
                 if(player_username === e.target.value){
                     // TODO: clientside duplicate validation to be replaced with
+                    // TODO: Make this validation implicit in the action registerUser below.
                     //serverside duplicate validation
                     alert(`username ${e.target.value} already taken.`)
                     isValidName= false;
@@ -54,7 +56,10 @@ class MainPage extends Component {
                isOpen={!this.state.username}
                    >
                    <h1> Hey! Welcome to tepuk nyamuk. </h1>
-               <Input size="large" placeholder="name" onPressEnter={this.nameSubmitHandler}/>
+               <Input size="large"
+                      placeholder="name"
+                      onPressEnter={this.nameSubmitHandler}
+               />
                    <h4>Press enter to submit your name.</h4>
                </Modal>
            );
@@ -75,7 +80,7 @@ class MainPage extends Component {
 
     <div className="mainPageContainer">
 
-        <h1 className="mainPageHeader"> Game Page </h1>
+        <h1 className="mainPageHeader"> Tepuk Nyamuk </h1>
         {registerModal}
         Main page here.
         You should be able to :

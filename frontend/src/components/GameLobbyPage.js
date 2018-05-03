@@ -9,28 +9,45 @@ class GameLobbyPage extends Component {
         super(props);
         this.state = {
             gameId: props.match.params.gameId,
-            game: this.props.games.filter(g=>{
-                return g.gameId === props.match.params.gameId})[0]
+            game: this.props.games.filter(g=>g.gameId === props.match.params.gameId
+                )[0],
+            isStartingGame:false
         };
     }
     componentWillUnmount(){
         this.onLeaveHandler();
     }
     onLeaveHandler=()=>{
+
+        console.log(`leaving. STarting game? : ${this.state.isStartingGame}`);
+        if(!this.state.isStartingGame)
         this.props.dispatch(startLeaveGame(this.state.gameId,this.props.user.username))
             .then(() => {
-                this.props.history.push('/')
+                console.log(`pushing to go back to / `);
+                    this.props.history.push('/')
             })
+    }
+    onGameStartHandler= () => {
+        //TODO: this needs to be run by some redux update caused by ws.
+        //TEST
+        this.setState({isStartingGame:true}, ()=> {
+            console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
+            this.props.history.push(`/game/play/${this.state.gameId}`);
+        });
     }
     render(){
         if(!this.props.user.username)
-            return (<h4>Please log in first!</h4>);
+            return (<h4>ERROR: GAME LOBBY</h4>);
+        if(!this.state.game)
+            return (<h4> ERROR: GAME LOBBY</h4>);
         return (
             <div>
+
                 <Button onClick={this.onLeaveHandler}
                         >
                     leave game
                 </Button>
+
                 <h1 className="mainPageHeader"> Game Lobby Page </h1>
                 lobby page here.
                 You should be able to :
@@ -47,6 +64,16 @@ class GameLobbyPage extends Component {
                 <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
                 <h3>Waiting for {this.state.game.creator} to start the game...</h3>
 
+                {
+                    //TEMPDIS
+                    /*this.state.game.creator === this.props.user.username?*/
+                    1===1?
+                    (
+                        <Button onClick={this.onGameStartHandler}>
+                            Start game
+                        </Button>)
+                : null
+                }
             </div>
         );
     }
