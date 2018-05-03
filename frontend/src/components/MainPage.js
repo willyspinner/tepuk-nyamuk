@@ -42,7 +42,7 @@ class MainPage extends Component {
                    >
                    <h1> Hey! Welcome to tepuk nyamuk. </h1>
                <Input size="large" placeholder="name" onPressEnter={this.nameSubmitHandler}/>
-                   <h2>Press enter to submit your name.</h2>
+                   <h4>Press enter to submit your name.</h4>
                </Modal>
            );
 

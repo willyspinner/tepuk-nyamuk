@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {List} from 'antd';
 import ReactLoading from 'react-loading';
+import {startLeaveGame} from "../actions/games";
+
 class GameLobbyPage extends Component {
     constructor(props){
         super(props);
@@ -14,6 +16,15 @@ class GameLobbyPage extends Component {
         console.log(`game: ${JSON.stringify(this.state.game)}`);
         
         console.log(`match param: ${props.match.params.gameId}`);
+    }
+    componentWillUnmount(){
+        this.onLeaveHandler();
+    }
+    onLeaveHandler=()=>{
+        this.props.dispatch(startLeaveGame(this.state.gameId,this.props.user.username))
+            .then(()=>{
+                this.props.history.push('/')
+            })
     }
     render(){
         return (
@@ -39,7 +50,8 @@ class GameLobbyPage extends Component {
     }
 }
 const mapStateToProps = (state)=>({
-        games: state.games
+        games: state.games,
+    user: state.user
     })
 
 export default connect (mapStateToProps)(GameLobbyPage);
