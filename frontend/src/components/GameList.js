@@ -1,5 +1,4 @@
 import React from 'react';
-import {connect} from 'react-redux';
 import GameListItem from './GameListItem';
 
  class GameList extends React.Component{
@@ -22,8 +21,5 @@ import GameListItem from './GameListItem';
         );
     }
  }
- const mapStateToProps = (state)=>({
-     games:state.games
- });
-export default connect(mapStateToProps)(GameList);
+export default GameList;
 

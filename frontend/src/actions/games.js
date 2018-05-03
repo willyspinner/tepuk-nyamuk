@@ -11,15 +11,24 @@ export const joinGame = (gameId,username) => ({
     username
 })
 export const startJoinGame = (gameId,username) => {
+    //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
         //TODO: send an axios POST to join
+    reduxDispatch(joinGame(gameId,username));
+    return new Promise((resolve,reject)=>{
+        setTimeout(()=>{
+            resolve();
+        },2000);
+
+    })
+
 
     }
 }
 export const startAddGame = (expenseData = {}) => {
 
     return (reduxDispatch, getState) => {
-        //TODO: send an axios POST req/res here.
+        //TODO: send an axios POST req/res here
     };
 }
 

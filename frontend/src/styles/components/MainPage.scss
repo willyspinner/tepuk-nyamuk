@@ -20,3 +20,11 @@
 .gamePageHeader {
   text-align:center;
 }
+.gamePage__joinModal{
+  display:flex;
+  flex: 1;
+  flex-direction:column;
+  justify-content: center;
+  width: $xl-size;
+  height: $xl-size;
+}

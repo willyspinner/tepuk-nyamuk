@@ -3,7 +3,7 @@ import {startJoinGame} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import ReactLoading from 'react-loading';
-
+import {connect} from 'react-redux';
 class MainPage extends Component {
     state={
         username: "DEFAULT_USERNAME",
@@ -11,7 +11,10 @@ class MainPage extends Component {
     }
     onGameJoinHandler= (gameId)=>{
         this.setState({isJoiningGame:true});
-        startJoinGame(gameId,this.state.username);
+        this.props.dispatch(startJoinGame(gameId,this.state.username)).then((/*empty resolve arg*/)=>{
+            alert(`pushing /game/lobby/${gameId}`);
+            // this.props.history.push(`/game/lobby/${gameId}`);
+        })
         //TODO: axios returns promise from action.
         // we render a modal for loading until the promise is returned.
         // for now, the promise is just a stub to simulate server response time.
@@ -19,12 +22,14 @@ class MainPage extends Component {
     }
     render(){
         const modalcontent = (
+            //TODO: Fix modal styling - contents need to be centered.
             <Modal
+                className=".gamePage__joinModal"
             isOpen = {true}
             contentLabel = "Joining game..."
             ariaHideApp = {false}
         >
-                <ReactLoading type={"cyclon"} color={"blue"} height={667} width={375} />
+                <ReactLoading type={"cylon"} color={"blue"} height={159} width={90} />
                 <h1> joining game...</h1>
         </Modal>);
 
@@ -38,10 +43,14 @@ class MainPage extends Component {
         -> create own game
         {this.state.isJoiningGame? modalcontent:null}
         <GameList
-        onJoin={this.onGameJoinHandler}/>
+        onJoin={this.onGameJoinHandler}
+        games={this.props.games}
+        />
     </div>
     );
 }
 }
-
-export default MainPage;
+const mapStateToProps = (state)=>({
+    games:state.games
+});
+export default connect (mapStateToProps)(MainPage);
