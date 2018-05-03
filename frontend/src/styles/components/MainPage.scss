@@ -10,17 +10,17 @@
   margin: $xs-size;
 
 }
-.gamePageContainer {
+.mainPageContainer {
   display:flex;
   flex: 1;
   flex-direction:column;
   justify-content: flex-start;
   margin-left:$s-size;
 }
-.gamePageHeader {
+.mainPageHeader {
   text-align:center;
 }
-.gamePage__joinModal{
+.mainPage__joinModal{
   display:flex;
   flex: 1;
   flex-direction:column;
