@@ -14,13 +14,13 @@ let game_1 = {
     name: "willys game",
     createdAt: moment.now(),
     creator:"willyspinner",
-    gameId:123 // this will be the id generated as response from app backend.
+    gameId:"123" // this will be the id generated as response from app backend.
 }
 let game_2 = {
     name: "berdogs game",
     createdAt: moment.now(),
     creator:"berdog",
-    gameId:1223
+    gameId:"1223"
 }
 store.dispatch(addGame(game_1));
 store.dispatch(addGame(game_2));

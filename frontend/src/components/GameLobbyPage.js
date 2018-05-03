@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {List} from 'antd';
+import {List,Button} from 'antd';
 import ReactLoading from 'react-loading';
 import {startLeaveGame} from "../actions/games";
 
@@ -10,25 +10,27 @@ class GameLobbyPage extends Component {
         this.state = {
             gameId: props.match.params.gameId,
             game: this.props.games.filter(g=>{
-                return g.gameId == props.match.params.gameId})[0]
+                return g.gameId === props.match.params.gameId})[0]
         };
-        
-        console.log(`game: ${JSON.stringify(this.state.game)}`);
-        
-        console.log(`match param: ${props.match.params.gameId}`);
     }
     componentWillUnmount(){
         this.onLeaveHandler();
     }
     onLeaveHandler=()=>{
         this.props.dispatch(startLeaveGame(this.state.gameId,this.props.user.username))
-            .then(()=>{
+            .then(() => {
                 this.props.history.push('/')
             })
     }
     render(){
+        if(!this.props.user.username)
+            return (<h4>Please log in first!</h4>);
         return (
             <div>
+                <Button onClick={this.onLeaveHandler}
+                        >
+                    leave game
+                </Button>
                 <h1 className="mainPageHeader"> Game Lobby Page </h1>
                 lobby page here.
                 You should be able to :

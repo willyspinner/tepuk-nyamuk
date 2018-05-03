@@ -16,9 +16,11 @@ const gamesReducer = (state = [], action) => {
         )
       case 'LEAVE_GAME':
           return state.map((game)=>{
+              console.log(`checking ${game.gameId} with ${action.gameId}`);
                   if (game.gameId === action.gameId)
-                  {
-                      game.players.filter((player)=>player.username !== action.username);
+                      return {
+                          ...game,
+                            players: game.players.filter((player_username)=>player_username !== action.username)
                   }
                   return game;
               });

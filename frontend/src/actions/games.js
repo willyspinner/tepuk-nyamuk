@@ -42,27 +42,29 @@ export const startJoinGame = (gameId,username) => {
     return new Promise((resolve,reject)=>{
         setTimeout(()=>{
             resolve();
-        },2000);
+        },1000);
 
     })
 
 
     }
 }
-export const leaveGame = (gameId,username)=>{
+export const leaveGame = (gameId,username)=>({
     type:'LEAVE_GAME',
         gameId,
         username
-}
+});
 export const startLeaveGame = (gameId,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
         //TODO: send an axios POST to join
+        
+        console.log(`dispatching leave game... from start leave game`);
         reduxDispatch(leaveGame(gameId,username));
         return new Promise((resolve,reject)=>{
             setTimeout(()=>{
                 resolve();
-            },2000);
+            },1000);
 
         })
 
