@@ -49,18 +49,18 @@ export const startJoinGame = (gameId,username) => {
 
     }
 }
-export const leaveGame = (gameId,username)=>({
+export const leaveGame = (uuid,username)=>({
     type:'LEAVE_GAME',
-        gameId,
+        uuid,
         username
 });
-export const startLeaveGame = (gameId,username) => {
+export const startLeaveGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
         //TODO: send an axios POST to join
         
         console.log(`dispatching leave game... from start leave game`);
-        reduxDispatch(leaveGame(gameId,username));
+        reduxDispatch(leaveGame(uuid,username));
         return new Promise((resolve,reject)=>{
             setTimeout(()=>{
                 resolve();

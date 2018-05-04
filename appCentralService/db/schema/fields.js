@@ -3,6 +3,7 @@
 module.exports = {
     //for each user
     USERS: {
+        TABLENAME: 'USERS',
         TABLE:`USERS(${this.USERNAME},${this.SOCKET_ID},${this.GAMEID}`,
         USERNAME:'USERNAME', // their username
         SOCKET_ID: 'SOCKETID', // their socket id
@@ -10,13 +11,16 @@ module.exports = {
     },
     //for each game
     GAMES: {
+        TABLENAME: 'GAMES',
         TABLE:`GAMES(
-            ${this.PLAYERS}, 
-            ${this.UUID}, 
-            ${this.STATUS}, 
-            ${this.RESULT},
-            ${this.CREATEDAT},
-            ${this.CREATOR})`,
+            NAME,
+            PLAYERS,
+            UUID,
+            STATUS,
+            RESULT,
+            CREATEDAT,
+            CREATOR)`,
+        NAME: 'NAME',
         PLAYERS: 'PLAYERS', // an array of player USERNAMES, - foreign key for USERS.
         UUID: 'UUID', // UUID OF GAME.
         STATUS: 'STATUS',// one of 'lob', 'prg' or 'end' (char(3))
