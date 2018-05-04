@@ -1,27 +1,33 @@
 // TESTS for our DB functions
 const db = require('../db/db');
+const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
-const newgame = {
-    name: "my game",
-    createdAt: 1023481023,
-    creator:"creator_USERNAME",
-};
 // initialises db before every test.
 
 describe('create game', function(){
     beforeEach(function(done){
         db.dropTables().then(()=>done());
-    })
+    });
 
     it('should return the SAME game', function(done){
-        db.createGame(newgame).then((result)=>{
-            assert.equal(result.name,newgame.name);
-            assert.equal(result.createdAt,newgame.createdAt);
+        db.createGame(dummy.newgame).then((result)=>{
+            assert.equal(result.name,dummy.newgame.name);
+            assert.equal(result.createdAt,dummy.newgame.createdAt);
             done();
         });
     });
+    it('should return the Same game when queried by its id',function(done){
+       db.createGame(dummy.newgame).then((result)=>{
+           db.getGame(result.gameId).then( (game)=>{
+                assert.deepEqual(result,game);
+               done();
+           }).catch(e=>{
+               done(false);
+           })
+       })
+    });
     it('should return the SAME game when queried for open games.', function(done){
-        db.createGame(newgame).then((result)=> {
+        db.createGame(dummy.newgame).then((result)=> {
             db.queryOpenGames().then(games => {
                 games.forEach((game) => {
                     if (game.gameId === result.gameId) {
@@ -34,4 +40,10 @@ describe('create game', function(){
             })
         });
     });
+});
+describe('delete game', function() {
+    beforeEach(function (done) {
+        db.dropTables().then(() => done());
+    });
+    //TODO: test cases for delete.
 });

@@ -154,9 +154,8 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
 
      */
     socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (clientUserObj, gameId) => {
-        let roomName = gameId; //TODO: roomName should be secret here.
+        let roomName = gameId;
         // Could be a hash.
-
         db.joinGame(clientUserObj, gameId).then(() => {
             socket.join(roomName);
             io.of(MAIN_NAMESPACE)

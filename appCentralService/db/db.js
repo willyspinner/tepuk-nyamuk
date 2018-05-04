@@ -25,12 +25,16 @@ module.exports = {
         //METHOD FOR TESTING PURPOSES ONLY
         // DELETES ALL ENTRIES IN Tables, and players.
         //TODO :link to postgres
-        return
-    }
-    getGame: (gameId)=>{
         return new Promise ((resolve,reject)=>{
             //TODO: Link to postgresql
             resolve();
+        });
+    },
+    getGame: (gameId)=>{
+        return new Promise ((resolve,reject)=>{
+            //TODO: Link to postgresql
+            let game = {};
+            resolve(game);
         });
     },
     joinGame: (userObj,gameId)=>{
