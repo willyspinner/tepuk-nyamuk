@@ -10,7 +10,8 @@ class GameLobbyPage extends Component {
         this.state = {
             gameId: props.match.params.gameId,
             game: this.props.games.filter(g=>g.gameId === props.match.params.gameId
-                )[0],
+                )[0], // NOTE: this doesn't have to be from our props. Can just be from
+            // ws connection.
             isStartingGame:false
         };
     }

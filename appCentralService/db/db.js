@@ -9,6 +9,7 @@ module.exports = {
     queryOpenGames: ()=>{
         return new Promise ((resolve,reject)=> {
             //TODO: link to postgresql
+            //TODO: remember not to get creator's socket id.
             resolve();
         })
     },
