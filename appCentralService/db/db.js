@@ -10,7 +10,8 @@ module.exports = {
         return new Promise ((resolve,reject)=> {
             //TODO: link to postgresql
             //TODO: remember not to get creator's socket id.
-            resolve();
+            const games = {};
+            resolve(games);
         })
     },
     deleteGame: (gameId)=>{
@@ -19,6 +20,13 @@ module.exports = {
             resolve();
         });
     },
+    dropTables: ()=>{
+        //WARNING.
+        //METHOD FOR TESTING PURPOSES ONLY
+        // DELETES ALL ENTRIES IN Tables, and players.
+        //TODO :link to postgres
+        return
+    }
     getGame: (gameId)=>{
         return new Promise ((resolve,reject)=>{
             //TODO: Link to postgresql

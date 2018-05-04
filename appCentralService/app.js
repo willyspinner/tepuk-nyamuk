@@ -91,7 +91,7 @@ app.delete('/appcs/game/delete/:gameId', (req, res) => {
     db.getGame(req.params.gameId).then((game) => {
         creator = game.creator.socketId;
     });
-    if (creator === req.body.socketId)
+    if (creator === req.body.socketId) {
         db.deleteGame(req.params.gameId).then(() => {
             io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_DELETED, {
                 gameId: req.body.gameId
@@ -107,6 +107,7 @@ app.delete('/appcs/game/delete/:gameId', (req, res) => {
                 success: false,
             })
         });
+    }
 });
 
 
