@@ -1,0 +1,11 @@
+{
+  "name": "appcentralservice",
+  "version": "1.0.0",
+  "description": "central service for tepuk nyamuk app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "willyspinner (wilson jusuf)",
+  "license": "ISC"
+}
