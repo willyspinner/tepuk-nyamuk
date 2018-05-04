@@ -3,10 +3,10 @@ const reload = require('reload');
 const app = express();
 const io = require('socket.io')();
 const db = require('./db/db');
-const uuid = require('uuid');
 const EVENTS = require('./constants/socketEvents');
 const MAIN_NAMESPACE = '/main';
-
+// appcs environment var.
+require('dotenv').config({path: '../appcs.env'});
 // constants
 app.set('port', process.env.PORT || 3000);
 

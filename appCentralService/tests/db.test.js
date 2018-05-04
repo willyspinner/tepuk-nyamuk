@@ -2,8 +2,11 @@
 const db = require('../db/db');
 const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
-// initialises db before every test.
+// appcs environment var.
+require('dotenv').config({path: '../appcs.env'});
 
+
+// initialises db before every test.
 describe('create game', function(){
     beforeEach(function(done){
         db.dropTables().then(()=>done());
