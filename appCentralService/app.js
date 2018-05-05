@@ -2,11 +2,12 @@ const express = require('express');
 const reload = require('reload');
 const app = express();
 const io = require('socket.io')();
+require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const MAIN_NAMESPACE = '/main';
 // appcs environment var.
-require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
+
 // constants
 app.set('port', process.env.PORT || 3000);
 
@@ -19,6 +20,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 // server listening.
 const server = app.listen(app.get('port'));
+
+console.log(`app listening on ${app.get('port')}`);
 io.attach(server);
 
 /*
@@ -158,9 +161,10 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
         // Could be a hash.
         db.joinGame(clientUserObj.username, gameId).then(() => {
             socket.join(roomName);
+            clientUserObj.socketid= null;
             io.of(MAIN_NAMESPACE)
                 .to(`${gameId}`)
-                .emit('userJoined', {...clientUserObj, socketId: null});
+                .emit('userJoined', clientUserObj);
             socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
         }).catch((e) => {
             socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
@@ -178,7 +182,8 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
             //note: .to() is the one for room in the main namespace.
             let joinedRoom = clientUserObj.joinedRoom;
             socket.leave(`${joinedRoom}`);
-            io.of(MAIN_NAMESPACE).to(`${joinedRoom}`).emit('userLeft', {...clientUserObj, socketId: null});
+            clientUserObj.socketid= null;
+            io.of(MAIN_NAMESPACE).to(`${joinedRoom}`).emit('userLeft', clientUserObj);
             socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
         }).catch((e) => {
             socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_NOACK);
@@ -187,4 +192,4 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
 });
 
 
-reload(server, app);
+reload(app);

@@ -153,17 +153,18 @@ describe('joining/leaving game', function() {
         db.deleteGame(this.createdgameid).then((result)=>{
             db.createGame(dummy.newgame).then((createdGame)=>{
                 this.createdgameid = createdGame.uuid;
-                db.deleteUser(dummy.user2.username).then((result)=>{
                     db.registerUser(dummy.user2).then((result=>
                             done()
                     )).catch((e)=>done(e));
-                }).catch((e)=>done(e));
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
     })
     afterEach(function(done){
         db.deleteGame(this.createdgameid).then((result)=>{
+
+            db.deleteUser(dummy.user2.username).then((result)=>{
             done();
+            }).catch((e)=>done(e))
         }).catch((e)=>done(e))
     })
 
@@ -216,6 +217,11 @@ describe('startGame',function(){
             done();
         }).catch((e)=>done(e));
     });
+    afterEach(function(done){
+        db.deleteGame(this.createdgameid).then(()=>{
+            done()
+        }).catch(e=>done(e));
+    })
     it('status label should be changed.',function(done){
         db.startGame(this.createdgameid).then(()=>{
             db.getGame(this.createdgameid).then((game)=>{
