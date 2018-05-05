@@ -6,7 +6,7 @@ const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const MAIN_NAMESPACE = '/main';
 // appcs environment var.
-require('dotenv').config({path: `${__dirname}/.appcs.env`});
+require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 // constants
 app.set('port', process.env.PORT || 3000);
 

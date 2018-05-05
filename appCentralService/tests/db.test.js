@@ -1,6 +1,6 @@
 // TESTS for our DB functions
 
-require('dotenv').config({path: `${__dirname}/../.appcs.env`});
+require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
 const db = require('../db/db');
 const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
@@ -11,12 +11,9 @@ const assert = require('assert');
 describe('create game', function(){
     beforeEach(function(done){
         db.initTables().then(()=>{
-            console.log(`init table ok`);
             db.truncateGames().then(()=>{
-                console.log(`drop table ok`);
                 done()}
                 ).catch((e)=>{
-
                     console.log(`${e}`);
                     console.log('ERROR DROPPING TABLES');
                     done(e);
@@ -29,14 +26,12 @@ describe('create game', function(){
     });
 
     it('should return the same game as passed in (with additional info e.g. id)', function(done){
-
        console.log(`entering this new game: ${JSON.stringify(dummy.newgame)}`);
         db.createGame(dummy.newgame).then((resultgame)=>{
             assert.equal(resultgame.name,dummy.newgame.name);
             assert.equal(resultgame.creator,dummy.newgame.creator);
             assert.equal(resultgame.createdat,dummy.newgame.createdat);
             assert.equal(!!resultgame.uuid,true ); // gameLobbyId should be non null now.
-
             done();
         }).catch((err)=>done(err));
     });
@@ -46,12 +41,13 @@ describe('create game', function(){
        db.createGame(dummy.newgame2).then((newgame)=>{
            db.getGame(newgame.uuid).then( (game)=>{
                
-               console.log(`game from get Game: ${JSON.stringify(game)}`);
                 assert.deepEqual(newgame, game);
                done();
            }).catch(e=>{
                done(e);
            })
+       }).catch((e)=>{
+           done(false);
        })
     });
     it('should return the SAME game when queried for open games.', function(done){
@@ -63,7 +59,6 @@ describe('create game', function(){
                         assert.equal(dummy.newgame.creator, result.creator);
                         assert.equal(dummy.newgame.createdat, result.createdat);
 
-                        console.log(`result from creating game: ${JSON.stringify(result)}`);
                         done();
                     }
                 });
@@ -74,7 +69,24 @@ describe('create game', function(){
 });
 describe('delete game', function() {
     beforeEach(function (done) {
-        db.truncateTables().then(() => done());
+      //TODO: create a new game here
     });
-    //TODO: test cases for delete.
 });
+describe('join game', function() {
+    beforeEach(function (done) {
+        //TODO: create a new game here.
+    })
+});
+describe('leave game', function() {
+    beforeEach(function (done) {
+        //TODO: create a new game here.
+    })
+});
+
+describe('startGame',function(){
+    beforeEach(function(done){
+        //TODO: create startgame here, with stubs to call our GMS.
+    })
+
+
+})
