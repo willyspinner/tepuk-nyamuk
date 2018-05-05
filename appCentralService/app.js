@@ -49,12 +49,14 @@ app.post('/appcs/user/new',(req,res)=>{
     db.getUser(req.body.username).then((user)=>{
         if(!user) {
             const salt = 10;
+            
+            console.log(`password to /appcs/user/new : ${req.body.password}`);
             const userObj ={
                 username: req.body.username,
              password: bcrypt.hashSync(req.body.password,salt)
             };
             db.registerUser(userObj).then(() => {
-                let token = jwt.sign({username:userObj.username,password:userObj.password},
+                let token = jwt.sign({username:userObj.username, password:userObj.password},
                     process.env.AUTH_TOKEN_SECRET,{
                         expiresIn: 43200 // secs, so 12 hours.
                     });
@@ -86,18 +88,24 @@ POST BODY:
 
  */
 app.post('/appcs/user/auth',(req,res)=>{
-    db.getUser(req.body.user).then((user)=>{
+    console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
+    db.getUserSecrets(req.body.username).then((user)=>{
+        if (!user)
+            res.json({
+                success:false,
+                error: ` no such user ${req.body.username}`
+            });
         const passwordValid = bcrypt.compareSync(req.body.password,user.password);
         if(passwordValid){
             let token = jwt.sign({username:user.username,password:user.password},
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn: 43200});
-            res.status(200).send({
+            res.status(200).json({
                 success:true,
                 token: token
             });
         }else{
-            res.status(401).send({
+            res.status(401).json({
                 success:false,
                 token: null
             })
@@ -141,7 +149,6 @@ POST body:
     game: game object
     token
 
-TESTED. OK.
 
  */
 app.post('/appcs/game/create', (req, res) => {
@@ -156,7 +163,7 @@ app.post('/appcs/game/create', (req, res) => {
         game.creator = decoded.username;
         db.createGame(JSON.parse(game)).then((newgame) => {
             // link used to go to the lobby page.
-            io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_CREATED, {
+            io.emit(EVENTS.GAME_CREATED, {
                 game: newgame
             });
             res.json({
@@ -194,10 +201,10 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                 if (creator.socketid === req.body.socketid &&
                 creator.username === decoded.username) {
                     db.deleteGame(req.params.gameid).then(() => {
-                        io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_DELETED, {
+                        io.emit(EVENTS.GAME_DELETED, {
                             gameid: req.params.gameid
                         });
-                        io.of(MAIN_NAMESPACE)
+                        io
                             .to(req.params.gameId)
                             .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
                         res.json({
@@ -238,7 +245,7 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid) {
-                    io.of(MAIN_NAMESPACE)
+                    io
                         .to(req.params.gameid)
                         .emit(EVENTS.LOBBY.GAME_START);
                     //TODO
@@ -258,10 +265,9 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth
 io.use(function(socket,next){
-    if(socket.handshake.token){
-        
-        console.log(`SOCKET verifying token ${socket.handshake.token}`);
-        jwt.verify(socket.handshake.token, process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
+    if(socket.handshake.query.token){
+        console.log(`SOCKET verifying token ${socket.handshake.query.token}`);
+        jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
             if(err)
                 return next(new Error('WS Auth Error'));
 
@@ -271,8 +277,7 @@ io.use(function(socket,next){
     }else{
         next(new Error('WS Authentication Error'));
     }
-});
-io.of(MAIN_NAMESPACE).on('connect', (socket) => {
+}).on('connect', (socket) => {
     //Isn't this wrong logic..
     if (!socket.sentMydata) {
         console.log(`socket connected : ${socket.username}`);
@@ -294,7 +299,7 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
         db.joinGame(clientUserObj.username, roomName).then(() => {
             socket.join(roomName);
             clientUserObj.socketid= null;
-            io.of(MAIN_NAMESPACE)
+            io
                 .to(`${gameId}`)
                 .emit('userJoined', clientUserObj);
             socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
@@ -315,7 +320,7 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
             let joinedRoom = clientUserObj.joinedRoom;
             socket.leave(`${joinedRoom}`);
             clientUserObj.socketid= null;
-            io.of(MAIN_NAMESPACE).to(`${joinedRoom}`).emit('userLeft', clientUserObj);
+            io.to(`${joinedRoom}`).emit('userLeft', clientUserObj);
             socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
         }).catch((e) => {
             socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_NOACK);

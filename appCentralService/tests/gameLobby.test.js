@@ -12,19 +12,13 @@ const EVENTS = require('../constants/socketEvents');
 // theyre fine.
 // we do need to test our WS stuff initiated by the HTTP endpoints tho.
 describe('LOGIN AND REGISTER routes',function() {
-    beforeEach(function () {
-        
-        console.log(`trying test...`);
-        this.socket = null;
-
-    })
-    afterEach(function () {
-        if(this.socket)
-        this.socket.close();
-    });
     after(function(done){
-        db.deleteUser('willyboomboom').then(()=>done()).catch((e)=>done(e));
-    })
+        db.deleteUser('willyboomboom').then(()=>{
+            if(this.socket) //close socket connection.
+                this.socket.close();
+            done();
+        }).catch((e)=>done(e));
+    });
 
     it('after register, username and socket should be established in' +
         ' server db.', function (done) {
@@ -38,19 +32,22 @@ describe('LOGIN AND REGISTER routes',function() {
                 },
             },
             (err, res, body) => {
-            if(err){
+            if(err) {
                 console.log(`ERROR HERE`);
-                done(err);}
-                
+                done(err);
+            }
                 console.log(`posting successful`);
                 console.log(`got body : ${JSON.stringify(body)}`);
                 assert.equal(true,JSON.parse(body).success);
-                let token = JSON.parse(body).token;
+                const token = JSON.parse(body).token;
                 console.log(`got token : ${token}`);
-                
-                this.socket = ioclient(`http://localhost:${process.env.PORT}/main`, {
-                    token: 'blla token',
-                });
+
+                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                        query: {
+                            token: token
+                        }
+                    }
+                );
                 // Notice how we're not actually accessing the game creation http routes.
                 // this is so that we can isolate testing (separate them into easily-debuggable
                 // tests).
@@ -66,21 +63,21 @@ describe('LOGIN AND REGISTER routes',function() {
                         done();
                     }).catch((e) => done(e));
                 });
-
-
             });
-    })
+    });
     it(' login with wrong pw should be invalidated', function (done) {
+        console.log(`posting to http://localhost:${process.env.PORT}/appcs/user/auth`);
         request.post({
             url: `http://localhost:${process.env.PORT}/appcs/user/auth`,
-            body: {
+            form: {
                 username: 'willyboomboom',
                 password: 'berdogez' // wrong pw here.
             },
         },(err,res,body)=>{
+             console.log(`login with wrong pw :Body: ${body}`);
             if(err)
                 done(err);
-            assert(body.success,false);
+            assert(JSON.parse(body).success === false);
             done();
         });
     });
@@ -88,12 +85,11 @@ describe('LOGIN AND REGISTER routes',function() {
 
 });
 
-describe('game creation and gamae deletion events should be received by ' +
-    'users logged in ',function() {
+describe('game creation and game deletion events (WS)',function() {
     before(function (done) {
         request.post({
                 url: `http://localhost:${process.env.PORT}/appcs/user/new`,
-                body: {
+                form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
                 },
@@ -101,27 +97,61 @@ describe('game creation and gamae deletion events should be received by ' +
             (err, res, body) => {
                 if (err)
                     done(err);
-                let token = body.token;
-                this.socket = ioclient.connect(`http://localhost:${process.env.PORT}/main`, {
-                    token: token,
+                let token =  JSON.parse(body).token;
+                this.token = token;
+                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: token
+                    }
                 });
+                this.socket.on('connect', () => {
+                    console.log(`Socket connected and authenticated.`);
                 done();
-            }
-        );
+            });
+        });
     });
+
     after(function(done){
         db.deleteUser('willyboomboom').then(()=>{
+            if(this.socket)
+                this.socket.close();
             done();
         }).catch((e)=>done(e));
     })
-    it('should receive game create updates',function(done){
-        this.socket.on(EVENTS.GAME_CREATED,(socket_sent_Game)=>{
-            assert.equal(socket_sent_Game,this.createdgame);
+    it('should receive game create updates',function(done) {
+        let newgame = dummydata.newgame3;
+        newgame.creator = 'willyboomboom';
+        this.socket.on(EVENTS.GAME_CREATED, (data) => {
+            const socket_sent_game = data.game;
+            console.log(`sent game : ${JSON.stringify(socket_sent_game)}`);
+            assert.equal(socket_sent_game.creator, newgame.creator);
+            assert.equal(socket_sent_game.name, newgame.name);
+            assert.deepEqual(socket_sent_game.players, [newgame.creator]);
             done();
         });
+        // TEST our create game endpoint here.
+        request.post({
+                url: `http://localhost:${process.env.PORT}/appcs/game/create`,
+                form: {
+                    game: JSON.stringify(newgame),
+                    token: this.token
+                },
+            },
+            (err, res, body) => {
+                if (err)
+                    done(err);
+                
+                
+                console.log(`${body}`);
+                console.log(`CREATE game ok. `);
+            })
+    });
+    it('should receive game delete updates ', function(done){
         this.socket.on(EVENTS.GAME_DELETED,(socket_sent_Game)=>{
             assert.equal(socket_sent_Game,this.creawtedgame);
             done();
         });
+        // TEST our delete game endpoint here.
+
+        })
     })
-});

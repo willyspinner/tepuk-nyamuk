@@ -97,6 +97,7 @@ describe('create game', function(){
                                 done();
                             }
                         });
+                        assert(false);
                         done(new Error("no game was equal.")); // <- this means that the db didn't save, which is incorrect.
                     }).catch((err)=>done(err));
                 }).catch((err)=>done(new Error("error")));
@@ -156,13 +157,13 @@ describe('user management',function(){
     });
     it('should delete a user, and should NOT be able to get from db',function(done){
         db.registerUser(dummy.user1.username).then((result)=>{
-            db.deleteUser(dummy.user1.username).then((user)=>{
+            db.deleteUser(dummy.user1.username).then(()=>{
                 db.getUser(dummy.user1).then((gottenuser)=>{
                     assert.equal(gottenuser,undefined);
                     done();
-                }).catch((e)=>done(e));
-            }).catch((e)=>done(e));
-        }).catch((e)=>done(e));
+                }).catch((e)=>done(new Error("e")));
+            }).catch((e)=>done(new Error("e")));
+        }).catch((e)=>done(new Error("e")));
     })
 })
 
@@ -213,7 +214,6 @@ describe('joining/leaving game', function() {
                     assert.notEqual(user.gameid,this.createdgameid);
                     assert.equal(user.gameid,null);
                     db.getGame(this.createdgameid).then((game)=>{
-                        //TODO: show that in this game, the player's not in it.
                         game.players.forEach((player)=>{
                             if (player.username ===  dummy.user2.username)
                                 done(new Error("error"));
