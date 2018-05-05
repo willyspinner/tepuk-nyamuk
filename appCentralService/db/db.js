@@ -91,7 +91,6 @@ module.exports = {
                     ${fields.GAMES.STATUS} = '${dbconstants.GAMES.STATUS.LOBBY}'
                     ;`
             }
-            
             console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
                 if (err)
@@ -153,21 +152,67 @@ module.exports = {
                 if (err)
                     reject(err);
 
-                resolve(res.rows.length ==0? undefined: res.rows[0]);
+                resolve(res.rows.length ===0? undefined: res.rows[0]);
             })
         });
     },
 
+    registerUser: (userObj) => {
+        return new Promise ((resolve,reject)=>{
+            const newuserquery = {
+                text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3);`,
+                values: [userObj.username,userObj.socketid,userObj.gameid]
+            }
+            
+            console.log(`trying to regiser user ${JSON.stringify(userObj)}`);
+            client.query(newuserquery,(err,res)=>{
+                if(err)
+                    reject(err);
+                resolve(res);
+            })
+        })
+    },
+    getUser:(username)=>{
+        return new Promise ((resolve,reject)=>{
+            const getuserquery = {
+                text: `SELECT * FROM ${fields.USERS.TABLENAME} WHERE ${fields.USERS.USERNAME} = $1 ;`,
+                values: [username]
+            }
+            client.query(getuserquery,(err,res)=>{
+                if(err)
+                    reject(err);
+                console.log(`get users res.rows :  ${JSON.stringify(res.rows)}`);
+                
+                resolve(res.rows.length === 0? undefined: res.rows[0]);
+            })
+        })
+    },
+    deleteUser: (username) => {
+        return new Promise ((resolve,reject)=>{
+            const deleteuserquery = {
+                text: `DELETE FROM ${fields.USERS.TABLENAME} WHERE `
+              +`${fields.USERS.USERNAME} = $1;`,
+                values: [username]
+            };
+            console.log(`trying to deleting user ${JSON.stringify(deleteuserquery)}`);
+            client.query(deleteuserquery,(err,res)=>{
+                if(err)
+                    reject(err);
+                resolve(res);
+            })
 
-    joinGame: (userObj,gameId)=>{
+        })
+    },
+    joinGame: (username,gameId)=>{
         return new Promise ((resolve,reject)=>{
             //TODO: Link to postgresql
             // TODO: checks if the game is full.
+            //TODO:
             resolve();
         });
     },
 
-    leaveGame: (userObj)=>{
+    leaveGame: (username,userObj)=>{
         return new Promise ((resolve,reject)=>{
             //TODO: Link to postgresql
             resolve();

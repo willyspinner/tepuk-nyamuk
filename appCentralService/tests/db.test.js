@@ -92,6 +92,36 @@ describe('delete game', function() {
         }).catch((e)=>done(e))
     })
 });
+
+
+describe('user management',function(){
+    beforeEach(function(done){
+        db.deleteUser(dummy.user1.username).then((result)=>{
+            done();
+        }).catch((e)=>done(e));
+    })
+
+    it('should create a user, and we should be able to get from db',function(done){
+        db.registerUser(dummy.user1).then((result)=>{
+            db.getUser(dummy.user1.username).then((user)=>{
+                assert.deepEqual(user,dummy.user1);
+                done();
+            }).catch((e)=>done(e));
+        }).catch((e)=>done(e));
+    });
+
+it('should delete a user, and should NOT be able to get from db',function(done){
+    db.registerUser(dummy.user1).then((result)=>{
+        db.deleteUser(dummy.user1.username).then((user)=>{
+            db.getUser(dummy.user1).then((gottenuser)=>{
+                assert.equal(gottenuser,undefined);
+                done();
+            }).catch((e)=>done(e));
+        }).catch((e)=>done(e));
+    }).catch((e)=>done(e));
+    })
+})
+
 describe('join game', function() {
     beforeEach(function (done) {
         //TODO: create a new game here.
@@ -103,10 +133,11 @@ describe('leave game', function() {
     })
 });
 
+
 describe('startGame',function(){
     beforeEach(function(done){
         //TODO: create startgame here, with stubs to call our GMS.
     })
 
 
-})
+});

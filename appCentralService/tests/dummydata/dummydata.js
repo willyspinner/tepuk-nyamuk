@@ -16,4 +16,14 @@ module.exports = {
         createdat: "10294810299",
         creator:"creator_USERNAME3",
     },
+    user1: {
+        username:"berdog",
+        socketid: "1292e01jaksd",
+        gameid: null
+    },
+    user2: {
+        username:"willyspinner",
+        socketid: "aosdlasdna",
+        gameid: null
+    }
 }
