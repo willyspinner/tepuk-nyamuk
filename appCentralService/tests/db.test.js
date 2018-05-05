@@ -1,9 +1,10 @@
 // TESTS for our DB functions
+
+require('dotenv').config({path: `${__dirname}/../.appcs.env`});
 const db = require('../db/db');
 const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
 // appcs environment var.
-require('dotenv').config({path: '../appcs.env'});
 
 
 // initialises db before every test.
@@ -11,10 +12,15 @@ describe('create game', function(){
     beforeEach(function(done){
         db.initTables().then(()=>{
             console.log(`init table ok`);
-            db.dropTables().then(()=>{
-
+            db.truncateGames().then(()=>{
                 console.log(`drop table ok`);
-                done()});
+                done()}
+                ).catch((e)=>{
+
+                    console.log(`${e}`);
+                    console.log('ERROR DROPPING TABLES');
+                    done(e);
+            });
         }).catch((e)=>{
             console.log("ERROR CREATING GAME.");
             console.log(`${e}`);
@@ -62,13 +68,13 @@ describe('create game', function(){
                     }
                 });
                 done(false); // <- this means that the db didn't save, which is incorrect.
-            })
-        });
+            }).catch((err)=>done(false));
+        }).catch((err)=>done(false));
     });
 });
 describe('delete game', function() {
     beforeEach(function (done) {
-        db.dropTables().then(() => done());
+        db.truncateTables().then(() => done());
     });
     //TODO: test cases for delete.
 });

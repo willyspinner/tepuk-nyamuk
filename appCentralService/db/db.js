@@ -4,13 +4,19 @@ const users= require('./schema/users_table');
 const fields = require('./schema/fields');
 const dbconstants = require ('./schema/dbconstants');
 const uuid = require('uuid');
-const client = new Client({
+const connectionobject = {
+
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
     password:process.env.PG_PASSWORD,
     port : process.env.PORT
-})
+}
+
+console.log(`DB connecting to postgres with : ${JSON.stringify(connectionobject)}`);
+const client = new Client(
+    connectionobject
+)
 client.connect();
 
 module.exports = {
@@ -68,6 +74,9 @@ module.exports = {
                 gameObj.uuid= table_uuid;
                 gameObj.players= [gameObj.creator];
                 gameObj.status = dbconstants.GAMES.STATUS.LOBBY;
+                gameObj.result={};
+                
+                console.log(`DB: createGame: returning: ${JSON.stringify(gameObj)}`);
 
                 resolve(gameObj);
             })
@@ -77,18 +86,14 @@ module.exports = {
         return new Promise ((resolve,reject)=> {
             const query = {
                 text: `
-                SELECT 
-                    ${fields.GAMES.PLAYERS},
-                    ${fields.GAMES.UUID},
-                    ${fields.GAMES.STATUS},
-                    ${fields.GAMES.RESULT},
-                    ${fields.GAMES.CREATEDAT},
-                    ${fields.GAMES.CREATOR}
+                SELECT *
                 FROM ${fields.GAMES.TABLENAME}
                 WHERE 
-                    ${fields.GAMES.STATUS} = ${dbconstants.GAMES.STATUS.LOBBY}
+                    ${fields.GAMES.STATUS} = '${dbconstants.GAMES.STATUS.LOBBY}'
                     ;`
             }
+            
+            console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
                 if (err)
                     reject(err);
@@ -102,14 +107,21 @@ module.exports = {
             resolve();
         });
     },
-    dropTables: ()=>{
+    truncateGames: ()=>{
         //WARNING.
         //METHOD FOR TESTING PURPOSES ONLY
         // DELETES ALL ENTRIES IN Tables, and players.
-        //TODO :link to postgres
+        // TODO: perhaps a better method to reinitialise stuff is in order.
         return new Promise ((resolve,reject)=>{
-            //TODO: Link to postgresql
-            resolve();
+
+            if (process.env.ENVIRON !== 'test')
+                reject(new Error("NOT ON TEST ENVIRON"));
+            const deletequery = `TRUNCATE TABLE ${fields.GAMES.TABLENAME};`
+            client.query(deletequery,(err,res)=>{
+                if(err)
+                    reject(err);
+                resolve();
+            })
         });
     },
     getGame: (gameId)=>{
@@ -117,6 +129,7 @@ module.exports = {
             const query = {
                 text: `
                     SELECT 
+                        ${fields.GAMES.NAME},
                         ${fields.GAMES.PLAYERS},
                         ${fields.GAMES.UUID},
                         ${fields.GAMES.STATUS},
