@@ -102,19 +102,27 @@ module.exports = {
     },
     deleteGame: (gameId)=>{
         return new Promise ((resolve,reject)=>{
-            //TODO: Link to postgresql
-            resolve();
+            const deletequery = {
+                text: `DELETE FROM ${fields.GAMES.TABLENAME} `+
+                    `WHERE ${fields.GAMES.UUID} = $1`,
+                values:[gameId]
+            }
+            client.query(deletequery,(err,res)=>{
+                if(err)
+                    reject(err);
+               resolve(res);
+            })
         });
     },
     truncateGames: ()=>{
         //WARNING.
-        //METHOD FOR TESTING PURPOSES ONLY
-        // DELETES ALL ENTRIES IN Tables, and players.
-        // TODO: perhaps a better method to reinitialise stuff is in order.
+        // DELETES ALL ENTRIES IN GAMES.
         return new Promise ((resolve,reject)=>{
-
-            if (process.env.ENVIRON !== 'test')
-                reject(new Error("NOT ON TEST ENVIRON"));
+            // NOTE: we use the PG_TRUNCATE
+            if (process.env.ENVIRON !== 'test' || !process.env.PG_TRUNCATE=== "0")
+                reject(new Error("ERROR: Tried to truncate games database. NOT ON TEST ENVIRON"));
+            
+            console.log(`truncating entire games database... i hope you know what you're doing...`);
             const deletequery = `TRUNCATE TABLE ${fields.GAMES.TABLENAME};`
             client.query(deletequery,(err,res)=>{
                 if(err)

@@ -6,23 +6,23 @@ const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
 // appcs environment var.
 
-
+// NOTE: call db.initTables as needed to initialise the table.
 // initialises db before every test.
-describe('create game', function(){
-    beforeEach(function(done){
+describe('initialise table',function(){
+    it('should initialise tables correctly',function(){
         db.initTables().then(()=>{
-            db.truncateGames().then(()=>{
-                done()}
-                ).catch((e)=>{
-                    console.log(`${e}`);
-                    console.log('ERROR DROPPING TABLES');
-                    done(e);
-            });
+        done();
         }).catch((e)=>{
-            console.log("ERROR CREATING GAME.");
-            console.log(`${e}`);
-           done(e);
+            console.log(`COULD NOT INITIALISE TABLE.`);
+            done(e);
         })
+    })
+})
+describe('create game', function(){
+    afterEach(function(done){
+        db.deleteGame(this.createdgameid).then((res)=>{
+            done();
+        }).catch((e)=>done(e))
     });
 
     it('should return the same game as passed in (with additional info e.g. id)', function(done){
@@ -32,6 +32,7 @@ describe('create game', function(){
             assert.equal(resultgame.creator,dummy.newgame.creator);
             assert.equal(resultgame.createdat,dummy.newgame.createdat);
             assert.equal(!!resultgame.uuid,true ); // gameLobbyId should be non null now.
+            this.createdgameid = resultgame.uuid;
             done();
         }).catch((err)=>done(err));
     });
@@ -68,8 +69,28 @@ describe('create game', function(){
 });
 describe('delete game', function() {
     beforeEach(function (done) {
-      //TODO: create a new game here
+        this.createdgameid = undefined;
+        db.createGame(dummy.gameToBeDeleted).then((createdGame)=>{
+            this.createdgameid = createdGame.uuid;
+            done();
+        }).catch((e)=>done(e));
     });
+
+    it('should delete the game we just created. ',function(done){
+        db.deleteGame(this.createdgameid).then((res)=>{
+            db.getGame(this.createdgameid).then((res2)=>{
+                assert.equal(res2,undefined);
+                db.queryOpenGames().then(games => {
+                    games.forEach((game) => {
+                        if (game.gameId === result.gameId) {
+                            done(false);
+                        }
+                    });
+                    done();
+                }).catch((err)=>done(false));
+            })
+        }).catch((e)=>done(e))
+    })
 });
 describe('join game', function() {
     beforeEach(function (done) {

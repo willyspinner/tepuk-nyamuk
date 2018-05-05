@@ -11,4 +11,9 @@ module.exports = {
         creator:"creator_USERNAME2",
     },
 
+    gameToBeDeleted: {
+        name: "my game to be deleted",
+        createdat: "10294810299",
+        creator:"creator_USERNAME3",
+    },
 }
