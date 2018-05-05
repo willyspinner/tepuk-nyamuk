@@ -202,7 +202,7 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                 creator.username === decoded.username) {
                     db.deleteGame(req.params.gameid).then(() => {
                         io.emit(EVENTS.GAME_DELETED, {
-                            gameid: req.params.gameid
+                            gameuuid: req.params.gameid
                         });
                         io
                             .to(req.params.gameId)

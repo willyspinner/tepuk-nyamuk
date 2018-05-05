@@ -140,18 +140,29 @@ describe('game creation and game deletion events (WS)',function() {
             (err, res, body) => {
                 if (err)
                     done(err);
-                
+                this.newgameuuid = JSON.parse(body).game.uuid;
                 
                 console.log(`${body}`);
                 console.log(`CREATE game ok. `);
             })
     });
+
     it('should receive game delete updates ', function(done){
-        this.socket.on(EVENTS.GAME_DELETED,(socket_sent_Game)=>{
-            assert.equal(socket_sent_Game,this.creawtedgame);
+        this.socket.on(EVENTS.GAME_DELETED,(data)=>{
+            assert.equal(data.gameuuid,this.newgameuuid);
             done();
         });
         // TEST our delete game endpoint here.
-
+        request.delete({
+                url: `http://localhost:${process.env.PORT}/appcs/game/delete/${this.newgameuuid}`,
+                form: {
+                    socketid: this.socket.id,
+                    token: this.token,
+                },
+            },
+            (err, res, body) => {
+                if (err)
+                    done(err);
+            })
         })
     })
