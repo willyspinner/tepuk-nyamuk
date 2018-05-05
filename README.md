@@ -15,7 +15,7 @@ press `t` to throw a card from your own pile, and `space` to slap the center pil
 
 ## How to run a demo
 ### configurations
-app central service configs:
+app central service configs for postgresql :
 ```sh
 echo "PG_USER=YOUR_USERNAME_HERE
 PG_HOST=loacalhost
