@@ -39,8 +39,7 @@ describe('create game', function(){
 
     it('should return the Same game when queried by its id',function(done){
        db.createGame(dummy.newgame2).then((newgame)=>{
-           db.getGame(newgame.uuid).then( (game)=>{
-               
+           db.getGame(newgame.uuid).then((game)=>{
                 assert.deepEqual(newgame, game);
                done();
            }).catch(e=>{
