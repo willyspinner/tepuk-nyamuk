@@ -100,6 +100,22 @@ module.exports = {
             })
         })
     },
+    queryAllGames: ()=>{
+        return new Promise ((resolve,reject)=> {
+            const query = {
+                text: `
+                SELECT *
+                FROM ${fields.GAMES.TABLENAME}
+                    ;`
+            }
+            console.log(`query open games doing : ${JSON.stringify(query)}`);
+            client.query(query,(err,res)=>{
+                if (err)
+                    reject(err);
+                resolve(res.rows);
+            })
+        })
+    },
     deleteGame: (gameId)=>{
         return new Promise ((resolve,reject)=>{
             const deletequery = {
@@ -255,7 +271,6 @@ module.exports = {
 
     leaveGame: (userObj)=>{
         return new Promise ((resolve,reject)=>{
-     {
             const shouldAbort = (err) => {
                 if (err) {
                     console.error('Error in transaction', err.stack)
@@ -300,13 +315,22 @@ module.exports = {
                     })
                 })
             })
-        }
         });
     },
-    startGame: (gameId)=> {
+    startGame: (gameid)=> {
         return new Promise ((resolve,reject)=>{
-            //TODO: Link to postgresql
-            resolve();
+            const startgamequery = {
+                text: `UPDATE ${fields.GAMES.TABLENAME} `+
+                    `SET ${fields.GAMES.STATUS} `+
+                `= '${dbconstants.GAMES.STATUS.INPROGRESS}' `+
+                    `WHERE ${fields.GAMES.UUID} = $1;`,
+               values: [gameid]
+            };
+           client.query(startgamequery,(err,res)=>{
+             if(err)
+                 reject(err);
+             resolve();
+           })
         });
     }
 }

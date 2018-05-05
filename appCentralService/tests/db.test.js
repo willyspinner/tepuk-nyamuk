@@ -4,24 +4,42 @@ require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
 const db = require('../db/db');
 const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
+const dbconstants = require('../db/schema/dbconstants');
 // appcs environment var.
 
 // NOTE: call db.initTables as needed to initialise the table.
-// initialises db before every test.
+// initialises db before every test. 
+let lengthBefore;
+db.queryAllGames().then((games)=>{
+    lengthBefore = games.length;
+});
 describe('initialise table',function(){
     it('should initialise tables correctly',function(done){
         db.initTables().then(()=>{
-        done();
+            done();
         }).catch((e)=>{
             console.log(`COULD NOT INITIALISE TABLE.`);
             done(e);
         })
     })
 })
+
 describe('create game', function(){
+    beforeEach(function(done){
+        db.queryOpenGames().then((games)=>{
+            this.gameslength = games.length;
+           done();
+        }).catch((e)=>done(e));
+    });
+
     afterEach(function(done){
         db.deleteGame(this.createdgameid).then((res)=>{
-            done();
+            if(this.createdgameid2 )
+                db.deleteGame(this.createdgameid2).then((res)=>{
+                    done();
+                }).catch((e)=>done(e))
+            else
+                done();
         }).catch((e)=>done(e))
     });
 
@@ -41,6 +59,7 @@ describe('create game', function(){
     it('should return the Same game when queried by its id',function(done){
        db.createGame(dummy.newgame2).then((newgame)=>{
            db.getGame(newgame.uuid).then((game)=>{
+               this.createdgameid = game.uuid;
                 assert.deepEqual(newgame, game);
                done();
            }).catch(e=>{
@@ -52,17 +71,24 @@ describe('create game', function(){
     });
     it('should return the SAME game when queried for open games.', function(done){
         db.createGame(dummy.newgame).then((result)=> {
-            db.queryOpenGames().then(games => {
-                games.forEach((game) => {
-                    if (game.gameId === result.gameId) {
-                        assert.equal(dummy.newgame.creator.name, result.name);
-                        assert.equal(dummy.newgame.creator, result.creator);
-                        assert.equal(dummy.newgame.createdat, result.createdat);
-
-                        done();
-                    }
-                });
-                done(false); // <- this means that the db didn't save, which is incorrect.
+            this.createdgameid = result.uuid;
+            db.createGame(dummy.newgame3).then((result)=>{
+                this.createdgameid2 = result.uuid;
+                db.startGame(result.uuid).then((result)=>{
+                    db.queryOpenGames().then(games => {
+                        assert.equal(games.length,this.gameslength + 1); // only open games.
+                        // the one we made above is suposed to be started already.
+                        games.forEach((game) => {
+                            if (game.gameId === result.gameId) {
+                                assert.equal(dummy.newgame.creator.name, result.name);
+                                assert.equal(dummy.newgame.creator, result.creator);
+                                assert.equal(dummy.newgame.createdat, result.createdat);
+                                done();
+                            }
+                        });
+                        done(false); // <- this means that the db didn't save, which is incorrect.
+                    }).catch((err)=>done(false));
+                }).catch((err)=>done(false));
             }).catch((err)=>done(false));
         }).catch((err)=>done(false));
     });
@@ -75,7 +101,6 @@ describe('delete game', function() {
             done();
         }).catch((e)=>done(e));
     });
-
     it('should delete the game we just created. ',function(done){
         db.deleteGame(this.createdgameid).then((res)=>{
             db.getGame(this.createdgameid).then((res2)=>{
@@ -136,6 +161,11 @@ describe('joining/leaving game', function() {
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
     })
+    afterEach(function(done){
+        db.deleteGame(this.createdgameid).then((result)=>{
+            done();
+        }).catch((e)=>done(e))
+    })
 
     it('user should join a game and this change reflected in user and game tables',function(done){
         db.joinGame(dummy.user2.username,this.createdgameid).then((result)=>{
@@ -180,8 +210,18 @@ describe('joining/leaving game', function() {
 
 describe('startGame',function(){
     beforeEach(function(done){
-        //TODO: create startgame here, with stubs to call our GMS.
-    })
-
-
+        db.createGame(dummy.newgame).then((game)=>{
+            assert.equal(game.status,dbconstants.GAMES.STATUS.LOBBY);
+            this.createdgameid = game.uuid;
+            done();
+        }).catch((e)=>done(e));
+    });
+    it('status label should be changed.',function(done){
+        db.startGame(this.createdgameid).then(()=>{
+            db.getGame(this.createdgameid).then((game)=>{
+                assert.equal(game.status,dbconstants.GAMES.STATUS.INPROGRESS);
+                done();
+            }).catch((e)=>done(e));
+        }).catch((e)=>done(e));
+    });
 });
