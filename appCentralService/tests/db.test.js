@@ -10,10 +10,13 @@ const dbconstants = require('../db/schema/dbconstants');
 // NOTE: call db.initTables as needed to initialise the table.
 // initialises db before every test. 
 let lengthBefore;
-db.queryAllGames().then((games)=>{
-    lengthBefore = games.length;
-});
 describe('initialise table',function(){
+    after(function(done){
+        db.queryAllGames().then((games)=>{
+            lengthBefore = games.length;
+            done();
+        }).catch((e)=>done(e));
+    });
     it('should initialise tables correctly',function(done){
         db.initTables().then(()=>{
             done();
@@ -25,6 +28,13 @@ describe('initialise table',function(){
 })
 
 describe('create game', function(){
+    // to ensure proper garbage clearing.
+    after(function(done){
+        db.queryAllGames().then((games)=>{
+            assert.equal(lengthBefore,games.length);
+            done();
+        }).catch((e)=>done(e));
+    });
     beforeEach(function(done){
         db.queryOpenGames().then((games)=>{
             this.gameslength = games.length;
@@ -94,6 +104,13 @@ describe('create game', function(){
     });
 });
 describe('delete game', function() {
+    // to ensure proper garbage clearing.
+    after(function(done){
+        db.queryAllGames().then((games)=>{
+            assert.equal(lengthBefore,games.length);
+            done();
+        }).catch((e)=>done(e));
+    });
     beforeEach(function (done) {
         this.createdgameid = undefined;
         db.createGame(dummy.gameToBeDeleted).then((createdGame)=>{
@@ -126,24 +143,25 @@ describe('user management',function(){
         }).catch((e)=>done(e));
     })
 
-    it('should create a user, and we should be able to get from db',function(done){
+    it('should register a user, and we should be able to get from db - without serets' +
+        ' exposed',function(done){
         db.registerUser(dummy.user1).then((result)=>{
             db.getUser(dummy.user1.username).then((user)=>{
-                assert.deepEqual(user,dummy.user1);
+                assert.equal(user.username,dummy.user1.username);
+                assert.equal(user.password,undefined); // THIS IS IMPORTANT!
                 done();
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
     });
-
-it('should delete a user, and should NOT be able to get from db',function(done){
-    db.registerUser(dummy.user1).then((result)=>{
-        db.deleteUser(dummy.user1.username).then((user)=>{
-            db.getUser(dummy.user1).then((gottenuser)=>{
-                assert.equal(gottenuser,undefined);
-                done();
+    it('should delete a user, and should NOT be able to get from db',function(done){
+        db.registerUser(dummy.user1.username).then((result)=>{
+            db.deleteUser(dummy.user1.username).then((user)=>{
+                db.getUser(dummy.user1).then((gottenuser)=>{
+                    assert.equal(gottenuser,undefined);
+                    done();
+                }).catch((e)=>done(e));
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
-    }).catch((e)=>done(e));
     })
 })
 

@@ -177,11 +177,11 @@ module.exports = {
     registerUser: (userObj) => {
         return new Promise ((resolve,reject)=>{
             const newuserquery = {
-                text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3);`,
-                values: [userObj.username,userObj.socketid,userObj.gameid]
+                text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3,$4);`,
+                values: [userObj.username,null,null,userObj.password]
             }
             
-            console.log(`trying to regiser user ${JSON.stringify(userObj)}`);
+            console.log(`trying to regitser user ${JSON.stringify(userObj)}`);
             client.query(newuserquery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -205,6 +205,22 @@ module.exports = {
                 
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
             })
+        })
+    },
+    loginUserSocketId: (username,socketid)=>{
+        return new Promise((resolve,reject)=>{
+            const updatesocketuserquery = {
+                    text: `UPDATE ${fields.USERS.TABLENAME} `+
+                        `SET ${fields.USERS.SOCKET_ID} = $1 `+
+                        ` WHERE `
+                    values: [socketid ,username]
+                } ;
+            client.query(updatesocketuserquery,(err, res )=>{
+                if(err){
+                    reject(err);
+                }
+                resolve();
+            });
         })
     },
     // NOTE: below is only for authenticated purposes only, as it exposes
@@ -249,7 +265,6 @@ module.exports = {
                         if (err) {
                             console.error('Error rolling back client', err.stack)
                         }
-                        // release the client back to the pool
                         reject();
                     })
                 }
