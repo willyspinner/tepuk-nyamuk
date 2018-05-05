@@ -11,11 +11,12 @@ const connectionobject = {
     password:process.env.PG_PASSWORD,
     port : process.env.PG_PORT
 }
-
+//NOTE: the db here is dumb. There should be NO VALIDATION LOGIC AT ALL
+// HERE.
 console.log(`DB connecting to postgres with : ${JSON.stringify(connectionobject)}`);
 const client = new Client(
     connectionobject
-)
+);
 client.connect();
 
 module.exports = {
@@ -28,7 +29,7 @@ module.exports = {
             client.query(createGames,(err,res)=>{
                 if (err)
                     reject(err);
-                client.query(createUsers,(err2,res2)=>{
+                client.query(createUsers, (err2,res2) => {
                     if(err2)
                         reject(err2);
                     resolve(res2);
@@ -47,11 +48,11 @@ module.exports = {
         players: [
         	“Username1”, “username2”, ….
         ],
-        gameLobbyId: "12dakxwa" // Lobby ID to join.
+        uuid: "12dakxwa", // Lobby ID to join.
+        result: {} // JSON.
       }
          */
         return new Promise ((resolve,reject)=>{
-            //TODO: validation.
             const table_uuid = uuid()
             const queryObj = {
                 text:`INSERT INTO ${fields.GAMES.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7)`,
@@ -205,17 +206,101 @@ module.exports = {
     },
     joinGame: (username,gameId)=>{
         return new Promise ((resolve,reject)=>{
-            //TODO: Link to postgresql
-            // TODO: checks if the game is full.
-            //TODO:
-            resolve();
+            const shouldAbort = (err) => {
+                if (err) {
+                    console.error('Error in transaction', err.stack)
+                    client.query('ROLLBACK', (err) => {
+                        if (err) {
+                            console.error('Error rolling back client', err.stack)
+                        }
+                        // release the client back to the pool
+                        reject();
+                    })
+                }
+                return !!err;
+            }
+            client.query('BEGIN', (err) => {
+                if (shouldAbort(err))
+                    reject(err);
+                const updateGamesTableQuery = {
+                    text: `UPDATE ${fields.GAMES.TABLENAME} `+
+                    `SET ${fields.GAMES.PLAYERS} = array_append(${fields.GAMES.PLAYERS}, $1) `+
+                    `WHERE ${fields.GAMES.UUID} = $2;`,
+                    values: [username, gameId]
+                } ;
+                client.query(updateGamesTableQuery, (err, res) => {
+                    if (shouldAbort(err))
+                        reject(err);
+                    const updateUsersTableQuery = {
+                        text: `UPDATE ${fields.USERS.TABLENAME} `+
+                        `SET ${fields.USERS.GAMEID} = $1 `+
+                        `WHERE ${fields.USERS.USERNAME} = $2`,
+                        values: [gameId,username]
+                    }
+                    client.query(updateUsersTableQuery, (err, res) => {
+                        if (shouldAbort(err))
+                            reject(err);
+                        client.query('COMMIT', (err) => {
+                            if (err) {
+                                console.error('Error committing transaction', err.stack)
+                                reject(err);
+                            }
+                            resolve();
+                        })
+                    })
+                })
+            })
         });
     },
 
-    leaveGame: (username,userObj)=>{
+    leaveGame: (userObj)=>{
         return new Promise ((resolve,reject)=>{
-            //TODO: Link to postgresql
-            resolve();
+     {
+            const shouldAbort = (err) => {
+                if (err) {
+                    console.error('Error in transaction', err.stack)
+                    client.query('ROLLBACK', (err) => {
+                        if (err) {
+                            console.error('Error rolling back client', err.stack)
+                        }
+                        // release the client back to the pool
+                        reject();
+                    })
+                }
+                return !!err;
+            }
+            client.query('BEGIN', (err) => {
+                if (shouldAbort(err))
+                    reject(err);
+                const updateGamesTableQuery = {
+                    text: `UPDATE ${fields.GAMES.TABLENAME} `+
+                    `SET ${fields.GAMES.PLAYERS} = array_remove(${fields.GAMES.PLAYERS}, $1) `+
+                    `WHERE ${fields.GAMES.UUID} = $2;`,
+                    values: [userObj.username, userObj.gameid]
+                } ;
+                client.query(updateGamesTableQuery, (err, res) => {
+                    if (shouldAbort(err))
+                        reject(err);
+                    const updateUsersTableQuery = {
+                        text: `UPDATE ${fields.USERS.TABLENAME} `+
+                        `SET ${fields.USERS.GAMEID} = $1 `+
+                        `WHERE ${fields.USERS.USERNAME} = $2`,
+                        values: [null,userObj.username]
+                    }
+                    client.query(updateUsersTableQuery, (err, res) => {
+                        if (shouldAbort(err))
+                            reject(err);
+                        client.query('COMMIT', (err) => {
+                            if (err) {
+                                console.error('Error committing transaction', err.stack)
+                                reject(err);
+                            }
+                            resolve();
+                        })
+                    })
+                })
+            })
+        }
         });
     },
     startGame: (gameId)=> {

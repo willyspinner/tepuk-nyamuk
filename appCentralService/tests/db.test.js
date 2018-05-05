@@ -9,7 +9,7 @@ const assert = require('assert');
 // NOTE: call db.initTables as needed to initialise the table.
 // initialises db before every test.
 describe('initialise table',function(){
-    it('should initialise tables correctly',function(){
+    it('should initialise tables correctly',function(done){
         db.initTables().then(()=>{
         done();
         }).catch((e)=>{
@@ -122,16 +122,60 @@ it('should delete a user, and should NOT be able to get from db',function(done){
     })
 })
 
-describe('join game', function() {
+describe('joining/leaving game', function() {
+    // NOTE: we are using dummy.user2
     beforeEach(function (done) {
-        //TODO: create a new game here.
+        db.deleteGame(this.createdgameid).then((result)=>{
+            db.createGame(dummy.newgame).then((createdGame)=>{
+                this.createdgameid = createdGame.uuid;
+                db.deleteUser(dummy.user2.username).then((result)=>{
+                    db.registerUser(dummy.user2).then((result=>
+                            done()
+                    )).catch((e)=>done(e));
+                }).catch((e)=>done(e));
+            }).catch((e)=>done(e));
+        }).catch((e)=>done(e));
+    })
+
+    it('user should join a game and this change reflected in user and game tables',function(done){
+        db.joinGame(dummy.user2.username,this.createdgameid).then((result)=>{
+            db.getUser(dummy.user2.username).then((user)=>{
+                assert.equal(user.gameid,this.createdgameid);
+                db.getGame(this.createdgameid).then((game)=>{
+                    game.players.forEach((player)=>{
+                       if (player.username ===  dummy.user2.username)
+                           done();
+                    });
+                    done(false);
+                })
+            }).catch((e)=>done(e));
+        }).catch((e)=>{
+            console.log(`failed to join game. `);
+            console.log(`${e.stack}`);
+            done(e);
+        })
+    });
+
+    it('user should leave a game and change reflected in user and game tables. ',function(done){
+        db.joinGame(dummy.user2.username,this.createdgameid).then((result)=>{
+            db.leaveGame(dummy.user2).then(()=>{
+                db.getUser(dummy.user2.username).then((user)=>{
+                    assert.notEqual(user.gameid,this.createdgameid);
+                    assert.equal(user.gameid,null);
+                    db.getGame(this.createdgameid).then((game)=>{
+                        //TODO: show that in this game, the player's not in it.
+                        game.players.forEach((player)=>{
+                            if (player.username ===  dummy.user2.username)
+                                done(false);
+                        });
+                        done();
+                    })
+                }).catch((e)=>done(e));
+            }).catch((e)=>done(e));
+        }).catch((e)=>done(e));
     })
 });
-describe('leave game', function() {
-    beforeEach(function (done) {
-        //TODO: create a new game here.
-    })
-});
+
 
 
 describe('startGame',function(){
