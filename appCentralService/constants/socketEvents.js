@@ -6,6 +6,7 @@ module.exports=  {
         USER_JOINED: 'userJoined',
         USER_LEFT:'userLeft',
         LOBBY_GAME_DELETED:'lobbyGameDeleted',
+        GAME_START: 'gameStart',
         CLIENT_ATTEMPT_JOIN:'clientAttemptJoin',
         CLIENT_ATTEMPT_JOIN_ACK:'clientAttemptJoinAck',
         CLIENT_ATTEMPT_JOIN_NOACK:'clientAttemptJoinNoAck',

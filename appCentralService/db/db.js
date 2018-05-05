@@ -192,7 +192,10 @@ module.exports = {
     getUser:(username)=>{
         return new Promise ((resolve,reject)=>{
             const getuserquery = {
-                text: `SELECT * FROM ${fields.USERS.TABLENAME} WHERE ${fields.USERS.USERNAME} = $1 ;`,
+                text:
+                    `SELECT ${fields.USERS.USERNAME},${fields.USERS.GAMEID} `+
+                    `FROM ${fields.USERS.TABLENAME} `+
+                    ` WHERE ${fields.USERS.USERNAME} = $1 ;`,
                 values: [username]
             }
             client.query(getuserquery,(err,res)=>{
@@ -200,6 +203,23 @@ module.exports = {
                     reject(err);
                 console.log(`get users res.rows :  ${JSON.stringify(res.rows)}`);
                 
+                resolve(res.rows.length === 0? undefined: res.rows[0]);
+            })
+        })
+    },
+    // NOTE: below is only for authenticated purposes only, as it exposes
+    // the socket id token.
+    getUserSecrets: (username)=>{
+        return new Promise ((resolve,reject)=>{
+            const getuserfullquery = {
+                text: `SELECT * FROM ${fields.USERS.TABLENAME} WHERE ${fields.USERS.USERNAME} = $1 ;`,
+                values: [username]
+            }
+            client.query(getuserfullquery,(err,res)=>{
+                if(err)
+                    reject(err);
+                console.log(`get users res.rows :  ${JSON.stringify(res.rows)}`);
+
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
             })
         })

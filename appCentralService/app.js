@@ -34,6 +34,8 @@ ATTACHED TO HERE.
 AppCS Route.
  GET /appcs/game : get all open games.
 Shouldn't get the creator's socket id.
+
+TESTED . OK.
  */
 app.get('/appcs/game', (req, res) => {
     db.queryOpenGames().then((games) => {
@@ -54,14 +56,17 @@ AppCS Route.
  POST /appcs/game/create/:gameId : Create game
 
 POST body:
-{
+
     game: {
         // game object.
     }
-}
+
+TESTED. OK.
+
  */
 app.post('/appcs/game/create', (req, res) => {
-    db.createGame(req.body.game).then((newgame) => {
+    // the creator information is here already. (inside req.body.game object).
+    db.createGame(JSON.parse(req.body.game)).then((newgame) => {
         // link used to go to the lobby page.
         io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_CREATED, {
             game: newgame
@@ -84,33 +89,33 @@ AppCS Route.
 DELETE /appcs/game/delete/:gameId: Delete game
 
 POST body:
-   {
-    socketId: "awdijaos2123eda",
-    gameId: "120d=qnsk=qo2n"
-   }
+
+    socketid: "awdijaos2123eda",
+
+TESTED. OK.
  */
-app.delete('/appcs/game/delete/:gameId', (req, res) => {
-    let creator = undefined;
-    db.getGame(req.params.gameId).then((game) => {
-        creator = game.creator.socketId;
+app.delete('/appcs/game/delete/:gameid', (req, res) => {
+    db.getGame(req.params.gameid).then((game) => {
+        db.getUserSecrets(game.creator).then((creator)=>{
+            if (creator.socketid === req.body.socketid) {
+                db.deleteGame(req.params.gameid).then(() => {
+                    io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_DELETED, {
+                        gameid: req.params.gameid
+                    });
+                    io.of(MAIN_NAMESPACE)
+                        .to(req.params.gameId)
+                        .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
+                    res.json({
+                        success: true,
+                    })
+                }).catch((e) => {
+                    res.json({
+                        success: false,
+                    })
+                });
+            }
+        })
     });
-    if (creator === req.body.socketId) {
-        db.deleteGame(req.params.gameId).then(() => {
-            io.of(MAIN_NAMESPACE).emit(EVENTS.GAME_DELETED, {
-                gameId: req.body.gameId
-            });
-            io.of(MAIN_NAMESPACE)
-                .to(req.params.gameId)
-                .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
-            res.json({
-                success: true,
-            })
-        }).catch((e) => {
-            res.json({
-                success: false,
-            })
-        });
-    }
 });
 
 
@@ -126,23 +131,26 @@ POST body:
 }
  */
 
-app.post('/appcs/game/start/:gameId', (req, res) => {
-    let creatorId = undefined;
-    db.getGame(req.params.gameId).then((game) => {
-        creatorId = game.creator.socketId;
-    })
-
-    let supposedCreatorId = req.params.socketId; //authenticate.
-    if (creatorId === supposedCreatorId) {
-        io.of(MAIN_NAMESPACE).to(req.params.gameId)
-        //TODO: communicate with GMS.
-    }
-    else
-        res.json({
-            success: false
-        })
-})
-
+app.post('/appcs/game/start/:gameid', (req, res) => {
+    db.getGame(req.params.gameid).then((game) => {
+        db.getUserSecrets(game.creator).then((creator) => {
+            if (creator.socketid === req.body.socketid) {
+                io.of(MAIN_NAMESPACE)
+                    .to(req.params.gameid)
+                    .emit(EVENTS.LOBBY.GAME_START);
+                //TODO
+                //TODO: communicate with GMS.
+                res.json({
+                    success: true
+                });
+            }
+            else
+                res.json({
+                    success: false
+                });
+        });
+    });
+});
 
 io.of(MAIN_NAMESPACE).on('connect', (socket) => {
     if (!socket.sentMydata) {
