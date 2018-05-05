@@ -24,19 +24,29 @@ const server = app.listen(app.get('port'));
 console.log(`app listening on ${app.get('port')}`);
 io.attach(server);
 
-/*
+//TODO: register route. make a register route that: accepts
+//TODO: a person's username, and sends them back a response that authorizes
+//TODO: them to establish a socket connection. (with a JWT token)
+//TODO: cool shit man. this would be fun.
 
-NOTE: FOR SAFETY, THE CLIENT MUST NOT HAVE THEIR SOCKET ID's
-ATTACHED TO HERE.
- */
+//TODO: make a login route that: accepts
+//TODO: a person's username, pw and sends them back a response that authorizes
+//TODO: them to establish a socket connection. (with a JWT token)
+
+
+
+
 /*
 
 AppCS Route.
  GET /appcs/game : get all open games.
 Shouldn't get the creator's socket id.
 
+NOTE: FOR SAFETY, THE USERS MUST NOT HAVE THEIR SOCKET ID's
+ATTACHED IN THE RESPONSE BODY OF THIS ROUTE:
 TESTED . OK.
  */
+
 app.get('/appcs/game', (req, res) => {
     db.queryOpenGames().then((games) => {
         res.json({
