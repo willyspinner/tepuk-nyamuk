@@ -259,6 +259,8 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 // we use our middleware to deal with JWT auth
 io.use(function(socket,next){
     if(socket.handshake.token){
+        
+        console.log(`SOCKET verifying token ${socket.handshake.token}`);
         jwt.verify(socket.handshake.token, process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
             if(err)
                 return next(new Error('WS Auth Error'));
@@ -273,6 +275,7 @@ io.use(function(socket,next){
 io.of(MAIN_NAMESPACE).on('connect', (socket) => {
     //Isn't this wrong logic..
     if (!socket.sentMydata) {
+        console.log(`socket connected : ${socket.username}`);
         //NOTE: I don't know if this will work or not.
          db.loginUserSocketId(socket.username, socket.id).then(()=>{
              socket.sentMydata = true;
@@ -319,6 +322,7 @@ io.of(MAIN_NAMESPACE).on('connect', (socket) => {
         });
     })
 });
+
 
 
 reload(app);

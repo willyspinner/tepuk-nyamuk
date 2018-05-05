@@ -76,31 +76,32 @@ describe('create game', function(){
                done(e);
            })
        }).catch((e)=>{
-           done(false);
+           done(new Error("create game promise rejected."))
        })
     });
     it('should return the SAME game when queried for open games.', function(done){
-        db.createGame(dummy.newgame).then((result)=> {
-            this.createdgameid = result.uuid;
-            db.createGame(dummy.newgame3).then((result)=>{
-                this.createdgameid2 = result.uuid;
-                db.startGame(result.uuid).then((result)=>{
+        db.createGame(dummy.newgame).then((game1)=> {
+            this.createdgameid = game1.uuid;
+            db.createGame(dummy.newgame3).then((game2)=>{
+                this.createdgameid2 = game2.uuid;
+                db.startGame(game2.uuid).then(()=>{
                     db.queryOpenGames().then(games => {
                         assert.equal(games.length,this.gameslength + 1); // only open games.
                         // the one we made above is suposed to be started already.
                         games.forEach((game) => {
-                            if (game.gameId === result.gameId) {
-                                assert.equal(dummy.newgame.creator.name, result.name);
-                                assert.equal(dummy.newgame.creator, result.creator);
-                                assert.equal(dummy.newgame.createdat, result.createdat);
+                            if (game.uuid === game1.uuid) {
+                                assert.equal(dummy.newgame.name, game.name);
+                                assert.equal(dummy.newgame.creator, game.creator);
+                                assert.equal(dummy.newgame.createdat, game.createdat);
+                                assert.equal(dummy.newgame.creator,game.players[0])
                                 done();
                             }
                         });
-                        done(false); // <- this means that the db didn't save, which is incorrect.
-                    }).catch((err)=>done(false));
-                }).catch((err)=>done(false));
-            }).catch((err)=>done(false));
-        }).catch((err)=>done(false));
+                        done(new Error("no game was equal.")); // <- this means that the db didn't save, which is incorrect.
+                    }).catch((err)=>done(err));
+                }).catch((err)=>done(new Error("error")));
+            }).catch((err)=>done(new Error("error")));
+        }).catch((err)=>done(new Error("error")));
     });
 });
 describe('delete game', function() {
@@ -125,11 +126,11 @@ describe('delete game', function() {
                 db.queryOpenGames().then(games => {
                     games.forEach((game) => {
                         if (game.gameId === result.gameId) {
-                            done(false);
+                            done(new Error("error"));
                         }
                     });
                     done();
-                }).catch((err)=>done(false));
+                }).catch((err)=>done(new Error("error")));
             })
         }).catch((e)=>done(e))
     })
@@ -191,11 +192,11 @@ describe('joining/leaving game', function() {
             db.getUser(dummy.user2.username).then((user)=>{
                 assert.equal(user.gameid,this.createdgameid);
                 db.getGame(this.createdgameid).then((game)=>{
-                    game.players.forEach((player)=>{
-                       if (player.username ===  dummy.user2.username)
+                    game.players.forEach((player_username)=>{
+                       if (player_username ===  dummy.user2.username)
                            done();
                     });
-                    done(false);
+                    done(new Error("player joined not found in getGame"));
                 })
             }).catch((e)=>done(e));
         }).catch((e)=>{
@@ -215,7 +216,7 @@ describe('joining/leaving game', function() {
                         //TODO: show that in this game, the player's not in it.
                         game.players.forEach((player)=>{
                             if (player.username ===  dummy.user2.username)
-                                done(false);
+                                done(new Error("error"));
                         });
                         done();
                     })

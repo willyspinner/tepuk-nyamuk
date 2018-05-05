@@ -94,8 +94,12 @@ module.exports = {
             }
             console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
-                if (err)
+                if (err){
+                
+                console.log(`opengames query rejected..`);
                     reject(err);
+                }
+                console.log(`opengames query resolved..`);
                 resolve(res.rows);
             })
         })
