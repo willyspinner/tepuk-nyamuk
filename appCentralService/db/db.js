@@ -212,7 +212,7 @@ module.exports = {
             const updatesocketuserquery = {
                     text: `UPDATE ${fields.USERS.TABLENAME} `+
                         `SET ${fields.USERS.SOCKET_ID} = $1 `+
-                        ` WHERE `
+                        ` WHERE ${fields.USERS.USERNAME} = $2;`,
                     values: [socketid ,username]
                 } ;
             client.query(updatesocketuserquery,(err, res )=>{

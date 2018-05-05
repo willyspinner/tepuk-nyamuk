@@ -269,12 +269,14 @@ io.use(function(socket,next){
     }else{
         next(new Error('WS Authentication Error'));
     }
-}).of(MAIN_NAMESPACE).on('connect', (socket) => {
+});
+io.of(MAIN_NAMESPACE).on('connect', (socket) => {
+    //Isn't this wrong logic..
     if (!socket.sentMydata) {
         //NOTE: I don't know if this will work or not.
-        const asyn = async ()=>await db.loginUserSocketId(socket.username, socket.id);
-        asyn();
-        socket.sentMydata = true;
+         db.loginUserSocketId(socket.username, socket.id).then(()=>{
+             socket.sentMydata = true;
+         });
     }
     /*
     /*

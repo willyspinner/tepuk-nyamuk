@@ -24,11 +24,13 @@ module.exports = {
     user1: {
         username:"berdog",
         socketid: "1292e01jaksd",
-        gameid: null
+        gameid: null,
+        password:'12r08hafn3lkq '// hashed - since we're just testing db stuff.
     },
     user2: {
         username:"willyspinner",
         socketid: "aosdlasdna",
-        gameid: null
+        gameid: null,
+        password:'12r0haosnalkwdlawir'
     }
 }
