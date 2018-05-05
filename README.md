@@ -14,14 +14,35 @@ Tepuk nyamuk is an indonesian card game which is very fun to play!. How it works
 press `t` to throw a card from your own pile, and `space` to slap the center pile. Careful not to slap the center pile unless the card and counter matches!
 
 ## How to run a demo
+### configurations
+app central service configs:
+```sh
+echo "PG_USER=YOUR_USERNAME_HERE
+PG_HOST=loacalhost
+PG_DATABASE=YOUR_DB_NAME_HERE
+PG_PASSWORD=YOUR_DB_PW_HERE
+PG_PORT=YOUR_PORT_HERE
+ENVIRON=test
+PG_TRUNCATE=0" > appCentralService/.appcs.test.env;
+```
 Because this app uses the SOA methodology, you will have to fire up several things:
 ```sh
-# be sure to have postgresql service started
+# install dependencies
+cd appCentralService; npm install; 
+cd ../frontend; yarn install; 
+cd ../gameMarshallingService; npm install;
+
+
 # start the app central service
+# be sure to have postgresql service already started.
 node appCentralService/app.js &
 
+
 # start the game marshalling service (coming soon!)
+# be sure to have redis started.
 node gameMarshallingSerivce/app.js & 
+
 
 # run webpack development server for frontend
 cd frontend && npm run dev-server
+```
