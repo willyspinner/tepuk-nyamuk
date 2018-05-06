@@ -13,6 +13,10 @@ module.exports=  {
         CLIENT_LEAVE: 'clientLeave',
         CLIENT_LEAVE_ACK: 'clientLeaveAck',
         CLIENT_LEAVE_NOACK: 'clientLeaveNoAck',
+    },
+    // these are just some helper tings that will query the socket's room information.
+    UTILS:{
+        CHECK_ROOM:'checkRoom'
     }
 
 }

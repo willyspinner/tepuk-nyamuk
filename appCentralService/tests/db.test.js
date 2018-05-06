@@ -10,7 +10,7 @@ const dbconstants = require('../db/schema/dbconstants');
 // NOTE: call db.initTables as needed to initialise the table.
 // initialises db before every test. 
 let lengthBefore;
-describe('initialise table',function(){
+describe(' db.test: initialise table',function(){
     after(function(done){
         db.queryAllGames().then((games)=>{
             lengthBefore = games.length;
@@ -27,7 +27,7 @@ describe('initialise table',function(){
     })
 })
 
-describe('create game', function(){
+describe(' db.test: create game', function(){
     // to ensure proper garbage clearing.
     after(function(done){
         db.queryAllGames().then((games)=>{
@@ -105,7 +105,7 @@ describe('create game', function(){
         }).catch((err)=>done(new Error("error")));
     });
 });
-describe('delete game', function() {
+describe(' db.test: delete game', function() {
     // to ensure proper garbage clearing.
     after(function(done){
         db.queryAllGames().then((games)=>{
@@ -138,7 +138,7 @@ describe('delete game', function() {
 });
 
 
-describe('user management',function(){
+describe(' db.test: user management',function(){
     beforeEach(function(done){
         db.deleteUser(dummy.user1.username).then((result)=>{
             done();
@@ -167,7 +167,7 @@ describe('user management',function(){
     })
 })
 
-describe('joining/leaving game', function() {
+describe(' db.test: joining/leaving game', function() {
     // NOTE: we are using dummy.user2
     beforeEach(function (done) {
         db.deleteGame(this.createdgameid).then((result)=>{
@@ -228,7 +228,7 @@ describe('joining/leaving game', function() {
 
 
 
-describe('startGame',function(){
+describe(' db.test: startGame',function(){
     beforeEach(function(done){
         db.createGame(dummy.newgame).then((game)=>{
             assert.equal(game.status,dbconstants.GAMES.STATUS.LOBBY);

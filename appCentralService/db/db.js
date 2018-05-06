@@ -172,7 +172,13 @@ module.exports = {
             client.query(query,(err,res)=>{
                 if (err)
                     reject(err);
-
+                if(!res) {
+                    console.log(`ERR RES UNDEFINED`);
+                    
+                    console.log(`query: ${JSON.stringify(query)}`);
+                    resolve(undefined);
+                }
+                
                 resolve(res.rows.length ===0? undefined: res.rows[0]);
             })
         });

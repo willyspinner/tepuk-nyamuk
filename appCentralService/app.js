@@ -8,6 +8,7 @@ require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const MAIN_NAMESPACE = '/main';
+const uuidvalidate = require('uuid-validate');
 // appcs environment var.
 
 // constants
@@ -194,7 +195,10 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err)
             res.json({success: false, error: 'unauthorized.'});
-
+        if(! uuidvalidate(req.params.gameid))
+            res.json({
+               success:false,error: 'not vailid game id.'
+            });
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid &&
@@ -290,20 +294,47 @@ io.use(function (socket, next) {
 
     AppCS Route.
     WS player Join game lobby (room)
-
+    TODO: this socket route here is very costly (expensive).
+    TODO: should be a way to make this more efficient.
      */
-    socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (clientUserObj, gameId) => {
-        let roomName = gameId;
-        // Could be a hash.
-        db.joinGame(clientUserObj.username, roomName).then(() => {
-            socket.join(roomName);
-            clientUserObj.socketid = null;
-            io
-                .to(`${gameId}`)
-                .emit('userJoined', clientUserObj);
-            socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
-        }).catch((e) => {
-            socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+    socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data,response) => {
+        const clientUsername = data.username;
+        const roomName = data.gameid;
+        db.getUser(clientUsername).then((user)=>{
+            console.log(`user.gameid: ${user.gameid}`);
+            if(user.gameid == null){
+                if(! uuidvalidate(data.gameid)){
+                    console.log(`got invalid uuid here.`);
+                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
+                }
+                    
+                db.getGame(data.gameid).then((game)=>{
+                    if (game == undefined) {
+                        console.log(`the game referred to by data.gameid is not real.`);
+                        response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                    }
+                    else{
+                        db.joinGame(clientUsername, roomName).then( () => {
+                            socket.join(roomName);
+                            io.to(`${roomName}`)
+                                .emit('userJoined', clientUsername);
+                            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
+                        }).catch((e) => {
+                            console.log(`NO ACK ERROR`);
+                            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                        });
+                    }
+                }).catch((e)=>{
+                    console.log(`ERROR getGame`);
+                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                });
+            }
+            else {
+                console.log(`user game id already defined..`);
+                response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+            }
+        }).catch((e)=>{
+            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
         });
     });
 
@@ -313,17 +344,28 @@ io.use(function (socket, next) {
     WS player leave game
 
      */
-    socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj) => {
+    socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj,response) => {
         db.leaveGame(clientUserObj).then(() => {
             //note: .to() is the one for room in the main namespace.
-            let joinedRoom = clientUserObj.joinedRoom;
+            let joinedRoom = clientUserObj.gameid;
             socket.leave(`${joinedRoom}`);
             clientUserObj.socketid = null;
-            io.to(`${joinedRoom}`).emit('userLeft', clientUserObj);
-            socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
+            io.to(`${joinedRoom}`).emit('userLeft', clientUserObj.username);
+            response(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
         }).catch((e) => {
-            socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_NOACK);
+            response(EVENTS.LOBBY.CLIENT_LEAVE_NOACK);
         });
+    })
+
+    /*
+
+    AppCS - utility route - no use case but can be requested (for unit testing purposes).
+    WS CHECK_ROOM
+    (gets all connected rooms).
+
+     */
+    socket.on(EVENTS.UTILS.CHECK_ROOM,(data,response)=>{
+        response(socket.rooms);
     })
 });
 

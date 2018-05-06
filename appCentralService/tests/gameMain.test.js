@@ -16,7 +16,7 @@ const EVENTS = require('../constants/socketEvents');
 // our http endpoints..
 // theyre fine.
 // we do need to test our WS stuff initiated by the HTTP endpoints tho.
-describe('LOGIN AND REGISTER routes',function() {
+describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
     after(function(done){
         db.deleteUser('willyboomboom').then(()=>{
             if(this.socket) //close socket connection.
@@ -90,7 +90,7 @@ describe('LOGIN AND REGISTER routes',function() {
 
 });
 
-describe('game creation and game deletion events (WS)',function() {
+describe(' gameMain.test: game creation and game deletion events (WS)',function() {
     before(function (done) {
         request.post({
                 url: `http://localhost:${process.env.PORT}/appcs/user/new`,
@@ -157,6 +157,8 @@ describe('game creation and game deletion events (WS)',function() {
             assert.equal(data.gameuuid,this.newgameuuid);
             done();
         });
+        if(this.newgameuuid === undefined)
+            done(new Error("this.newgameuuid is undefined. Please run the whole gameMain.test.js, not just this on 'it'!"))
         // TEST our delete game endpoint here.
         request.delete({
                 url: `http://localhost:${process.env.PORT}/appcs/game/delete/${this.newgameuuid}`,
