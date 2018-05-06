@@ -45,23 +45,23 @@ username
 password
  */
 // there should be some client side validation on NON NULL name.
-app.post('/appcs/user/new',(req,res)=>{
-    db.getUser(req.body.username).then((user)=>{
-        if(!user) {
+app.post('/appcs/user/new', (req, res) => {
+    db.getUser(req.body.username).then((user) => {
+        if (!user) {
             const salt = 10;
-            
+
             console.log(`password to /appcs/user/new : ${req.body.password}`);
-            const userObj ={
+            const userObj = {
                 username: req.body.username,
-             password: bcrypt.hashSync(req.body.password,salt)
+                password: bcrypt.hashSync(req.body.password, salt)
             };
             db.registerUser(userObj).then(() => {
-                let token = jwt.sign({username:userObj.username, password:userObj.password},
-                    process.env.AUTH_TOKEN_SECRET,{
+                let token = jwt.sign({username: userObj.username, password: userObj.password},
+                    process.env.AUTH_TOKEN_SECRET, {
                         expiresIn: 43200 // secs, so 12 hours.
                     });
                 res.status(200).json({
-                    success:true,
+                    success: true,
                     token: token
                 })
             }).catch((e) => {
@@ -70,9 +70,9 @@ app.post('/appcs/user/new',(req,res)=>{
                 });
             })
         } else
-            // a user is already defined with that name
+        // a user is already defined with that name
             res.json({
-                success:false,
+                success: false,
                 error: 'User already exists.'
             });
     })
@@ -87,32 +87,31 @@ POST BODY:
 // password
 
  */
-app.post('/appcs/user/auth',(req,res)=>{
+app.post('/appcs/user/auth', (req, res) => {
     console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
-    db.getUserSecrets(req.body.username).then((user)=>{
+    db.getUserSecrets(req.body.username).then((user) => {
         if (!user)
             res.json({
-                success:false,
+                success: false,
                 error: ` no such user ${req.body.username}`
             });
-        const passwordValid = bcrypt.compareSync(req.body.password,user.password);
-        if(passwordValid){
-            let token = jwt.sign({username:user.username,password:user.password},
+        const passwordValid = bcrypt.compareSync(req.body.password, user.password);
+        if (passwordValid) {
+            let token = jwt.sign({username: user.username, password: user.password},
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn: 43200});
             res.status(200).json({
-                success:true,
+                success: true,
                 token: token
             });
-        }else{
+        } else {
             res.status(401).json({
-                success:false,
+                success: false,
                 token: null
             })
         }
     })
 })
-
 
 
 /*
@@ -153,10 +152,10 @@ POST body:
  */
 app.post('/appcs/game/create', (req, res) => {
     // the creator information is here already. (inside req.body.game object).
-    jwt.verify(req.body.token,process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
-        if(err)
+    jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+        if (err)
             res.json({
-                success:false,
+                success: false,
                 error: 'NOT AUTHENTICATED.'
             });
         let game = req.body.game;
@@ -192,18 +191,19 @@ POST body:
 TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
-    jwt.verify(req.body.token,process.env.AUTH_TOKEN_SECRET,(err,decoded)=> {
-        if(err)
-            res.json({success:false, error:'unauthorized.'});
+    jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+        if (err)
+            res.json({success: false, error: 'unauthorized.'});
 
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid &&
-                creator.username === decoded.username) {
+                    creator.username === decoded.username) {
                     db.deleteGame(req.params.gameid).then(() => {
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: req.params.gameid
                         });
+
                         io
                             .to(req.params.gameId)
                             .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
@@ -236,10 +236,10 @@ POST body:
  */
 
 app.post('/appcs/game/start/:gameid', (req, res) => {
-    jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
-        if(err)
+    jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+        if (err)
             res.json({
-                success:false,
+                success: false,
                 error: 'Unauthorized.'
             });
         db.getGame(req.params.gameid).then((game) => {
@@ -264,17 +264,17 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 });
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth
-io.use(function(socket,next){
-    if(socket.handshake.query.token){
+io.use(function (socket, next) {
+    if (socket.handshake.query.token) {
         console.log(`SOCKET verifying token ${socket.handshake.query.token}`);
-        jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET,(err,decoded)=>{
-            if(err)
+        jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+            if (err)
                 return next(new Error('WS Auth Error'));
 
             socket.username = decoded.username;
             next();
         })
-    }else{
+    } else {
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
@@ -282,9 +282,9 @@ io.use(function(socket,next){
     if (!socket.sentMydata) {
         console.log(`socket connected : ${socket.username}`);
         //NOTE: I don't know if this will work or not.
-         db.loginUserSocketId(socket.username, socket.id).then(()=>{
-             socket.sentMydata = true;
-         });
+        db.loginUserSocketId(socket.username, socket.id).then(() => {
+            socket.sentMydata = true;
+        });
     }
     /*
     /*
@@ -298,7 +298,7 @@ io.use(function(socket,next){
         // Could be a hash.
         db.joinGame(clientUserObj.username, roomName).then(() => {
             socket.join(roomName);
-            clientUserObj.socketid= null;
+            clientUserObj.socketid = null;
             io
                 .to(`${gameId}`)
                 .emit('userJoined', clientUserObj);
@@ -319,7 +319,7 @@ io.use(function(socket,next){
             //note: .to() is the one for room in the main namespace.
             let joinedRoom = clientUserObj.joinedRoom;
             socket.leave(`${joinedRoom}`);
-            clientUserObj.socketid= null;
+            clientUserObj.socketid = null;
             io.to(`${joinedRoom}`).emit('userLeft', clientUserObj);
             socket.emit(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
         }).catch((e) => {
@@ -327,7 +327,6 @@ io.use(function(socket,next){
         });
     })
 });
-
 
 
 reload(app);
