@@ -126,7 +126,7 @@ describe('delete game', function() {
                 assert.equal(res2,undefined);
                 db.queryOpenGames().then(games => {
                     games.forEach((game) => {
-                        if (game.gameId === result.gameId) {
+                        if (game.uuid === this.createdgameid) {
                             done(new Error("error"));
                         }
                     });
