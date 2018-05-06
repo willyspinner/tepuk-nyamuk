@@ -8,6 +8,7 @@ const promisify = require('util').promisify;
 let redisclient = redis.createClient(redisconnectionobject);
 // promisifying our redis commands:
 const redisRpushAsync = promisify(redisclient.rpush).bind(redisclient);
+const redisRpopAsync = prommisify(redisclient.rpop).bind(redisclient);
 const redisSetAsync = promisify(redisclient.set).bind(redisclient);
 const redisLrangeAsync = promisify(redisclient.lrange).bind(redisclient);
 
@@ -34,7 +35,9 @@ for every user USERNAME in GAMESESSIONID, we have:
 
 {{{{    methods:    }}}}
 State mutations:
--# push to card pile (put card in pile)
+-# pop hand and push card to pile
+        - returns popped card.
+
 -# pop card pile and transfer to loser's hand(identified by loser's username)
 -# increment current counter (and get counter result then)
 -# register a user's slap (push username to slap hashtable, where key: value = username: slaptime(ms)) - remember that slaptime is determined client-side.
@@ -62,7 +65,6 @@ const self = module.exports = {
     */
     initializeGame: (gamesessionid, players, cardsperplayer) => {
         //TODO: do we really need to be strict about card distribution here....
-
         let snapshotobj = {};
         return new Promise((resolve, reject) => {
             Promise.all(
@@ -89,27 +91,39 @@ const self = module.exports = {
                     redisSetAsync(`${gamesessionid}/turnindex`, `${Math.floor(Math.random() * players.length)}`)
                 ]
                 )).then(() => {
-                Promise.all(
-                    players.map((player) => {
-                        return redisLrangeAsync(`${gamesessionid}/${player}/hand`, 0, cardsperplayer - 1).then((data) => {
-                            console.log(`redis lrangeasync ok for ${gamesessionid}/${player}/hand. ${JSON.stringify(data)} `);
-                            snapshotobj[player] = data;
-                            console.log(`snapshot object : ${JSON.stringify(snapshotobj)}`);
-                        });
-                    })
+                    Promise.all(
+                        players.map((player) => {
+                            return redisLrangeAsync(`${gamesessionid}/${player}/hand`, 0, cardsperplayer - 1).then((data) => {
+                                console.log(`redis lrangeasync ok for ${gamesessionid}/${player}/hand. ${JSON.stringify(data)} `);
+                                snapshotobj[player] = data;
+                                console.log(`snapshot object : ${JSON.stringify(snapshotobj)}`);
+                            });
+                        })
 
-                ).then((data) => {
-                    resolve(snapshotobj);
-                }).catch((e) => {
-                    console.log(`REJECT 1`);
-                    reject(e)
-                })
+                    ).then((data) => {
+                        resolve(snapshotobj);
+                    }).catch((e) => {
+                        console.log(`REJECT 1`);
+                        reject(e)
+                    });
             }).catch((e) => {
                     console.log(`REJECT 2`);
                     reject(e)
                 }
             );
         })
+    },
+
+    // pops player's card and pushes to the pile.
+    // returns player's card popped.
+    popHandToPile: (gamesessionid,player)=>{
+       return new Promise((resolve,reject)=>{
+           redisRpopAsync(`${gamesessionid}/${player}/hand`).then((poppedCard)=>{
+               redisRpushAsync(`${gamesessionid}/pile`,poppedCard).then(()=>{
+                   resolve(poppedCard);
+               }).catch((e)=>reject(e));
+           }).catch((e)=>reject(e));
+       });
     }
 
 
