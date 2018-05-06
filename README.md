@@ -40,7 +40,7 @@ node appCentralService/app.js &
 
 # start the game marshalling service (coming soon!)
 # be sure to have redis started.
-node gameMarshallingSerivce/app.js & 
+node gameMarshallingSerivce/gmsapp.js &
 
 
 # run webpack development server for frontend

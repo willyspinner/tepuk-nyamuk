@@ -88,17 +88,22 @@ describe(' db.test: create game', function(){
                     db.queryOpenGames().then(games => {
                         assert.equal(games.length,this.gameslength + 1); // only open games.
                         // the one we made above is suposed to be started already.
+                        let nfound = 0;
                         games.forEach((game) => {
                             if (game.uuid === game1.uuid) {
+                                nfound += 1;
                                 assert.equal(dummy.newgame.name, game.name);
                                 assert.equal(dummy.newgame.creator, game.creator);
                                 assert.equal(dummy.newgame.createdat, game.createdat);
                                 assert.equal(dummy.newgame.creator,game.players[0])
-                                done();
                             }
                         });
-                        assert(false);
-                        done(new Error("no game was equal.")); // <- this means that the db didn't save, which is incorrect.
+                        if(nfound === 1)
+                            done();
+                       else if(nfound > 1)
+                           done(new Error(`duplicates were found for game. there were ${nfound}, should be 1.`));
+                        else
+                            done(new Error("no game was equal.")); // <- this means that the db didn't save, which is incorrect.
                     }).catch((err)=>done(err));
                 }).catch((err)=>done(new Error("error")));
             }).catch((err)=>done(new Error("error")));
@@ -193,11 +198,15 @@ describe(' db.test: joining/leaving game', function() {
             db.getUser(dummy.user2.username).then((user)=>{
                 assert.equal(user.gameid,this.createdgameid);
                 db.getGame(this.createdgameid).then((game)=>{
+                    let nfound = 0;
                     game.players.forEach((player_username)=>{
                        if (player_username ===  dummy.user2.username)
-                           done();
+                           nfound += 1;
                     });
-                    done(new Error("player joined not found in getGame"));
+                    if(nfound === 1)
+                        done();
+                    else
+                        done(new Error(`player joined not found in getGame, or duplicates found. found: ${nfound}`));
                 })
             }).catch((e)=>done(e));
         }).catch((e)=>{

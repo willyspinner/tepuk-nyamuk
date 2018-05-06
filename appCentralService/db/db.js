@@ -18,8 +18,8 @@ const client = new Client(
     connectionobject
 );
 client.connect();
-
-module.exports = {
+ // self = <- this is for singleton.
+const self = module.exports = {
     // POSTGRES implementation
     initTables: ()=>{
         // used to create the table if it doesn't exist.

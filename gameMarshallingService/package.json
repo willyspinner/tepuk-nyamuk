@@ -1,0 +1,20 @@
+{
+  "name": "tepuk-nyamuk_game_marshalling_service",
+  "version": "1.0.0",
+  "description": "WS service for tepuk nyamuk with redis in-memory store",
+  "main": "gmsapp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wilson jusuf",
+  "license": "ISC",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.1.1"
+  }
+}
