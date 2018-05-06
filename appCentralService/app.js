@@ -56,7 +56,7 @@ app.post('/appcs/user/new', (req, res) => {
                 password: bcrypt.hashSync(req.body.password, salt)
             };
             db.registerUser(userObj).then(() => {
-                let token = jwt.sign({username: userObj.username, password: userObj.password},
+                let token = jwt.sign({username: userObj.username},
                     process.env.AUTH_TOKEN_SECRET, {
                         expiresIn: 43200 // secs, so 12 hours.
                     });
@@ -97,7 +97,7 @@ app.post('/appcs/user/auth', (req, res) => {
             });
         const passwordValid = bcrypt.compareSync(req.body.password, user.password);
         if (passwordValid) {
-            let token = jwt.sign({username: user.username, password: user.password},
+            let token = jwt.sign({username: user.username },
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn: 43200});
             res.status(200).json({
@@ -270,7 +270,6 @@ io.use(function (socket, next) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err)
                 return next(new Error('WS Auth Error'));
-
             socket.username = decoded.username;
             next();
         })
