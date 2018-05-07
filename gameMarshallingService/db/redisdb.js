@@ -142,16 +142,18 @@ const self = module.exports = {
              //note: returnArr is here because this is used for the scan.
              // scan is a recursive function.
             scanAsync(0,`${gamesessionid}/*`, (keys)=>{
-                redisDelAsync(...keys).then((retcode)=>{
-                    if(keys.length === retcode)
-                        resolve(retcode);
-                    else{
-                        console.error(`redisdb::deleteGame: when trying to delete
+                redisDelAsync(`${gamesessionid}/gamesecret`).then(()=>{
+                    redisDelAsync(...keys).then((retcode)=>{
+                        if(keys.length === retcode)
+                            resolve(retcode);
+                        else{
+                            console.error(`redisdb::deleteGame: when trying to delete
                          ${gamesessionid},deleted ${retcode} instead of ${keys.length} 
                          found by scan`);
-                        resolve(retcode);
-                    }
-                }).catch(e=>reject(e));
+                            resolve(retcode);
+                        }
+                    }).catch(e=>reject(e));
+                })
             });
         });
     },

@@ -61,5 +61,5 @@ io.use(function (socket, next) {
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
-
+    //TODO: ws game events here.
 });
