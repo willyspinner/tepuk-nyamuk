@@ -147,7 +147,7 @@ const self = module.exports = {
                         if(keys.length === retcode)
                             resolve(retcode);
                         else{
-                            console.error(`redisdb::deleteGame: when trying to delete
+                            console.error(`redisdb::deleteGame: warning: when trying to delete
                          ${gamesessionid},deleted ${retcode} instead of ${keys.length} 
                          found by scan`);
                             resolve(retcode);
@@ -205,7 +205,7 @@ const self = module.exports = {
                 redisGetAsync(`${gamesessionid}/nplayers`).then((nplayers) => {
                     redisLindexAsync(`${gamesessionid}/players`, newcounter % nplayers).then((nextplayer) => {
                         redisSetAsync(`${gamesessionid}/playerinturn`, nextplayer).then((retcode) => {
-                            resolve(nextplayer);
+                             resolve(nextplayer);
                         }).catch(e => reject(e));
                     }).catch(e => reject(e))
                 }).catch(e => reject(e));
@@ -312,7 +312,7 @@ const self = module.exports = {
        });
        },
 
-    // get game secret
+    // get game secret - in bcrypt encrpyted form.
     getGameSecret : (gamesessionid)=>{
      return new Promise((resolve,reject)=>{
          redisGetAsync(`${gamesessionid}/gamesecret`).then((gamesecret)=>{
