@@ -21,6 +21,12 @@ console.log(`GMS listening on ${app.get('port')}`);
 io.attach(server);
 
 
+
+app.post('/gms/game/create',(req,res)=>{
+
+});
+
+
 // we use our middleware to deal with JWT auth
 // this is to verify that the user attempting to log in for some socket route
 // is indeed the one we created for them.
@@ -34,15 +40,11 @@ the lobby and it was about to start) a token, and the gamesessionid. (gamesessio
 sending details:
 socket.handshake.query:
  {
-     token: "JWT TOKEN", encodes: {gamesessionid}
+     token: "JWT TOKEN", encodes {gamesessionid:"some id sent"}
      roomsecret: awoinaodkawd // NOTE. should this be in token or not? idts?
 }
 
  */
-
-app.post('/gms/game/create',(req,res)=>{
-
-});
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
