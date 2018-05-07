@@ -42,6 +42,7 @@ we have:
 -  GAMESESSIONID/slappedusers - redis sorted set for users who slapped.
 - GAMESESSIONID/playerinturn - the player who is supposed to throw.
 -  GAMESESSIONID/players - redis set of the players (ordered).
+- GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
@@ -86,7 +87,7 @@ const self = module.exports = {
             ...etc.
         }
     */
-    initializeGame: (gamesessionid, players, cardsperplayer) => {
+    initializeGame: (gamesessionid, gamesecret, players, cardsperplayer) => {
         //TODO: do we really need to be strict about card distribution here....
         let snapshotobj = {};
         return new Promise((resolve, reject) => {
@@ -99,6 +100,7 @@ const self = module.exports = {
                             Promise.all(
                                 Array.from(Array(cardsperplayer)).map((c) => {
                                     console.log(`adding card to ${gamesessionid}/${player}`);
+                                    //TODO: surely we can just rpush a whole array at once here... why so unecessary...
                                     return redisRpushAsync(`${gamesessionid}/player/${player}/hand`, `${cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)]}`);
                                 })
                             ),
@@ -110,6 +112,7 @@ const self = module.exports = {
                 }).concat(
                     [
                         redisSetAsync(`${gamesessionid}/nplayers`, `${players.length}`),
+                        redisSetAsync(`${gamesessionid}/gamesecret`, `${gamesecret}`),
                         redisSetAsync(`${gamesessionid}/counter`, 0),
                     ]
                 )).then(() => {
@@ -150,6 +153,14 @@ const self = module.exports = {
                     }
                 }).catch(e=>reject(e));
             });
+        });
+    },
+    //NOTE: gamescret should already be encrypted and salted here.
+    setGameSecret: (gamesessionid,gamesecret)=>{
+        return new Promise((resolve,reject)=>{
+            redisSetAsync(`${gamesessionid}/gamesecret`,gamesecret).then((retcode)=>{
+                resolve(retcode);
+            }).catch(e=>reject(e));
         });
     },
     popHandToPile: (gamesessionid, player) => {
@@ -225,6 +236,7 @@ const self = module.exports = {
             }).catch(e => reject(e));
         });
     },
+
     //      {{{{    Get methods    }}}}
 
     // get current turn. NOTE: idt we need this.
@@ -297,6 +309,15 @@ const self = module.exports = {
            }).catch((e)=>reject(e));
        });
        },
+
+    // get game secret
+    getGameSecret : (gamesessionid)=>{
+     return new Promise((resolve,reject)=>{
+         redisGetAsync(`${gamesessionid}/gamesecret`).then((gamesecret)=>{
+             resolve(gamesecret);
+         }).catch(e=>reject(e));
+     });
+    },
     utils: {
         scanAsync: scanAsync,
     }

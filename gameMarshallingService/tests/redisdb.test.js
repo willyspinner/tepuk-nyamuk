@@ -5,7 +5,7 @@ const redisdb = require('../db/redisdb');
 
 describe('redisdb.test: init and delete game',function(){
     it('should initialise our dummy game',function(done){
-        redisdb.initializeGame(dummydata.game1.gamesessionid,
+        redisdb.initializeGame(dummydata.game1.gamesessionid, 'SECRET',
             dummydata.game1.players,dummydata.game1.cardsperplayer)
             .then((snapshot)=>{ // remember that snapshot are kv pairs of user: [c1,c2,,..]
                 // where c1 c2 are the cards.
@@ -36,7 +36,7 @@ describe('redisdb.test: init and delete game',function(){
 
 describe('redisdb.test: test popHandToPile', function(){
     before(function(done){
-        redisdb.initializeGame(dummydata.game1.gamesessionid,
+        redisdb.initializeGame(dummydata.game1.gamesessionid,"SECRET",
             dummydata.game1.players,dummydata.game1.cardsperplayer)
             .then((snapshot)=>{ // remember that snapshot are kv pairs of user: [c1,c2,,..]
                 // where c1 c2 are the cards.
@@ -67,7 +67,7 @@ describe('redisdb.test: test popHandToPile', function(){
 
 describe('redisdb.test: increment current counter testing',function(){
     before(function(done) {
-        redisdb.initializeGame(dummydata.game1.gamesessionid,
+        redisdb.initializeGame(dummydata.game1.gamesessionid,"SECRET",
             dummydata.game1.players, dummydata.game1.cardsperplayer)
             .then((snapshot) => {
                 done()
@@ -124,7 +124,7 @@ describe('redisdb.test: increment current counter testing',function(){
 
 describe('redisdb.test: slaps',function(){
     beforeEach(function(done) {
-        redisdb.initializeGame(dummydata.game1.gamesessionid,
+        redisdb.initializeGame(dummydata.game1.gamesessionid,"SECRET",
             dummydata.game1.players, dummydata.game1.cardsperplayer)
             .then((snapshot) => {
                 done()
@@ -207,7 +207,7 @@ describe('redisdb.test: slaps',function(){
 describe('redisdb.test: incrementing streaks', function () {
     before(function(done) {
 
-        redisdb.initializeGame(dummydata.game1.gamesessionid,
+        redisdb.initializeGame(dummydata.game1.gamesessionid,"SECRET",
             dummydata.game1.players, dummydata.game1.cardsperplayer)
             .then((snapshot) => {
                 this.player1 = dummydata.game1.players[3];

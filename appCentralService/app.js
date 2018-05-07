@@ -27,14 +27,6 @@ const server = app.listen(app.get('port'));
 console.log(`app listening on ${app.get('port')}`);
 io.attach(server);
 
-//TODOs: General todos
-/*
-
-1. Authify the important routes
-
-
-
- */
 
 
 /*
