@@ -205,6 +205,35 @@ describe('redisdb.test: slaps',function(){
 });
 
 describe('redisdb.test: incrementing streaks', function () {
+    before(function(done) {
 
+        redisdb.initializeGame(dummydata.game1.gamesessionid,
+            dummydata.game1.players, dummydata.game1.cardsperplayer)
+            .then((snapshot) => {
+                this.player1 = dummydata.game1.players[3];
+                this.sessid= dummydata.game1.gamesessionid;
+                done()
+            }).catch((e) => done(e));
+    });
+    after(function(done){
+        redisdb.deleteGame(dummydata.game1.gamesessionid).then(()=>{
+            done();
+        }).catch(e=>done(e));
+    });
+    it('should increment a person\'s streak, and set to 0.', function (done) {
+        redisdb.incrementStreak(this.sessid,this.player1).then((newstreak)=>{
+            assert.equal(newstreak,1);
+            redisdb.incrementStreak(this.sessid,this.player1).then((newstreak2)=>{
+                assert.equal(newstreak2,2);
+                redisdb.incrementStreak(this.sessid,this.player1).then((newstreak3)=>{
+                    assert.equal(newstreak3,3);
+                    redisdb.setZeroSreak(this.sessid,this.player1).then((newstreak4)=>{
+                        assert.equal(newstreak4,0);
+                        done();
+                    }).catch(e=>done(e));
+                }).catch(e=>done(e));
+            }).catch(e=>done(e));
+        }).catch(e=>done(e));
+    });
 });
 

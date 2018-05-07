@@ -220,7 +220,7 @@ const self = module.exports = {
 
     setZeroSreak: (gamesessionid, player) => {
         return new Promise((resolve, reject) => {
-            redisSetAsync(`${gamesessionid}/player/${player}/streak`).then((newstreak) => {
+            redisSetAsync(`${gamesessionid}/player/${player}/streak`,0).then((newstreak) => {
                 resolve(0);
             }).catch(e => reject(e));
         });
