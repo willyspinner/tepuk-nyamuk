@@ -26,7 +26,8 @@ we have:
 -  GAMESESSIONID/nplayers - int of number of players.
 -  GAMESESSIONID/counter - int of current counter (not % 13 though .this is absolute) - mod by 13 will be done by server.
 -  GAMESESSIONID/slappedusers - redis sorted set for users who slapped.
-- GAMESESSIONID/playerinturn - the player who is supposed to throw.
+- GAMESESSIONID/playerinturn - the player who is supposed to throw. (index)
+-GAMESESSIONID/turnoffset - the first player's index in the /players/ list. used  to calculate next player in turn.
 -  GAMESESSIONID/players - redis list of the players
 - GAMESESSIONID/sockettoplayer - redis hash of socketid: player username - used for in game identity validation.
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
@@ -35,6 +36,7 @@ we have:
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
 - GAMESESSIONID/player/USERNAME/streaks - int of how many times (consecutively) a user has no pile.
+- GAMESESSIONID/player/USERNAME/index - idx of player in the GAMESESSIONID/players list.
 
 
 {{{{    methods:    }}}}
@@ -46,7 +48,8 @@ State mutations:
 -# pop hand and push card to pile
         - returns popped cad.
 -# pop card pile and transfer to loser's hand(identified by loser's username)
--# increment current counter (and get next player's turn).
+-# increment current counter (and get next player's turn, next counter).
+-# set currentCounter (and get next counter, and next player)
 -# register a user's slap (push username to slap hashtable, where key: value = username: slaptime(ms)) - remember that slaptime is determined client-side.
     - simultaneously returns how many users slapped
 -# increment a person's streak.
@@ -57,6 +60,7 @@ gets:
 -# get current turn
 -# get game card pile (in order) ( for testing purposes only)
 -# get match
+-# get whether a player slapped or not
 -# get snapshot of game (everyone's piles)
 -# get number of players.
 -# get slappedUsers Sorted set. (for our gms app)
@@ -64,9 +68,6 @@ gets:
 
 const self = module.exports = {
 
-    //TODO TODO write transactions using MULTI and EXEC.
-    //TODO TODO
-    // Callback-caused blocking commands are really not the thing to go for.
     //      {{{{    State mutation methods    }}}}
 
     /* initialize new game with:
@@ -86,14 +87,17 @@ const self = module.exports = {
             let snapshotobj = {};
             let chain = redisclient.multi();
             // initialise the players' cards.
-           players.forEach((player)=> {
+           players.forEach((player,idx)=> {
                    chain = chain.rpush(`${gamesessionid}/players`, player);
                    let hand = [];
                    Array.from(Array(cardsperplayer)).forEach((c) => {
                        hand.push(cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)]);
                    });
                    snapshotobj[player] = hand;
-                   chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand)
+                   chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand);
+                   
+                   console.log(`index for player ${player} : ${idx}`);
+                    chain = chain.set(`${gamesessionid}/player/${player}/index`,idx);
            });
             // initialise the game variables.
            chain = chain.set(`${gamesessionid}/nplayers`, `${players.length}`);
@@ -101,6 +105,7 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/counter`, 0);
             chain = chain.set(`${gamesessionid}/match`,0);
             chain = chain.set(`${gamesessionid}/playerinturn`,players[0]);
+            chain= chain.set(`${gamesessionid}/turnoffset`,0); // player[0] has index 0.
             // execute transaction.
             chain.execAsync().then((result)=>{
                 resolve(snapshotobj);
@@ -164,7 +169,7 @@ const self = module.exports = {
                     // 2. , push the popped pile cards to loser.
                     redsclient.lpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
                         .then((result) => {
-                            resolve();
+                            resolve(poppedpile);
                         }).catch(e => reject(e));
                 }).catch(e => reject(e));
             }).catch(e => reject(e));
@@ -179,16 +184,39 @@ const self = module.exports = {
     incrementCurrentCounter: (gamesessionid) => {
         return new Promise((resolve, reject) => {
             let chain = redisclient.multi();
-            chain.incr(`${gamesessionid}/counter`).get(`${gamesessionid}/nplayers`);
+            chain
+                .incr(`${gamesessionid}/counter`)
+                .get(`${gamesessionid}/nplayers`)
+                .get(`${gamesessionid}/turnoffset`)
+                .lrange(`${gamesessionid}/players`,0,-1)
+                .llen(`${gamesessionid}/players`)
             chain.execAsync().then((data)=>{
-                const newcounter = data[0];
-                const nplayers = data[1];
-                redisclient.lindexAsync(`${gamesessionid}/players`, newcounter % nplayers).then((nextplayer) => {
+                const newcounter = parseInt(data[0]);
+                const nplayers = parseInt(data[1]);
+                const offset = parseInt(data[2]);
+                let newindex = (offset + newcounter) % nplayers;
+                redisclient.lindexAsync(`${gamesessionid}/players`, newindex).then((nextplayer) => {
+                    console.log(`got next player: ${nextplayer}`);
                     redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
                         resolve({nextplayer: nextplayer,nextcounter: newcounter});
                     }).catch(e => reject(e));
                 }).catch(e => reject(e))
-            })
+                })
+            });
+    },
+
+    setCurrentCounter: (gamesessionid,player)=>{
+        return new Promise((resolve,reject)=>{
+            let chain = redisclient.multi();
+            chain
+                .set(`${gamesessionid}/playerinturn`,player)
+                .set(`${gamesessionid}/counter`,0)
+                .get(`${gamesessionid}/player/${player}/index`);
+            chain.execAsync().then((data)=>{
+                redisclient.setAsync(`${gamesessionid}/turnoffset`,data[2]).then(()=>{
+                    resolve({nextplayer: player,nextcounter: 0});
+                }).catch((e)=>reject(e));
+            }).catch((e)=>reject(e));
         });
     },
 
@@ -201,16 +229,26 @@ const self = module.exports = {
             }).catch((e) => reject(e));
         });
     },
-
-    incrementStreak: (gamesessionid, player) => {
-        return new Promise((resolve, reject) => {
-            redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`).then((newstreak) => {
-                resolve(newstreak);
-            }).catch(e => reject(e));
-        });
+    hasSlapped: (gamesessionid,player)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.zrank(`${gamesessionid}/slappedusers`,player).then((result)=>{
+                if (result == null)
+                    resolve(0);
+                else
+                    resolve(1);
+            }).catch((e)=>reject(e));
+        })
     },
+    resetSlaps: (gamesessionid)=>{
+        return redisclient.delAsync(`${gamesessionid}/slappedusers`);
+    },
+    incrementStreak: (gamesessionid, player) => {
+        return redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`);
+    }
+    ,
 
     setZeroSreak: (gamesessionid, player) => {
+        // we need for this promise thing to be here because 'set' returns 0.
         return new Promise((resolve, reject) => {
             redisclient.setAsync(`${gamesessionid}/player/${player}/streak`,0).then((newstreak) => {
                 resolve(0);
@@ -220,9 +258,15 @@ const self = module.exports = {
 
     //      {{{{    Get methods    }}}}
 
-    // get current turn. NOTE: idt we need this.
+    //get current turn
+    // returns
     getCurrentTurn: (gamesessionid) => {
-            return redisclient.getAsync(`${gamesessionid}/playerinturn`);
+            return new Promise((resolve,reject)=>{
+                let chain = redisclient.multi().get(`${gamesessionid}/playerinturn`).get(`${gamesessionid}/counter`);
+                chain.execAsync().then((data)=>{
+                    resolve({playerinturn: data[0],currentcounter: data[1]})
+                }).catch((e)=>reject(e));
+            });
     },
 
     getMatch : (gamesessionid)=>{
@@ -255,7 +299,11 @@ const self = module.exports = {
     },
     // get username from someone's socket id.
     getUsername: (gamesessionid,socketid)=>{
-            return redisclient.hmgetAsync(`${gamesessionid}/sockettoplayer`,socketid);
+        return new Promise((resolve,reject)=>{
+            redisclient.hmgetAsync(`${gamesessionid}/sockettoplayer`,socketid).then((data)=>{
+                resolve(data[0]);
+            }).catch((e)=>reject(e));
+        });
     },
     // get number of players
     getNplayers: (gamesessionid)=>{
@@ -302,4 +350,7 @@ function scanAsync(cursor, pattern,callback,returnArr=[]) {
 
         });
 };
+function modulo(x,m){
+    return (x % m + m) % m;
+}
 
