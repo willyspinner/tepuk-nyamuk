@@ -61,7 +61,7 @@ State mutations:
 -# store connected player's socketid.
 -#  set match
 -# pop hand and push card to pile
-        - returns popped card.
+        - returns popped cad.
 -# pop card pile and transfer to loser's hand(identified by loser's username)
 -# increment current counter (and get next player's turn).
 -# register a user's slap (push username to slap hashtable, where key: value = username: slaptime(ms)) - remember that slaptime is determined client-side.
@@ -174,10 +174,6 @@ const self = module.exports = {
             resolve(res);
             }).catch(e=>reject(e));
      });
-    },
-    //NOTE: gamescret should already be encrypted and salted here.
-    setGameSecret: (gamesessionid,gamesecret)=> {
-        return redisSetAsync(`${gamesessionid}/gamesecret`, gamesecret)
     },
     setMatch : (gamesessionid,isMatch)=>{
         return redisSetAsync(`${gamesessionid}/match`,isMatch? 1: 0);
