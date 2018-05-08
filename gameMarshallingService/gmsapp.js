@@ -137,9 +137,9 @@ io.use(function (socket, next) {
                         //throw card.
                         redisdb.popHandToPile(gamesessionid,username).then((poppedcard)=>{
                             // increment counter.
-                            redisdb.incrementCurrentCounter(gamesessionid).then((newcounter)=>{
+                            redisdb.incrementCurrentCounter(gamesessionid).then((nextcounter)=>{
                                 // check match event.
-                                if(JSON.stringify(newcounter % 13) === poppedcard){
+                                if(JSON.stringify(nextcounter.newcounter % 13) === poppedcard){
                                     // match event
                                     redisdb.setMatch(gamesessionid,true).then(()=>{
                                         // go on with next tick as normal, waiting for people
@@ -147,17 +147,21 @@ io.use(function (socket, next) {
                                         io.to(gamesessionid).emit(events.NEXT_TICK,{
                                             //TODO: need to standardise this next tick thing.
                                             match: true,
-                                            nextpiletop: poppedcard // next top of pile.
+                                            piletop: poppedcard, // next top of pile.
+                                            nextplayer: nextcounter.nextplayer,
+                                            nextcounter : nextcounter.nextcounter
                                         });
                                         response({
-                                            success:true
+                                            success:true,
                                         })
                                     });
                                 }else{
                                     // just a normal throw.
                                     io.to(gamesessionid).emit(events.NEXT_TICK,{
                                         match: false,
-                                        piletop: poppedcard
+                                        piletop: poppedcard, // next top of pile.
+                                        nextplayer: nextcounter.nextplayer,
+                                        nextcounter : nextcounter.nextcounter
                                     });
                                     response({
                                         success:true
@@ -170,9 +174,32 @@ io.use(function (socket, next) {
             })
         })
     });
-
+    // data is an object of the following:
+    // {reactiontime: 0.2412 /*seconds */}
     socket.on(events.PLAYER_SLAPPED,(data,response)=>{
         //TODO.
+        let username;
+        let gamesessionid = socket.rooms[1]; // TODO: not sure if this is right for roomname checking.
+        redisdb.getUsername(gamesessionid, socket.id).then((un) => {
+            if(un === undefined )// TODO: we want to check whether un exists in the room.
+                response({success:false,error:"autherror: no such username or roomname"});
+            username = un;
+            // ok. now see if match event.
+            redisdb.getMatch(gamesessionid).then((ismatch)=>{
+                if(ismatch === 1){
+                    redisdb.slap(gamesessionid,username,data.reactiontime).then((slappedplayers)=>{
+                        redisdb.getNplayers(gamesessionid).then((nplayers)=>{
+                            if(slappedplayers.length === nplayers){
+                            //TODO: match result event. figure out who is loser.
+                        }
+                        })
+                    })
+                }else{
+                    // TODO: false slap. punish slapper by popping to pile, and next_ticking.
+                }
+            })
+
+        });
     });
 
 });

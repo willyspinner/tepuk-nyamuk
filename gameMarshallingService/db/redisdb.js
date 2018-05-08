@@ -213,13 +213,14 @@ const self = module.exports = {
     // doesn't pop or anything. Forthis, pophandtopile must be called.
     // this is because we don't want to couple pop hand and increment.
     // what if e.g. the user pops hand on a match event (Which is an illegal op)?
+    // resolves e.g.: {nextplayer: "asdawd",nextcounter: 4}
     incrementCurrentCounter: (gamesessionid) => {
         return new Promise((resolve, reject) => {
             redisIncrAsync(`${gamesessionid}/counter`).then((newcounter) => {
                 redisGetAsync(`${gamesessionid}/nplayers`).then((nplayers) => {
                     redisLindexAsync(`${gamesessionid}/players`, newcounter % nplayers).then((nextplayer) => {
                         redisSetAsync(`${gamesessionid}/playerinturn`, nextplayer).then((retcode) => {
-                             resolve(nextplayer);
+                             resolve({nextplayer: nextplayer,nextcounter: newcounter});
                         }).catch(e => reject(e));
                     }).catch(e => reject(e))
                 }).catch(e => reject(e));
