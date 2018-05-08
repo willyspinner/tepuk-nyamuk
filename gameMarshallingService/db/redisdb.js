@@ -1,34 +1,17 @@
 let redis = require('redis');
+// using bluebird for multi and exec transactions.
+const bluebird = require('bluebird');
 const cards = require('./constants/cardgameconstants');
 const redisconnectionobject = {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT
-}
-const promisify = require('util').promisify;
+};
 let redisclient = redis.createClient(redisconnectionobject);
+
+
 //  <<<<< promisifying our redis commands >>>>>:
-// lists commands:
-const redisRpushAsync = promisify(redisclient.rpush).bind(redisclient);
-const redisRpopAsync = promisify(redisclient.rpop).bind(redisclient);
-const redisLpushAsync = promisify(redisclient.lpush).bind(redisclient); // for popping pile to hand.
-const redisLrangeAsync = promisify(redisclient.lrange).bind(redisclient);
-const redisLlenAsync = promisify(redisclient.llen).bind(redisclient);
-const redisLindexAsync = promisify(redisclient.lindex).bind(redisclient);
-// hash commands
-const redisHmsetAsync = promisify(redisclient.hmset).bind(redisclient);
-const redisHmgetAsync = promisify(redisclient.hmget).bind(redisclient);
-const redisHmgetallAsync = promisify(redisclient.hmgetall).bind(redisclient);
-// get and set commands:
-const redisSetAsync = promisify(redisclient.set).bind(redisclient);
-const redisGetAsync = promisify(redisclient.get).bind(redisclient);
-const redisIncrAsync = promisify(redisclient.incr).bind(redisclient);
-// sorted set commands
-const redisZaddAsync = promisify(redisclient.zadd).bind(redisclient);
-const redisZrangeByScoreAsync = promisify(redisclient.zrangebyscore).bind(redisclient);
-// scan command
-const redisScanAsync = promisify(redisclient.scan).bind(redisclient);
-// del command:
-const redisDelAsync = promisify(redisclient.del).bind(redisclient);
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
 
 // NOTE don't mix application logic. Keep this middleware dumb. Validation should happen
 // on the main gmsapp.js
@@ -81,7 +64,9 @@ gets:
 
 const self = module.exports = {
 
-
+    //TODO TODO write transactions using MULTI and EXEC.
+    //TODO TODO
+    // Callback-caused blocking commands are really not the thing to go for.
     //      {{{{    State mutation methods    }}}}
 
     /* initialize new game with:
@@ -97,55 +82,35 @@ const self = module.exports = {
     */
     initializeGame: (gamesessionid, gamesecret, players, cardsperplayer) => {
         //TODO: do we really need to be strict about card distribution here....
-        let snapshotobj = {};
-        return new Promise((resolve, reject) => {
-            Promise.all(
-                players.map((player) => {
-                    console.log(`returning promise for ${player}`);
-                    return new Promise((resolve, reject) => {
-                        Promise.all([
-                            redisRpushAsync(`${gamesessionid}/players`, player),
-                            new Promise((res,rej)=>{
-                                let hand = [];
-                                Array.from(Array(cardsperplayer)).map((c)=>{
-                                   hand.append(cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)])
-                                });
-                                redisRpushAsync(`${gamesessionid}/player/${player}/hand`,...hand).then((res)=>{
-                                    res();
-                                }).catch(e=>rej(e));
-                            })
-                        ]).then((data) => {
-                            console.log(`resolving for player ${player}`);
-                            resolve();
-                        }).catch((e) => reject(e));
-                    });
-                }).concat(
-                    [
-                        redisSetAsync(`${gamesessionid}/nplayers`, `${players.length}`),
-                        redisSetAsync(`${gamesessionid}/gamesecret`, `${gamesecret}`),
-                        redisSetAsync(`${gamesessionid}/counter`, 0),
-                        redisSetAsync(`${gamesessionid}/match`,0),
-                    ]
-                )).then(() => {
-                Promise.all([
-                    ...players.map((player) => {
-                        return redisLrangeAsync(`${gamesessionid}/player/${player}/hand`, 0, cardsperplayer - 1).then((data) => {
-                            snapshotobj[player] = data;
-                        });
-                    }),
-                    redisSetAsync(`${gamesessionid}/playerinturn`,players[0]) // first player to play is [0].
-                    ]).then((data) => {
-                    resolve(snapshotobj);
-                }).catch((e) => {
-                    console.log(`REJECT 1`);
-                    reject(e)
-                });
-            }).catch((e) => {
-                    console.log(`REJECT 2`);
-                    reject(e)
-                }
-            );
-        })
+        return new Promise((resolve,reject)=>{
+            let snapshotobj = {};
+            let chain = redisclient.multi();
+            // initialise the players' cards.
+           players.forEach((player)=> {
+                   chain = chain.rpush(`${gamesessionid}/players`, player);
+                   let hand = [];
+                   Array.from(Array(cardsperplayer)).forEach((c) => {
+                       hand.push(cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)]);
+                   });
+                   snapshotobj[player] = hand;
+                   chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand)
+           });
+            // initialise the game variables.
+           chain = chain.set(`${gamesessionid}/nplayers`, `${players.length}`);
+           chain = chain.set(`${gamesessionid}/gamesecret`, `${gamesecret}`);
+            chain = chain.set(`${gamesessionid}/counter`, 0);
+            chain = chain.set(`${gamesessionid}/match`,0);
+            chain = chain.set(`${gamesessionid}/playerinturn`,players[0]);
+            // execute transaction.
+            chain.execAsync().then((result)=>{
+                resolve(snapshotobj);
+            }).catch((e)=>{
+                console.error("redisdb::initializeGame: ERROR");
+                console.error(`reason for error: ${e}`);
+                reject(e);
+            })
+
+    });
     },
 
     deleteGame: (gamesessionid)=>{
@@ -153,8 +118,8 @@ const self = module.exports = {
              //note: returnArr is here because this is used for the scan.
              // scan is a recursive function.
             scanAsync(0,`${gamesessionid}/*`, (keys)=>{
-                redisDelAsync(`${gamesessionid}/gamesecret`).then(()=>{
-                    redisDelAsync(...keys).then((retcode)=>{
+                // below not needed.
+                    redisclient.delAsync(...keys).then((retcode)=>{
                         if(keys.length === retcode)
                             resolve(retcode);
                         else{
@@ -164,25 +129,21 @@ const self = module.exports = {
                             resolve(retcode);
                         }
                     }).catch(e=>reject(e));
-                })
+               // })
             });
         });
     },
     setPlayerSocketid: (gamesessionid,socketid,username)=>{
-     return new Promise((resolve,reject)=>{
-        redisHmsetAsync(`${gamesessionid}/sockettoplayer`,socketid,username).then((res)=>{
-            resolve(res);
-            }).catch(e=>reject(e));
-     });
+     return    redisclient.hmsetAsync(`${gamesessionid}/sockettoplayer`,socketid,username);
     },
     setMatch : (gamesessionid,isMatch)=>{
-        return redisSetAsync(`${gamesessionid}/match`,isMatch? 1: 0);
+        return redisclient.setAsync(`${gamesessionid}/match`,isMatch? 1: 0);
     },
 
     popHandToPile: (gamesessionid, player) => {
         return new Promise((resolve, reject) => {
-            redisRpopAsync(`${gamesessionid}/player/${player}/hand`).then((poppedCard) => {
-                redisRpushAsync(`${gamesessionid}/pile`, poppedCard).then(() => {
+            redisclient.rpopAsync(`${gamesessionid}/player/${player}/hand`).then((poppedCard) => {
+                redisclient.rpushAsync(`${gamesessionid}/pile`, poppedCard).then(() => {
                     resolve(poppedCard);
                 }).catch((e) => reject(e));
             }).catch((e) => reject(e));
@@ -192,21 +153,22 @@ const self = module.exports = {
     popAllPileToLoser: (gamesessionid, loser) => {
         return new Promise((resolve, reject) => {
             // 1. First, pop the pile.
-            redisLlenAsync(`${gamesessionid}/pile`).then((len) => {
-                Promise.all(
-                    Array.from(Array(len)).map(m =>
-                        redisRpopAsync(`${gamesessionid}/pile`)
-                    )
-                ).then((poppedpile) => {
+            redisclient.llenAsync(`${gamesessionid}/pile`).then((len) => {
+                let chain = redisclient.multi();
+                    Array.from(Array(len)).map(m => {
+                           chain =  chain.rpop(`${gamesessionid}/pile`)
+                        });
+                chain.execAsync()
+                    .then((poppedpile) => {
                     console.log(`poppedpile: ${JSON.stringify(poppedpile)}`);
                     // 2. , push the popped pile cards to loser.
-                    redisLpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
+                    redsclient.lpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
                         .then((result) => {
                             resolve();
                         }).catch(e => reject(e));
                 }).catch(e => reject(e));
             }).catch(e => reject(e));
-        }).catch(e => reject(e));
+        });
     },
 
     //NOTE: only increments the counter AND player in turn.
@@ -216,22 +178,24 @@ const self = module.exports = {
     // resolves e.g.: {nextplayer: "asdawd",nextcounter: 4}
     incrementCurrentCounter: (gamesessionid) => {
         return new Promise((resolve, reject) => {
-            redisIncrAsync(`${gamesessionid}/counter`).then((newcounter) => {
-                redisGetAsync(`${gamesessionid}/nplayers`).then((nplayers) => {
-                    redisLindexAsync(`${gamesessionid}/players`, newcounter % nplayers).then((nextplayer) => {
-                        redisSetAsync(`${gamesessionid}/playerinturn`, nextplayer).then((retcode) => {
-                             resolve({nextplayer: nextplayer,nextcounter: newcounter});
-                        }).catch(e => reject(e));
-                    }).catch(e => reject(e))
-                }).catch(e => reject(e));
-            }).catch(e => reject(e));
+            let chain = redisclient.multi();
+            chain.incr(`${gamesessionid}/counter`).get(`${gamesessionid}/nplayers`);
+            chain.execAsync().then((data)=>{
+                const newcounter = data[0];
+                const nplayers = data[1];
+                redisclient.lindexAsync(`${gamesessionid}/players`, newcounter % nplayers).then((nextplayer) => {
+                    redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
+                        resolve({nextplayer: nextplayer,nextcounter: newcounter});
+                    }).catch(e => reject(e));
+                }).catch(e => reject(e))
+            })
         });
     },
 
     slap: (gamesessionid, player, reactiontime) => {
         return new Promise((resolve, reject) => {
-            redisZaddAsync(`${gamesessionid}/slappedusers`, reactiontime, player).then(() => {
-                redisZrangeByScoreAsync(`${gamesessionid}/slappedusers`, '-inf', '+inf').then((slappedplayers) => {
+            redisclient.zaddAsync(`${gamesessionid}/slappedusers`, reactiontime, player).then(() => {
+                redisclient.zrangebyscoreAsync(`${gamesessionid}/slappedusers`, '-inf', '+inf').then((slappedplayers) => {
                     resolve(slappedplayers);
                 }).catch((e) => reject(e));
             }).catch((e) => reject(e));
@@ -240,7 +204,7 @@ const self = module.exports = {
 
     incrementStreak: (gamesessionid, player) => {
         return new Promise((resolve, reject) => {
-            redisIncrAsync(`${gamesessionid}/player/${player}/streak`).then((newstreak) => {
+            redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`).then((newstreak) => {
                 resolve(newstreak);
             }).catch(e => reject(e));
         });
@@ -248,7 +212,7 @@ const self = module.exports = {
 
     setZeroSreak: (gamesessionid, player) => {
         return new Promise((resolve, reject) => {
-            redisSetAsync(`${gamesessionid}/player/${player}/streak`,0).then((newstreak) => {
+            redisclient.setAsync(`${gamesessionid}/player/${player}/streak`,0).then((newstreak) => {
                 resolve(0);
             }).catch(e => reject(e));
         });
@@ -258,76 +222,50 @@ const self = module.exports = {
 
     // get current turn. NOTE: idt we need this.
     getCurrentTurn: (gamesessionid) => {
-        return new Promise((resolve, reject) => {
-            redisGetAsync(`${gamesessionid}/playerinturn`).then(playerinturn => {
-                resolve(playerinturn);
-            }).catch((e) => reject(e));
-        });
+            return redisclient.getAsync(`${gamesessionid}/playerinturn`);
     },
 
     getMatch : (gamesessionid)=>{
-        return redisGetAsync(`${gamesessionid}/match`);
+        return redisclient.getAsync(`${gamesessionid}/match`);
     },
     // get game card pile.
     getPile: (gamesessionid) => {
-        return new Promise((resolve, reject) => {
-            redisLlenAsync(`${gamesessionid}/pile`).then(len => {
-                redisLrangeAsync(`${gamesessionid}/pile`).then(pile => {
-                    resolve(pile);
-                }).catch(e => reject(e));
-            }).catch(e => reject(e));
-        }).catch(e => reject(e));
+        return redisclient.lrangeAsync(`${gamesessionid}/pile`);
     },
 
     // get snapshot of the game, i.e. everyone's cards.
     getSnapshot: (gamesessionid) => {
         return new Promise((resolve, reject) => {
-            let returnArr = [];
             scanAsync("0", `${gamesessionid}/player/*/hand`, (handkeys) => {
-                console.log(`handkeys got: ${JSON.stringify(handkeys)}`);
-                Promise.all(
-                    handkeys.map(handkey =>
-                        new Promise((res1, rej1) => {
-                            redisLlenAsync(handkey).then(len => {
-                                redisLrangeAsync(handkey, 0, len - 1).then((hand) => {
-                                    const username = handkey.split('/')[2];
-                                    res1({username: username, hand: hand});
-                                })
-                            }).catch(e => rej1(e));
-                        })
-                    )
-                ).then((hands) => {
-                    // hands is an array containing elements like:
-                    // {username:username, hand: [c1,c2,c3,...]}
-                    resolve(hands);
-                }).catch(e => reject(e))
-            }).catch(e => {
-                console.log(`redisdb::getSnapshot : scanAsync failed!`);
-                reject(e);
-            });
+                let resultArr = [];
+                let chain = redisclient.multi();
+                handkeys.forEach(handkey=>{
+                    chain = chain.lrange(handkey,0,-1);
+                });
+
+                chain.execAsync().then((result)=>{
+                    handkeys.forEach((handkey,idx)=>{
+                        const username = handkey.split('/')[2];
+                        resultArr.push({username:username,hand: result[idx]});
+                    });
+                    resolve(resultArr);
+                }).catch((e)=>reject(e));
+            }).catch((e)=>reject(e));
         });
     },
     // get username from someone's socket id.
     getUsername: (gamesessionid,socketid)=>{
-        return new Promise((resolve,reject)=>{
-            redisHmgetAsync(`${gamesessionid}/sockettoplayer`,socketid).then((res)=>{
-                resolve(res);
-            }).catch(e=>reject(e));
-        });
+            return redisclient.hmgetAsync(`${gamesessionid}/sockettoplayer`,socketid);
     },
     // get number of players
     getNplayers: (gamesessionid)=>{
-        return new Promise((res,rej)=>{
-            redisGetAsync(`${gameasessionid}/nplayers`).then((len)=>{
-                res(len);
-            }).catch((e)=>rej(e));
-        });
+            return rediscleint.getAsync(`${gameasessionid}/nplayers`);
     },
 
     // get slapped users, with their reaction times.
    getSlappedPlayers: (gamesessionid)=>{
        return new Promise((resolve,reject)=> {
-               redisZrangeByScoreAsync(`${gamesessionid}/slappedusers`,0,"+inf",'WITHSCORES').then((slappedusers)=>{
+               redisclient.zrangebyscoreAsync(`${gamesessionid}/slappedusers`,0,"+inf",'WITHSCORES').then((slappedusers)=>{
                    let retObj = [];
                    for(let i = 0; i +1 < slappedusers.length ; i+=2){
                        retObj.push({username: slappedusers[i], reactiontime: slappedusers[i+1]});
@@ -339,11 +277,7 @@ const self = module.exports = {
 
     // get game secret - in bcrypt encrpyted form.
     getGameSecret : (gamesessionid)=>{
-     return new Promise((resolve,reject)=>{
-         redisGetAsync(`${gamesessionid}/gamesecret`).then((gamesecret)=>{
-             resolve(gamesecret);
-         }).catch(e=>reject(e));
-     });
+         return redisclient.getAsync(`${gamesessionid}/gamesecret`);
     },
     utils: {
         scanAsync: scanAsync,
@@ -353,10 +287,10 @@ const self = module.exports = {
 //helper stuff
 // returns promises for scan just incase non 0
 function scanAsync(cursor, pattern,callback,returnArr=[]) {
-    return redisScanAsync(cursor, "MATCH", pattern, "COUNT", "40").then(
+    return redisclient.scanAsync(cursor, "MATCH", pattern, "COUNT", "40").then(
         function (reply) {
             cursor = reply[0];
-            var keys = reply[1];
+            let keys = reply[1];
             keys.forEach(function (key, i) {
                 returnArr.push(key);
             });

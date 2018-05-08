@@ -78,17 +78,21 @@ describe('redisdb.test: increment current counter testing',function(){
             done();
         }).catch(e=>done(e));
     });
-    it('should be in order before moduloing.',function(done) {
+    it('should be in order before having to repeat.',function(done) {
         redisdb.getCurrentTurn(dummydata.game1.gamesessionid).then((playerinturn) => {
             assert.equal(playerinturn, dummydata.game1.players[0]);
-            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer) => {
-                assert.equal(nextplayer, dummydata.game1.players[1]);
-                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer2) => {
-                    assert.equal(nextplayer2, dummydata.game1.players[2]);
-                    redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer3) => {
-                        assert.equal(nextplayer3, dummydata.game1.players[3]);
-                        redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer4) => {
-                            assert.equal(nextplayer4, dummydata.game1.players[4]);
+            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next) => {
+                assert.equal(next.nextplayer, dummydata.game1.players[1]);
+                assert.equal(next.nextcounter, 1);
+                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next2) => {
+                    assert.equal(next2.nextplayer, dummydata.game1.players[2]);
+                    assert.equal(next2.nextcounter, 2);
+                    redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next3) => {
+                        assert.equal(next3.nextplayer, dummydata.game1.players[3]);
+                        assert.equal(next3.nextcounter, 3);
+                        redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next4) => {
+                            assert.equal(next4.nextplayer, dummydata.game1.players[4]);
+                            assert.equal(next4.nextcounter, 4);
                             done();
                         }).catch((e) => done(e));
                     }).catch((e) => done(e));
@@ -99,18 +103,18 @@ describe('redisdb.test: increment current counter testing',function(){
     it('should be in order modulo nplayers',function(done){
         redisdb.getCurrentTurn(dummydata.game1.gamesessionid).then((playerinturn) => {
             assert.equal(playerinturn, dummydata.game1.players[4]);
-            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer) => {
-                assert.equal(nextplayer, dummydata.game1.players[0]);
-                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer2) => {
-                    assert.equal(nextplayer2, dummydata.game1.players[1]);
-                    redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer3) => {
-                        assert.equal(nextplayer3, dummydata.game1.players[2]);
-                        redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer4) => {
-                            assert.equal(nextplayer4, dummydata.game1.players[3]);
-                            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer5) => {
-                                assert.equal(nextplayer5, dummydata.game1.players[4]);
-                                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((nextplayer6) => {
-                                    assert.equal(nextplayer6, dummydata.game1.players[0]);
+            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next) => {
+                assert.equal(next.nextplayer, dummydata.game1.players[0]);
+                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next2) => {
+                    assert.equal(next2.nextplayer, dummydata.game1.players[1]);
+                    redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next3) => {
+                        assert.equal(next3.nextplayer, dummydata.game1.players[2]);
+                        redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next4) => {
+                            assert.equal(next4.nextplayer, dummydata.game1.players[3]);
+                            redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next5) => {
+                                assert.equal(next5.nextplayer, dummydata.game1.players[4]);
+                                redisdb.incrementCurrentCounter(dummydata.game1.gamesessionid).then((next6) => {
+                                    assert.equal(next6.nextplayer, dummydata.game1.players[0]);
                                 done();
                                 }).catch((e) => done(e));
                             }).catch((e) => done(e));
@@ -159,8 +163,6 @@ describe('redisdb.test: slaps',function(){
            }),
             new Promise((resolve,reject)=>{
                 setTimeout(()=>{
-                    
-
                     redisdb.slap(sessid,players[1],JSON.stringify(0.200)).then(()=>{
                         resolve();
                     }).catch(e=>reject(e));
