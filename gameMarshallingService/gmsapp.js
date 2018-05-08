@@ -47,7 +47,8 @@ app.post('/gms/game/create',(req,res)=>{
         .update(gamesessionid,'utf8','hex');
     const gamesecretfinal =gamesecret +  gamesecret.update.final('hex');
     //  then we store the game secret in redis
-    const encryptedgamesecret = bcrypt.hashSync(gamesecretfinal,10);
+    const salt = bcrypt.genSaltSync(10);
+    const encryptedgamesecret = bcrypt.hashSync(gamesecretfinal,salt);
     redisdb.setGameSecret(gamesessionid,encryptedgamesecret).then((result)=>{
         // then we generate JWT token.
         const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET,{expiresIn: 21600});

@@ -41,9 +41,8 @@ password
 app.post('/appcs/user/new', (req, res) => {
     db.getUser(req.body.username).then((user) => {
         if (!user) {
-            const salt = 10;
-
             console.log(`password to /appcs/user/new : ${req.body.password}`);
+            const salt = bcrypt.genSaltSync(10);
             const userObj = {
                 username: req.body.username,
                 password: bcrypt.hashSync(req.body.password, salt)
