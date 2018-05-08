@@ -41,7 +41,7 @@ we have:
 -  GAMESESSIONID/counter - int of current counter (not % 13 though .this is absolute) - mod by 13 will be done by server.
 -  GAMESESSIONID/slappedusers - redis sorted set for users who slapped.
 - GAMESESSIONID/playerinturn - the player who is supposed to throw.
--  GAMESESSIONID/players - redis set of the players (ordered).
+-  GAMESESSIONID/players - redis set of the players
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
 
 for every player with username USERNAME in GAMESESSIONID, we have:
@@ -97,13 +97,15 @@ const self = module.exports = {
                     return new Promise((resolve, reject) => {
                         Promise.all([
                             redisRpushAsync(`${gamesessionid}/players`, player),
-                            Promise.all(
-                                Array.from(Array(cardsperplayer)).map((c) => {
-                                    console.log(`adding card to ${gamesessionid}/${player}`);
-                                    //TODO: surely we can just rpush a whole array at once here... why so unecessary...
-                                    return redisRpushAsync(`${gamesessionid}/player/${player}/hand`, `${cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)]}`);
-                                })
-                            ),
+                            new Promise((res,rej)=>{
+                                let hand = [];
+                                Array.from(Array(cardsperplayer)).map((c)=>{
+                                   hand.append(cards.fullcarddeck[Math.floor(Math.random() * cards.fullcarddeck.length)])
+                                });
+                                redisRpushAsync(`${gamesessionid}/player/${player}/hand`,...hand).then((res)=>{
+                                    res();
+                                }).catch(e=>rej(e));
+                            })
                         ]).then((data) => {
                             console.log(`resolving for player ${player}`);
                             resolve();

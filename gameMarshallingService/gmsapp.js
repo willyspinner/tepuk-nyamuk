@@ -27,7 +27,7 @@ POST /gms/game/create: posted to GMS from appcs to create game
 post body:
 - gamename
 - gameid
-- an array of player usernames (stringified)
+- players: an array of player usernames (stringified)
 
 returns the following as json response (To appcs):
 {
@@ -37,8 +37,13 @@ returns the following as json response (To appcs):
 }
  */
 app.post('/gms/game/create',(req,res)=>{
-    //TODO: this way might not be correct. MUST READ UP ABOUT CRYPTO modules.
     // first we generate the game session.
+    if(JSON.parse(req.body.players).length < 2)
+        res.json({
+            success:false,
+            error: "too few players."
+        })
+    let cardsperplayer = 10; // this can be made a post body option (req.body) later if needed.
     let gamesessionid = crypto.createCipher('aes-128-cbc',process.env.GAME_SECRET)
         .update(req.body.gameid,'utf8','hex');
     gamesessionid = gamesessionid + gamesessionid.update.final('hex');
@@ -49,17 +54,19 @@ app.post('/gms/game/create',(req,res)=>{
     //  then we store the game secret in redis
     const salt = bcrypt.genSaltSync(10);
     const encryptedgamesecret = bcrypt.hashSync(gamesecretfinal,salt);
-    redisdb.setGameSecret(gamesessionid,encryptedgamesecret).then((result)=>{
-        // then we generate JWT token.
-        const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET,{expiresIn: 21600});
-        res.status(200).json({
-            sucess:true,
-            gametoken: gametoken,
-            gamesecret: gamesecretfinal
-        })
+        redisdb.initializeGame(gamesessionid, encryptedgamesecret,
+            JSON.parse(req.body.players), cardsperplayer)
+            .then((result)=>{
+                // then with the created game, we generate JWT gametoken.
+                const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET,{expiresIn: 21600});
+                res.status(200).json({
+                    sucess:true,
+                    gametoken: gametoken,
+                    gamesecret: gamesecretfinal
+                })
     }).catch(e=>res.json({
        success:false,
-       error: "redis failed to persist game secret."
+       error: "redis failed to initialise game."
     }));
 
 });
