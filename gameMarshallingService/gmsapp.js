@@ -8,7 +8,7 @@ const app = express();
 const io = require('socket.io')();
 const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
-
+const events = require('./constants/socketEvents');
 app.set('port', process.env.PORT || 3000);
 const bodyParser = require('body-parser')
 app.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -37,6 +37,11 @@ returns the following as json response (To appcs):
 }
  */
 app.post('/gms/game/create',(req,res)=>{
+    if (!uuidvalidate(req.body.gameid))
+        res.json({
+            success:false,
+            error: "gameid invalid"
+        });
     // first we generate the game session.
     if(JSON.parse(req.body.players).length < 2)
         res.json({
@@ -108,4 +113,66 @@ io.use(function (socket, next) {
     }
 }).on('connect', (socket) => {
     //TODO: ws game events here.
+    //TODO authentication. this is very week on authentication.
+    // no things needed.
+    // to reduce load ofcourse, client side validation is needed.
+    socket.on(events.PLAYER_THREW,(data,response)=> {
+        let username;
+        let gamesessionid = socket.rooms[1]; // TODO: not sure if this is right for roomname checking.
+        redisdb.getUsername(gamesessionid, socket.id).then((un) => {
+            // see if it is match event.
+            if(un === undefined )// TODO: we want to check whether un exists in the room.
+                response({success:false,error:"autherror: no such username or roomname"});
+            username = un;
+            // find out if it already is a match event.
+            //TODO should getMatch be first then currenTurn, or vice versa?
+            redisdb.getMatch(gamesessionid).then((ismatch)=>{
+                if(ismatch === 1)
+                    response({
+                        success:false,
+                        error: "is currently in match"
+                    });
+                redisdb.getCurrentTurn(gamesessionid).then((playerinturn)=>{
+                    if (playerinturn === username){
+                        //throw card.
+                        redisdb.popHandToPile(gamesessionid,username).then((poppedcard)=>{
+                            // increment counter.
+                            redisdb.incrementCurrentCounter(gamesessionid).then((newcounter)=>{
+                                // check match event.
+                                if(JSON.stringify(newcounter % 13) === poppedcard){
+                                    // match event
+                                    redisdb.setMatch(gamesessionid,true).then(()=>{
+                                        // go on with next tick as normal, waiting for people
+                                        // to find out that it is a match and slap.
+                                        io.to(gamesessionid).emit(events.NEXT_TICK,{
+                                            //TODO: need to standardise this next tick thing.
+                                            match: true,
+                                            nextpiletop: poppedcard // next top of pile.
+                                        });
+                                        response({
+                                            success:true
+                                        })
+                                    });
+                                }else{
+                                    // just a normal throw.
+                                    io.to(gamesessionid).emit(events.NEXT_TICK,{
+                                        match: false,
+                                        piletop: poppedcard
+                                    });
+                                    response({
+                                        success:true
+                                    })
+                                }
+                            })
+                        })
+                    }
+                })
+            })
+        })
+    });
+
+    socket.on(events.PLAYER_SLAPPED,(data,response)=>{
+        //TODO.
+    });
+
 });

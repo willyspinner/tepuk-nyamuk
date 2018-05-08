@@ -14,13 +14,16 @@ const redisLpushAsync = promisify(redisclient.lpush).bind(redisclient); // for p
 const redisLrangeAsync = promisify(redisclient.lrange).bind(redisclient);
 const redisLlenAsync = promisify(redisclient.llen).bind(redisclient);
 const redisLindexAsync = promisify(redisclient.lindex).bind(redisclient);
+// hash commands
+const redisHmsetAsync = promisify(redisclient.hmset).bind(redisclient);
+const redisHmgetAsync = promisify(redisclient.hmget).bind(redisclient);
+const redisHmgetallAsync = promisify(redisclient.hmgetall).bind(redisclient);
 // get and set commands:
 const redisSetAsync = promisify(redisclient.set).bind(redisclient);
 const redisGetAsync = promisify(redisclient.get).bind(redisclient);
 const redisIncrAsync = promisify(redisclient.incr).bind(redisclient);
 // sorted set commands
 const redisZaddAsync = promisify(redisclient.zadd).bind(redisclient);
-const redisZcountAsync = promisify(redisclient.zcount).bind(redisclient);
 const redisZrangeByScoreAsync = promisify(redisclient.zrangebyscore).bind(redisclient);
 // scan command
 const redisScanAsync = promisify(redisclient.scan).bind(redisclient);
@@ -41,8 +44,10 @@ we have:
 -  GAMESESSIONID/counter - int of current counter (not % 13 though .this is absolute) - mod by 13 will be done by server.
 -  GAMESESSIONID/slappedusers - redis sorted set for users who slapped.
 - GAMESESSIONID/playerinturn - the player who is supposed to throw.
--  GAMESESSIONID/players - redis set of the players
+-  GAMESESSIONID/players - redis list of the players
+- GAMESESSIONID/sockettoplayer - redis hash of socketid: player username - used for in game identity validation.
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
+- GAMESESSIONID/match - 1 if is a match, or 0 if no match
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
@@ -53,6 +58,8 @@ for every player with username USERNAME in GAMESESSIONID, we have:
 State mutations:
 -# initialise game
 -# delete game
+-# store connected player's socketid.
+-#  set match
 -# pop hand and push card to pile
         - returns popped card.
 -# pop card pile and transfer to loser's hand(identified by loser's username)
@@ -66,6 +73,7 @@ State mutations:
 gets:
 -# get current turn
 -# get game card pile (in order) ( for testing purposes only)
+-# get match
 -# get snapshot of game (everyone's piles)
 -# get number of players.
 -# get slappedUsers Sorted set. (for our gms app)
@@ -116,6 +124,7 @@ const self = module.exports = {
                         redisSetAsync(`${gamesessionid}/nplayers`, `${players.length}`),
                         redisSetAsync(`${gamesessionid}/gamesecret`, `${gamesecret}`),
                         redisSetAsync(`${gamesessionid}/counter`, 0),
+                        redisSetAsync(`${gamesessionid}/match`,0),
                     ]
                 )).then(() => {
                 Promise.all([
@@ -159,14 +168,21 @@ const self = module.exports = {
             });
         });
     },
-    //NOTE: gamescret should already be encrypted and salted here.
-    setGameSecret: (gamesessionid,gamesecret)=>{
-        return new Promise((resolve,reject)=>{
-            redisSetAsync(`${gamesessionid}/gamesecret`,gamesecret).then((retcode)=>{
-                resolve(retcode);
+    setPlayerSocketid: (gamesessionid,socketid,username)=>{
+     return new Promise((resolve,reject)=>{
+        redisHmsetAsync(`${gamesessionid}/sockettoplayer`,socketid,username).then((res)=>{
+            resolve(res);
             }).catch(e=>reject(e));
-        });
+     });
     },
+    //NOTE: gamescret should already be encrypted and salted here.
+    setGameSecret: (gamesessionid,gamesecret)=> {
+        return redisSetAsync(`${gamesessionid}/gamesecret`, gamesecret)
+    },
+    setMatch : (gamesessionid,isMatch)=>{
+        return redisSetAsync(`${gamesessionid}/match`,isMatch? 1: 0);
+    },
+
     popHandToPile: (gamesessionid, player) => {
         return new Promise((resolve, reject) => {
             redisRpopAsync(`${gamesessionid}/player/${player}/hand`).then((poppedCard) => {
@@ -177,7 +193,7 @@ const self = module.exports = {
         });
     },
 
-    popPileToLoser: (gamesessionid, loser) => {
+    popAllPileToLoser: (gamesessionid, loser) => {
         return new Promise((resolve, reject) => {
             // 1. First, pop the pile.
             redisLlenAsync(`${gamesessionid}/pile`).then((len) => {
@@ -252,6 +268,9 @@ const self = module.exports = {
         });
     },
 
+    getMatch : (gamesessionid)=>{
+        return redisGetAsync(`${gamesessionid}/match`);
+    },
     // get game card pile.
     getPile: (gamesessionid) => {
         return new Promise((resolve, reject) => {
@@ -291,7 +310,14 @@ const self = module.exports = {
             });
         });
     },
-
+    // get username from someone's socket id.
+    getUsername: (gamesessionid,socketid)=>{
+        return new Promise((resolve,reject)=>{
+            redisHmgetAsync(`${gamesessionid}/sockettoplayer`,socketid).then((res)=>{
+                resolve(res);
+            }).catch(e=>reject(e));
+        });
+    },
     // get number of players
     getNplayers: (gamesessionid)=>{
         return new Promise((res,rej)=>{

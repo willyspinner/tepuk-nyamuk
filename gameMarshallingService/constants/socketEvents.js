@@ -1,22 +1,7 @@
 module.exports=  {
-    GAME_CREATED: 'gameCreated',
-    GAME_DELETED:'gameDeleted',
-    CONN_DETAILS: 'connDetails',
-    LOBBY:{
-        USER_JOINED: 'userJoined',
-        USER_LEFT:'userLeft',
-        LOBBY_GAME_DELETED:'lobbyGameDeleted',
-        GAME_START: 'gameStart',
-        CLIENT_ATTEMPT_JOIN:'clientAttemptJoin',
-        CLIENT_ATTEMPT_JOIN_ACK:'clientAttemptJoinAck',
-        CLIENT_ATTEMPT_JOIN_NOACK:'clientAttemptJoinNoAck',
-        CLIENT_LEAVE: 'clientLeave',
-        CLIENT_LEAVE_ACK: 'clientLeaveAck',
-        CLIENT_LEAVE_NOACK: 'clientLeaveNoAck',
-    },
-    // these are just some helper tings that will query the socket's room information.
-    UTILS:{
-        CHECK_ROOM:'checkRoom'
-    }
-
+    PLAYER_THREW: "playerThrew",
+    PLAYER_SLAPPED: "playerSlapped",
+    NEXT_TICK: 'nextTick',
+    MATCH_RESULT: "matchResult",
+    ADD_TO_HAND: "addToHand" // for loser
 }

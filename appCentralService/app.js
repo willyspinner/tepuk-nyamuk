@@ -7,7 +7,6 @@ const io = require('socket.io')();
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
-const MAIN_NAMESPACE = '/main';
 const uuidvalidate = require('uuid-validate');
 // appcs environment var.
 
