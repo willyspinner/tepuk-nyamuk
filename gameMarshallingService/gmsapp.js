@@ -102,8 +102,9 @@ io.use(function (socket, next) {
             if (err)
                 return next(new Error('WS Auth Error'));
             redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
-                if (bcrypt.compareSync(socket.handshake.query.roomsecret, encrpytedrealsecret))
-                    next(); // authorized.
+                if (bcrypt.compareSync(socket.handshake.query.roomsecret, encrpytedrealsecret)){
+                   next(); // authorized.
+                }
                 else
                     return next(new Error('WS Auth Error'));
             }).catch(e => next(new Error("WS auth error: redisdb fail")));
@@ -112,7 +113,11 @@ io.use(function (socket, next) {
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
+    if(! socket.sentInit){
+        socket.sentInit = true;
+        // set connected to redis.
 
+    }
         //WARNING: no data from PLAYER_THREW?
     //What about to check if player is in sync?
     socket.on(events.PLAYER_THREW, (data, response) => {

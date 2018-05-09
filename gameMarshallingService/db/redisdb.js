@@ -25,13 +25,14 @@ we have:
 -  GAMESESSIONID/pile - redis list for the pile.
 -  GAMESESSIONID/nplayers - int of number of players.
 -  GAMESESSIONID/counter - int of current counter (not % 13 though .this is absolute) - mod by 13 will be done by server.
--  GAMESESSIONID/slappedusers - redis sorted set for users who slapped.
+-  GAMESESSIONID/slappedusers - redis sorted set for users who slapped. (used so that we can store the reaction time (rank)).
 - GAMESESSIONID/playerinturn - the player who is supposed to throw. (index)
 -GAMESESSIONID/turnoffset - the first player's index in the /players/ list. used  to calculate next player in turn.
 -  GAMESESSIONID/players - redis list of the players
 - GAMESESSIONID/sockettoplayer - redis hash of socketid: player username - used for in game identity validation.
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
 - GAMESESSIONID/match - 1 if is a match, or 0 if no match
+- GAMESESSIONID/connectedplayers - redis set of a person.
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
@@ -350,7 +351,4 @@ function scanAsync(cursor, pattern,callback,returnArr=[]) {
 
         });
 };
-function modulo(x,m){
-    return (x % m + m) % m;
-}
 
