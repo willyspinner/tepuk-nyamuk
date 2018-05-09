@@ -76,6 +76,7 @@ app.post('/gms/game/create', (req, res) => {
 
 });
 
+// SOCKET AUTH
 
 // we use our middleware to deal with JWT auth
 // this is to verify that the user attempting to log in for some socket route
@@ -99,17 +100,18 @@ socket.handshake.query:
 }
 
  */
+
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err){
-                console.log(`socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
+                console.log(`gms::socketauth: socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
                 return next(new Error('WS Auth Error'));
             }
             redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
-                socket.gamesessionid = decoded.gamesessionid;
                 socket.username = socket.handshake.query.username;
-                if (bcrypt.compareSync(socket.handshake.query.gamesecret, encrpytedrealsecret)){
+                if (bcrypt.compareSync(socket.handshake.query.gamesecret, encrpytedrealsecret)) {
+                    socket.gamesessionid = decoded.gamesessionid;
                    next(); // authorized.
                 }
                 else {
@@ -184,46 +186,52 @@ io.use(function (socket, next) {
                 if (playerinturn === username) {
                     // see if it is a match
                     redisdb.getMatch(gamesessionid).then((ismatch) => {
+                        
+                        console.log(`gmsapp::events.PLAYER_THREW. is match? ${ismatch}`);
                         if (ismatch === 1)
                             response({
                                 success: false,
                                 error: "is currently in match"
                             });
-                        //throw card if not in match
-                        redisdb.popHandToPile(gamesessionid, username).then((poppedcard) => {
-                            // increment counter.
-                            redisdb.incrementCurrentCounter(gamesessionid).then((nextcounter) => {
-                                // check match event.
-                                if (JSON.stringify(nextcounter.newcounter % 13) === poppedcard) {
-                                    // match event
-                                    redisdb.setMatch(gamesessionid, true).then(() => {
-                                        // go on with next tick as normal, waiting for people
-                                        // to find out that it is a match and slap.
+                        else{
+                            redisdb.popHandToPile(gamesessionid, username).then((poppedcard) => {
+                                // increment counter.
+                                redisdb.incrementCurrentCounter(gamesessionid).then((nextcounter) => {
+                                    // check match event.
+                                    
+                                    console.log(`gmsapp::events.PLAYER_THREW. checking match : ${nextcounter.nextcounter % 13} === ${poppedcard}?`);
+                                    if (JSON.stringify(nextcounter.nextcounter % 13) === poppedcard) {
+                                        // match event
+                                        redisdb.setMatch(gamesessionid, true).then(() => {
+                                            // go on with next tick as normal, waiting for people
+                                            // to find out that it is a match and slap.
+                                            io.to(gamesessionid).emit(events.NEXT_TICK, {
+                                                match: true,
+                                                piletop: poppedcard, // next top of pile.
+                                                nextplayer: nextcounter.nextplayer,
+                                                counter: nextcounter.nextcounter
+                                            });
+                                            response({
+                                                success: true,
+                                            })
+                                        });
+                                    } else {
+                                        // just a normal throw.
+
                                         io.to(gamesessionid).emit(events.NEXT_TICK, {
-                                            match: true,
+                                            match: false,
                                             piletop: poppedcard, // next top of pile.
                                             nextplayer: nextcounter.nextplayer,
-                                            nextcounter: nextcounter.nextcounter
+                                            counter: nextcounter.nextcounter
                                         });
                                         response({
-                                            success: true,
+                                            success: true
                                         })
-                                    });
-                                } else {
-                                    // just a normal throw.
-
-                                    io.to(gamesessionid).emit(events.NEXT_TICK, {
-                                        match: false,
-                                        piletop: poppedcard, // next top of pile.
-                                        nextplayer: nextcounter.nextplayer,
-                                        nextcounter: nextcounter.nextcounter
-                                    });
-                                    response({
-                                        success: true
-                                    })
-                                }
+                                    }
+                                })
                             })
-                        })
+                        }
+                        //throw card if not in match
                     })
                 } else {
                     // not player's turn to throw.

@@ -63,7 +63,7 @@ describe('redisdb.test: test popHandToPile', function () {
                 const hand = snapshot.find((elem) =>
                     elem.username === dummydata.game1.players[0]
                 ).hand;
-                const expectedcard = hand[hand.length - 1];
+                const expectedcard = hand.pop();
                 assert.equal(expectedcard, poppedcard);
                 done();
             }).catch(e => done(e));

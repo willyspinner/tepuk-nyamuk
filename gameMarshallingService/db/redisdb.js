@@ -287,11 +287,17 @@ const self = module.exports = {
     },
 
     getMatch : (gamesessionid)=>{
-        return redisclient.getAsync(`${gamesessionid}/match`);
+        //return redisclient.getAsync(`${gamesessionid}/match`);
+
+        return new Promise((resolve,reject)=>{
+            redisclient.getAsync(`${gamesessionid}/match`).then((res)=>{
+                resolve(parseInt(res));
+            }).catch((e)=>reject(e));
+        });
     },
     // get game card pile.
     getPile: (gamesessionid) => {
-        return redisclient.lrangeAsync(`${gamesessionid}/pile`);
+        return redisclient.lrangeAsync(`${gamesessionid}/pile,` ,0 , -1);
     },
 
     // get snapshot of the game, i.e. everyone's cards.
@@ -347,6 +353,10 @@ const self = module.exports = {
 
     utils: {
         scanAsync: scanAsync,
+        // addTo Hand is used for our testing purposes.
+        addToHand: (gamesessionid,player,card)=>{
+            return redisclient.rpushAsync(`${gamesessionid}/player/${player}/hand`,card);
+        },
     }
    }
 
