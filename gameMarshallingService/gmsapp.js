@@ -90,9 +90,12 @@ the lobby and it was about to start) a token, and the gamesessionid. (gamesessio
 sending details:
 socket.handshake.query:
  {
-     token: "JWT TOKEN", encodes {gamesessionid:"some id sent"}
-     roomsecret: awoinaodkawd129j12#
-     gameid: "2012je2qdaw" - game id received from appcs
+       token: "JWT TOKEN", encodes {gamesessionid:"some id sent"}
+       //DANGER DANGER
+      username: ____,
+      //TODO NOTE: what's a better way to securely send a username?
+      // this is open to false username attacks.
+    roomsecret: awoinaodkawd129j12#
 }
 
  */
@@ -103,6 +106,8 @@ io.use(function (socket, next) {
                 return next(new Error('WS Auth Error'));
             redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
                 if (bcrypt.compareSync(socket.handshake.query.roomsecret, encrpytedrealsecret)){
+                    socket.gamesessionid = gamesessionid;
+                    socket.username = req.body.username;
                    next(); // authorized.
                 }
                 else
@@ -116,10 +121,24 @@ io.use(function (socket, next) {
     if(! socket.sentInit){
         socket.sentInit = true;
         // set connected to redis.
+        redisdb.setPlayerConnected(socket.gamesessionid,socket.id,socket.username).then(()=>{
+            Promise.all([
+                //TODO chain this in redis! too inefficient.
+                redisdb.getNplayers(socket.gamesessionid),
+                redisdb.getConnectedPlayers(socket.gamesessionid)
+            ]).then((data)=>{
+                const totalplayers = data[0];
+                const connectedplayers = data[1];
+                if(totalplayers === connectedplayers) {
+                    io.to(socket.gamesessionid).emit(events.GAME_START);
+                }
+            })
+        });
 
     }
         //WARNING: no data from PLAYER_THREW?
     //What about to check if player is in sync?
+    //remember that we have to authenticate the socket by looking up the id's username here.
     socket.on(events.PLAYER_THREW, (data, response) => {
         let username;
         let gamesessionid = socket.rooms[1]; // i think this is the right way.
@@ -193,7 +212,6 @@ io.use(function (socket, next) {
     // data is an object of the following:
     // {reactiontime: 0.2412 /*seconds */}
     socket.on(events.PLAYER_SLAPPED, (data, response) => {
-        //TODO.
         let username;
         let gamesessionid = socket.rooms[1];
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
@@ -211,7 +229,7 @@ io.use(function (socket, next) {
                             });
                         else{
                             redisdb.slap(gamesessionid, username, data.reactiontime).then((slappedplayers) => {
-                                io.of(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username});
+                                io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username});
                                 redisdb.getNplayers(gamesessionid).then((nplayers) => {
                                     if (slappedplayers.length === nplayers) {
                                         const loser = slappedplayers.pop();

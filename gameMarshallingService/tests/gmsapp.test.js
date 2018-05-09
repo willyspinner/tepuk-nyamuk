@@ -5,7 +5,23 @@ const assert = require('assert');
 const ioclient = require('socket.io-client');
 const redisdb = require('../db/redisdb');
 const events = require('../constants/socketEvents');
+/*
+notes:
 
+connecting ioclient:
+
+
+this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+    query: {
+        token: token,
+        roomsecret: "ROOMSECRET HERE"
+    }
+});
+// then just register your events.
+socket.on(... .
+
+
+ */
 describe('gmsapp.test: initial connection to game', function () {
     it('should only start when all sockets connect (receive game start event)', function () {
         // check for a 3 player game using 3 diff sockets.

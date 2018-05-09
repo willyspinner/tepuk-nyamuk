@@ -18,6 +18,7 @@ bluebird.promisifyAll(redis.Multi.prototype);
 /*
 
 All the redis db does is handle the cards for us. nothing else
+It is promise based. every redisdb method returns some promise due to its asynchronous nature.
 
 {{{{   data structures   }}}}
 for every game session GAMESESSIONID (note this is different from the lobby id),
@@ -32,7 +33,7 @@ we have:
 - GAMESESSIONID/sockettoplayer - redis hash of socketid: player username - used for in game identity validation.
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
 - GAMESESSIONID/match - 1 if is a match, or 0 if no match
-- GAMESESSIONID/connectedplayers - redis set of a person.
+- GAMESESSIONID/connectedplayers - redis set of connected players.
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
@@ -44,7 +45,7 @@ for every player with username USERNAME in GAMESESSIONID, we have:
 State mutations:
 -# initialise game
 -# delete game
--# store connected player's socketid.
+-# register a connected player by storing connected player's socketid, and in connected player set.
 -#  set match
 -# pop hand and push card to pile
         - returns popped cad.
@@ -139,8 +140,11 @@ const self = module.exports = {
             });
         });
     },
-    setPlayerSocketid: (gamesessionid,socketid,username)=>{
-     return    redisclient.hmsetAsync(`${gamesessionid}/sockettoplayer`,socketid,username);
+    setPlayerConnected: (gamesessionid,socketid,username)=>{
+         return Promise.all([
+             redisclient.hmsetAsync(`${gamesessionid}/sockettoplayer`, socketid,username),
+             redisclient.sadd(`${gamesessionid}/connectedplayers`)
+         ]);
     },
     setMatch : (gamesessionid,isMatch)=>{
         return redisclient.setAsync(`${gamesessionid}/match`,isMatch? 1: 0);
@@ -269,7 +273,9 @@ const self = module.exports = {
                 }).catch((e)=>reject(e));
             });
     },
-
+    getConnectedPlayers: (gamesessionid)=>{
+        return redisclient.smembers(`${gamesessionid}/connectedplayers`);
+    }
     getMatch : (gamesessionid)=>{
         return redisclient.getAsync(`${gamesessionid}/match`);
     },
