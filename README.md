@@ -13,6 +13,14 @@ Tepuk nyamuk is an indonesian card game which is very fun to play!. How it works
 
 press `t` to throw a card from your own pile, and `space` to slap the center pile. Careful not to slap the center pile unless the card and counter matches!
 
+### How am I building it?
+This project has three parts.
+#### 1. React-web Front end
+I am leveraging React-Web with redux's state change capabilities to make programming the game's UI easier.
+#### 2. Node.JS App Service (App Central Service)
+Built using the express framework and Postgresql database, This service manages the registration of users, creation and deletion of games, joining and leaving of game lobbies, as well as controlling socket.io routes to update state in real time.
+#### 3. Node.JS Game Service 
+This service is the gameplay server. By using redis as an in-memory DB to allow for lightning fast reads and writes, and socket.io to communicate bidirectionally with players, it manages the entirety of the tepuk-nyamuk games from start to finish.
 ## How to run a demo
 ### requirements
 * `redis-server`
