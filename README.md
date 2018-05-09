@@ -14,6 +14,12 @@ Tepuk nyamuk is an indonesian card game which is very fun to play!. How it works
 press `t` to throw a card from your own pile, and `space` to slap the center pile. Careful not to slap the center pile unless the card and counter matches!
 
 ## How to run a demo
+### requirements
+* `redis-server`
+* Postgresql
+* node (>=v6.11.5)
+* npm
+* yarn
 ### configurations
 app central service configs for postgresql :
 ```sh
@@ -25,7 +31,8 @@ PG_PORT=YOUR_PORT_HERE
 ENVIRON=test
 PG_TRUNCATE=0" > appCentralService/.appcs.test.env;
 ```
-Because this app uses the SOA methodology, you will have to fire up several things:
+### run instructions
+Because this app uses the SOA architecture, you will have to fire up several things:
 ```sh
 # install dependencies
 cd appCentralService; npm install; 
