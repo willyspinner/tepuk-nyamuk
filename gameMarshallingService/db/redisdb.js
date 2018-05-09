@@ -174,10 +174,11 @@ const self = module.exports = {
                         });
                 chain.execAsync()
                     .then((poppedpile) => {
-                    console.log(`poppedpile: ${JSON.stringify(poppedpile)}`);
+                    console.log(`redisdb::popAllPileToLoser: poppedpile: ${JSON.stringify(poppedpile)}`);
                     // 2. , push the popped pile cards to loser.
-                    redsclient.lpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
+                    redisclient.lpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
                         .then((result) => {
+                            console.log(`redisdb::popAllPileToLoser: resolving with poppedpile ${poppedpile} already pushed into ${loser}`);
                             resolve(poppedpile);
                         }).catch(e => reject(e));
                 }).catch(e => reject(e));
@@ -241,7 +242,7 @@ const self = module.exports = {
 
     hasSlapped: (gamesessionid,player)=>{
         return new Promise((resolve,reject)=>{
-            redisclient.zrank(`${gamesessionid}/slappedusers`,player).then((result)=>{
+            redisclient.zrankAsync(`${gamesessionid}/slappedusers`,player).then((result)=>{
                 if (result == null)
                     resolve(0);
                 else

@@ -471,11 +471,215 @@ describe('gmsapp.test: match', function () {
 });
 
 describe('gmsapp.test: slaps', function () {
+    beforeEach(function (done) {
+        request.post({
+                url: `http://localhost:${process.env.PORT}/gms/game/create`,
+                form: {
+                    gamename: dummydata.gameGMStest.gamename,
+                    gameid: dummydata.gameGMStest.gameid,
+                    players: JSON.stringify(dummydata.gameGMStest.players)
+                }
+            },
+            (err, res, body) => {
+                if (err)
+                    done(new Error("request failed"));
+
+                const response = JSON.parse(body);
+                console.log(`Got response : ${JSON.stringify(response)}`);
+                assert.equal(response.success, true);
+                this.gametoken = response.gametoken;
+                this.gamesecret = response.gamesecret;
+                this.gamesessionid = response.gamesessionid;
+
+                this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: this.gametoken,
+                        gamesecret: this.gamesecret,
+                        username: dummydata.gameGMStest.players[0]
+                    }
+                });
+                this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: this.gametoken,
+                        gamesecret: this.gamesecret,
+                        username: dummydata.gameGMStest.players[1]
+                    }
+                });
+                this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: this.gametoken,
+                        gamesecret: this.gamesecret,
+                        username: dummydata.gameGMStest.players[2]
+                    }
+                });
+                done();
+            });
+    });
+    afterEach(function (done) {
+        if (this.player1socket)
+            this.player1socket.close();
+        if (this.player2socket)
+            this.player2socket.close();
+        if (this.player3socket)
+            this.player3socket.close();
+        redisdb.deleteGame(this.gamesessionid).then(() => {
+            done();
+        }).catch(e => done(e));
+    })
     it('should register and punish false alarm slaps', function (done) {
-        done(new Error("not implemented yet"));
+        // when there is 3 on the pile, player 1 will falsely slap (slap on non-match
+        // event). player 1 should be the one punished.
+
+        this.player1socket.on(events.MATCH_RESULT, (result)=>{
+            console.log(`player 1 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser,dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer,dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile,3);
+            done();
+        });
+        this.player2socket.on(events.MATCH_RESULT, (result)=>{
+            console.log(`player 2 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser,dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer,dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile,3);
+            done();
+        });
+
+        this.player3socket.on(events.MATCH_RESULT, (result)=>{
+            console.log(`player 3 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser,dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer,dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile,3);
+            done();
+        });
+        redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[0],10).then(()=>{
+            redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[1],9).then(()=>{
+                redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[2],8).then(()=>{
+                    this.player1socket.emit(events.PLAYER_THREW,{},(res)=>{
+                        assert.equal(res.success,true);
+                        this.player2socket.emit(events.PLAYER_THREW,{},(res)=>{
+                            assert.equal(res.success,true);
+                            this.player3socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                assert.equal(res.success,true);
+                               this.player1socket.emit(events.PLAYER_SLAPPED,{reactiontime: 0.123},(res)=>{
+                                   console.log(`player 1 got slapped response: ${JSON.stringify(res)}`);
+
+                                    assert.equal(res.success,true);
+                                    assert.equal(res.consequence, "you slapped when not in match!")
+                               }) ;
+                            })
+                        })
+                    })
+                }).catch(e=>done(e));
+            }).catch(e=>done(e));
+        }).catch(e=>done(e));
     });
     it('should register slaps during match, and last one to slap (loser) gets punished', function (done) {
-        done(new Error("not implemented yet"));
+        // here, player[0] is the  last one to slap.
+        matchcard = 6;
+        // this is the loser.
+        this.player1socket.on(events.MATCH_RESULT, (result)=>{
+            console.log(`player 1 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser,dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer,dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile,6);
+            done();
+        });
+        this.player1socket.on(events.NEXT_TICK,(tick)=>{
+            if(tick.match){
+                if(tick.counter === matchcard){
+                    console.log(`player 1 got match next tick for counter ${tick.counter} === match card${matchcard}`);
+                    setTimeout(()=>{
+                        this.player1socket.emit(events.PLAYER_SLAPPED,{reactiontime:0.700 },(resobj)=>{
+                            assert.equal(resobj.success,true);
 
+                        });
+                    },700);
+                }else{
+                    done(new Error(`tick ${tick.counter} doesn't match with card num ${matchcard}`))
+                }
+            }
+        })
+
+        this.player2socket.on(events.MATCH_RESULT, (result)=>{
+            console.log(`player 2 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser,dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer,dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile,6);
+            done();
+        });
+        this.player2socket.on(events.NEXT_TICK,(tick)=>{
+            if(tick.match){
+                if(tick.counter === matchcard){
+
+                    console.log(`player 2 got match next tick for counter ${tick.counter} === match card${matchcard}`);
+                    setTimeout(()=>{
+                        this.player2socket.emit(events.PLAYER_SLAPPED,{reactiontime:0.500 },(resobj)=>{
+                            assert.equal(resobj.success,true);
+                        });
+                    },500);
+                }else{
+                    done(new Error(`tick ${tick.counter} doesn't match with card num ${matchcard}`))
+                }
+            }
+        })
+
+        this.player3socket.on(events.MATCH_RESULT, (result)=> {
+            console.log(`player 3 got match result: ${JSON.stringify(result)}`);
+            assert.equal(result.loser, dummydata.gameGMStest.players[0]);
+            assert.equal(result.nextplayer, dummydata.gameGMStest.players[0]);
+            assert.equal(result.loserAddToPile, 6);
+            done();
+        });
+        this.player3socket.on(events.NEXT_TICK,(tick)=>{
+                if(tick.match){
+                    if(tick.counter === matchcard){
+                        console.log(`player 3 got match next tick for counter ${tick.counter} === match card${matchcard}`);
+                        setTimeout(()=>{
+                            this.player3socket.emit(events.PLAYER_SLAPPED,{reactiontime:0.200 },(resobj)=>{
+                                assert.equal(resobj.success,true);
+                            });
+                        },200);
+                    }else{
+                        done(new Error(`tick ${tick.counter} doesn't match with card num ${matchcard}`))
+                    }
+                }
+            });
+
+        redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[0],10).then(()=>{
+            redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[0],10).then(()=>{
+                redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[1],9).then(()=>{
+                    redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[1],9).then(()=>{
+                        redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[2],matchcard).then(()=>{
+                            redisdb.utils.addToHand(this.gamesessionid,dummydata.gameGMStest.players[2],10).then(()=>{ // this is the match.
+                                this.player1socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                    assert.equal(res.success,true);
+                                    this.player2socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                        assert.equal(res.success,true);
+                                        this.player3socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                            assert.equal(res.success,true);
+                                            this.player1socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                                assert.equal(res.success,true);
+                                                this.player2socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                                    assert.equal(res.success,true);
+                                                    this.player3socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                                        //match here.
+                                                        assert.equal(res.success,true);
+                                                        this.player1socket.emit(events.PLAYER_THREW,{},(res)=>{
+                                                            // cannot throw when already match
+                                                            assert.equal(res.success,false);
+                                                        })
+                                                    })
+                                                })
+                                            })
+                                        })
+                                    })
+                                })
+                            })
+                        })
+                    })
+                }).catch(e=>done(e));
+            }).catch(e=>done(e));
+        }).catch(e=>done(e));
     });
 });

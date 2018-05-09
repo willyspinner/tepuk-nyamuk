@@ -159,7 +159,6 @@ io.use(function (socket, next) {
 
         let gamesessionid = socket.gamesessionid;
 
-        console.log(`gmsapp::events.PLAYER_THREW: socket room : ${JSON.stringify(socket.rooms)}`);
         console.log(`gmsapp::events.PLAYER_THREW: socket ${socket.username} in room: ${JSON.stringify(gamesessionid)} `);
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
             // see if it is match event.
@@ -199,7 +198,7 @@ io.use(function (socket, next) {
                                 redisdb.incrementCurrentCounter(gamesessionid).then((nextcounter) => {
                                     // check match event.
                                     
-                                    console.log(`gmsapp::events.PLAYER_THREW. checking match : ${nextcounter.nextcounter % 13} === ${poppedcard}?`);
+                                    console.log(`gmsapp::events.PLAYER_THREW. checking match : counter ${nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
                                     if (JSON.stringify(nextcounter.nextcounter % 13) === poppedcard) {
                                         // match event
                                         redisdb.setMatch(gamesessionid, true).then(() => {
@@ -254,65 +253,100 @@ io.use(function (socket, next) {
     // {reactiontime: 0.2412 /*seconds */}
     socket.on(events.PLAYER_SLAPPED, (data, response) => {
         let username;
-        let gamesessionid = socket.rooms[1];
+        let gamesessionid = socket.gamesessionid;
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
-            if (un == undefined)
+            if (un == undefined){
                 response({success: false, error: "autherror: no such username or roomname"});
+            }
             username = un;
             // ok. now see if match event.
             redisdb.getMatch(gamesessionid).then((ismatch) => {
+                console.log(`gmsapp:events: registered PLAYER_SLAPPED: FOR ${username} ${gamesessionid}, `);
+                
+                console.log(`is match? ${ismatch}, type: ${typeof ismatch}`);
                 if (ismatch === 1) {
+                    // register slap.
                     redisdb.hasSlapped(gamesessionid,username).then((hasSlapped)=>{
-                        if(hasSlapped === 1)
+                        if(hasSlapped === 1){
                             response({
                                 success:false,
                                 error: "you have already slapped."
                             });
+                        }
                         else{
+                            if(!data.reactiontime){
+                                response({
+                                    success:false,
+                                    error:"no reaction time"
+                                })
+                            }
                             redisdb.slap(gamesessionid, username, data.reactiontime).then((slappedplayers) => {
                                 io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username});
+                                
+                                console.log(`gmsapp::events: PLAYER_SLAPPED for ${username} registered.`);
                                 redisdb.getNplayers(gamesessionid).then((nplayers) => {
+                                     nplayers = parseInt(nplayers);
+                                    console.log(`gmsapp::events: n of ppl slapped: ${slappedplayers.length}, out of ${nplayers}`);
                                     if (slappedplayers.length === nplayers) {
-                                        const loser = slappedplayers.peekBack();
+                                        const loser = slappedplayers[slappedplayers.length - 1];
                                         Promise.all([
                                             redisdb.popAllPileToLoser(gamesessionid,loser),
-                                                redisdb.resetSlaps(gamesesionid),
+                                                redisdb.resetSlaps(gamesessionid),
                                                 redisdb.setCurrentCounter(gamesessionid, loser)
                                         ]).then((data)=>{
                                             let poppedpile = data[0];
+                                            console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
                                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                                 loser: loser,
                                                 loserAddToPile: poppedpile.length,
                                                 nextplayer:loser,
                                                 matchResult: slappedplayers
                                             });
+                                            response({success:true});
                                         }).catch((e)=>{
                                             response({success:false, error:`${e.stack}`});
                                         });
                                     }else {
                                         response({success:true});
                                     }
-                                }).catch((e)=>response({success:false,error:"get nplayersfailed"}));
+                                }).catch( (e)=>{
+
+                                    console.log(`gmsapp::events.PLAYER_SLAPPED: failure: get nplayersfailed.`);
+                                    response({success:false,error:"get nplayersfailed"})
+                                });
                             }).catch((e)=>response({success:false,error:"slap failed"}))
                         }
                     })
                 } else {
+                    // punish accidental slap.
                     const loser = username;
+                    
+                    console.log(`gmsapp::events.PLAYER_SLAPPED: executing punishment promise`);
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),
                         redisdb.resetSlaps(gamesessionid),
                         redisdb.setCurrentCounter(gamesessionid,loser)
                     ]).then((data)=>{
                         const poppedpile = data[0];
+                        console.log(`gmsapp::events.PLAYER_SLAPPED: poppedpile : ${JSON.stringify(poppedpile)}`);
                         io.to(gamesessionid).emit(events.MATCH_RESULT, {
                             loser: loser,
                             loserAddToPile: poppedpile.length,
                             nextplayer: loser
                         });
-                    }).catch((e)=>response({
-                        success:false,
-                        error: " pop pile to loser, reset slaps, set current counter failed promise."
-                    }))
+                        response({
+                            success:true,
+                            consequence: "you slapped when not in match!"
+                        })
+                    }).catch((e)=>{
+
+                        console.error(`gmsapp::events.PLAYER_SLAPPED: pop pile to loser, reset slaps set current counter failed promise`);
+                        console.error(e.stack);
+                        response({
+                            success:false,
+                            error: " pop pile to loser, reset slaps, set current counter failed promise."
+                        })
+                    })
                 }
             })
         });
