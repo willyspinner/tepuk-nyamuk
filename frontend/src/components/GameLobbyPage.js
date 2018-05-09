@@ -19,7 +19,6 @@ class GameLobbyPage extends Component {
         this.onLeaveHandler();
     }
     onLeaveHandler=()=>{
-
         console.log(`leaving. STarting game? : ${this.state.isStartingGame}`);
         if(!this.state.isStartingGame)
         this.props.dispatch(startLeaveGame(this.state.gameId,this.props.user.username))

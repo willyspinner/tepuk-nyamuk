@@ -9,6 +9,8 @@ import {Input}from 'antd';
 class MainPage extends Component {
     state={
         username: this.props.user.username,
+        inputusername:"",
+        password:"",
         isJoiningGame:false,
     }
     onGameJoinHandler= (gameId)=>{
@@ -24,27 +26,33 @@ class MainPage extends Component {
 
     }
     nameSubmitHandler= (e)=>{
-        if(e.target.value.trim() === ''){
+        if(this.state.inputusername === ''){
             alert("name can't be empty!");
+            return;
+        }
+        if(this.state.password === '') {
+            alert("password can't be empty!");
             return;
         }
         let isValidName = true;
         this.props.games.forEach((game)=>{
             game.players.forEach((player_username)=>{
-                if(player_username === e.target.value){
+                if(player_username === this.state.inputusername){
                     // TODO: clientside duplicate validation to be replaced with
                     // TODO: Make this validation implicit in the action registerUser below.
                     //serverside duplicate validation
-                    alert(`username ${e.target.value} already taken.`)
+                    alert(`username ${this.state.inputusername} already taken.`)
                     isValidName= false;
                 }
             })
         })
         if (!isValidName)
             return;
-        this.props.dispatch(registerUser(e.target.value));
+        this.props.dispatch(registerUser(this.state.inputusername));
+        alert(`user with username ${this.state.inputusername} registered.`)
+        // no race condition so below is ok.
         this.setState({
-            username: e.target.value
+            username: this.state.inputusername
         })
         
         console.log(`${JSON.stringify(this.state)}`);
@@ -58,8 +66,18 @@ class MainPage extends Component {
                    <h1> Hey! Welcome to tepuk nyamuk. </h1>
                <Input size="large"
                       placeholder="name"
+                      value={this.state.inputusername }
                       onPressEnter={this.nameSubmitHandler}
+                      style={{marginBottom: "4px"}}
+                      onChange={(e)=>{this.setState({ inputusername: e.target.value})}}
                />
+                   <Input size="large"
+                          placeholder="password"
+                          type={"password"}
+                          value={this.state.password}
+                          onPressEnter={this.nameSubmitHandler}
+                          onChange={(e)=>{this.setState({password: e.target.value})}}
+                   />
                    <h4>Press enter to submit your name.</h4>
                </Modal>
            );
