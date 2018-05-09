@@ -40,6 +40,7 @@ for every player with username USERNAME in GAMESESSIONID, we have:
 - GAMESESSIONID/player/USERNAME/streaks - int of how many times (consecutively) a user has no pile.
 - GAMESESSIONID/player/USERNAME/index - idx of player in the GAMESESSIONID/players list.
 
+note: to get the curent card num, simply counter % 13.
 
 {{{{    methods:    }}}}
 State mutations:
@@ -98,7 +99,7 @@ const self = module.exports = {
                    snapshotobj[player] = hand;
                    chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand);
                    
-                   console.log(`index for player ${player} : ${idx}`);
+
                     chain = chain.set(`${gamesessionid}/player/${player}/index`,idx);
            });
             // initialise the game variables.
@@ -110,6 +111,7 @@ const self = module.exports = {
             chain= chain.set(`${gamesessionid}/turnoffset`,0); // player[0] has index 0.
             // execute transaction.
             chain.execAsync().then((result)=>{
+                console.log(`redisdb::initializeGame: playerinturn now : ${players[0]}`);
                 resolve(snapshotobj);
             }).catch((e)=>{
                 console.error("redisdb::initializeGame: ERROR");
@@ -140,12 +142,14 @@ const self = module.exports = {
             });
         });
     },
+
     setPlayerConnected: (gamesessionid,socketid,username)=>{
          return Promise.all([
              redisclient.hmsetAsync(`${gamesessionid}/sockettoplayer`, socketid,username),
-             redisclient.sadd(`${gamesessionid}/connectedplayers`)
+             redisclient.sadd(`${gamesessionid}/connectedplayers`,username)
          ]);
     },
+
     setMatch : (gamesessionid,isMatch)=>{
         return redisclient.setAsync(`${gamesessionid}/match`,isMatch? 1: 0);
     },
@@ -201,7 +205,7 @@ const self = module.exports = {
                 const offset = parseInt(data[2]);
                 let newindex = (offset + newcounter) % nplayers;
                 redisclient.lindexAsync(`${gamesessionid}/players`, newindex).then((nextplayer) => {
-                    console.log(`got next player: ${nextplayer}`);
+                    console.log(`redisdb::incrementCurrentCounter: got next player: ${nextplayer}`);
                     redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
                         resolve({nextplayer: nextplayer,nextcounter: newcounter});
                     }).catch(e => reject(e));
@@ -234,6 +238,7 @@ const self = module.exports = {
             }).catch((e) => reject(e));
         });
     },
+
     hasSlapped: (gamesessionid,player)=>{
         return new Promise((resolve,reject)=>{
             redisclient.zrank(`${gamesessionid}/slappedusers`,player).then((result)=>{
@@ -244,13 +249,14 @@ const self = module.exports = {
             }).catch((e)=>reject(e));
         })
     },
+
     resetSlaps: (gamesessionid)=>{
         return redisclient.delAsync(`${gamesessionid}/slappedusers`);
     },
+
     incrementStreak: (gamesessionid, player) => {
         return redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`);
-    }
-    ,
+    },
 
     setZeroSreak: (gamesessionid, player) => {
         // we need for this promise thing to be here because 'set' returns 0.
@@ -264,18 +270,22 @@ const self = module.exports = {
     //      {{{{    Get methods    }}}}
 
     //get current turn
-    // returns
+    // returns {playerinturn: ___, currentcounter: ___}
     getCurrentTurn: (gamesessionid) => {
             return new Promise((resolve,reject)=>{
+                
+                console.log(`redisdb::getCurrentTurn: trying to get: ${gamesessionid}/playerinturn`);
                 let chain = redisclient.multi().get(`${gamesessionid}/playerinturn`).get(`${gamesessionid}/counter`);
                 chain.execAsync().then((data)=>{
                     resolve({playerinturn: data[0],currentcounter: data[1]})
                 }).catch((e)=>reject(e));
             });
     },
+
     getConnectedPlayers: (gamesessionid)=>{
-        return redisclient.smembers(`${gamesessionid}/connectedplayers`);
-    }
+        return redisclient.smembersAsync(`${gamesessionid}/connectedplayers`);
+    },
+
     getMatch : (gamesessionid)=>{
         return redisclient.getAsync(`${gamesessionid}/match`);
     },
@@ -314,7 +324,7 @@ const self = module.exports = {
     },
     // get number of players
     getNplayers: (gamesessionid)=>{
-            return rediscleint.getAsync(`${gameasessionid}/nplayers`);
+        return redisclient.getAsync(`${gamesessionid}/nplayers`);
     },
 
     // get slapped users, with their reaction times.
@@ -334,6 +344,7 @@ const self = module.exports = {
     getGameSecret : (gamesessionid)=>{
          return redisclient.getAsync(`${gamesessionid}/gamesecret`);
     },
+
     utils: {
         scanAsync: scanAsync,
     }

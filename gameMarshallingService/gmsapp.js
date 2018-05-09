@@ -1,7 +1,6 @@
 require('dotenv').config({path: `${__dirname}/.gms.test.env`});
 const redisdb = require('./db/redisdb');
 const express = require('express');
-const reload = require('reload');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -49,29 +48,30 @@ app.post('/gms/game/create', (req, res) => {
             error: "too few players."
         })
     let cardsperplayer = 10; // this can be made a post body option (req.body) later if needed.
-    let gamesessionid = crypto.createCipher('aes-128-cbc', process.env.GAME_SECRET)
-        .update(req.body.gameid, 'utf8', 'hex');
-    gamesessionid = gamesessionid + gamesessionid.update.final('hex');
+    let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
+        .update(req.body.gameid, 'utf8').digest('hex');
+    let gamesecret = crypto.createHmac('sha256',process.env.GAME_SECRET_2)
+        .update(req.body.gameid,'utf8').digest('hex');
     // then we generate the game secret
-    const gamesecret = crypto.createCipher('aes-128-cbc', process.env.GAME_SECRET)
-        .update(gamesessionid, 'utf8', 'hex');
-    const gamesecretfinal = gamesecret + gamesecret.update.final('hex');
     //  then we store the game secret in redis
     const salt = bcrypt.genSaltSync(10);
-    const encryptedgamesecret = bcrypt.hashSync(gamesecretfinal, salt);
+    const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
     redisdb.initializeGame(gamesessionid, encryptedgamesecret,
         JSON.parse(req.body.players), cardsperplayer)
         .then((result) => {
             // then with the created game, we generate JWT gametoken.
             const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
+            
+            console.log(`gmsapp: created new game: ${gamesessionid}`);
             res.status(200).json({
-                sucess: true,
+                success: true,
                 gametoken: gametoken,
-                gamesecret: gamesecretfinal
+                gamesecret: gamesecret,
+                gamesessionid: gamesessionid // this is to the appcs, so its ok.
             })
         }).catch(e => res.json({
         success: false,
-        error: "redis failed to initialise game."
+        error: "redis failed to initialise gme."
     }));
 
 });
@@ -95,32 +95,45 @@ socket.handshake.query:
       username: ____,
       //TODO NOTE: what's a better way to securely send a username?
       // this is open to false username attacks.
-    roomsecret: awoinaodkawd129j12#
+    gamesecret: awoinaodkawd129j12#
 }
 
  */
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-            if (err)
+            if (err){
+                console.log(`socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
                 return next(new Error('WS Auth Error'));
+            }
             redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
-                if (bcrypt.compareSync(socket.handshake.query.roomsecret, encrpytedrealsecret)){
-                    socket.gamesessionid = gamesessionid;
-                    socket.username = req.body.username;
+                socket.gamesessionid = decoded.gamesessionid;
+                socket.username = socket.handshake.query.username;
+                if (bcrypt.compareSync(socket.handshake.query.gamesecret, encrpytedrealsecret)){
                    next(); // authorized.
                 }
-                else
+                else {
+                    console.log(`socket authentication error: invalid gamesecret for ${socket.username} trying to go for ${socket.gamesessionid}`);
                     return next(new Error('WS Auth Error'));
-            }).catch(e => next(new Error("WS auth error: redisdb fail")));
+                }
+            }).catch(e =>{
+                
+                console.log(`socket authentication error: for ${socket.username}. redis db couldnt get secret.`);
+                next(new Error("WS auth error: redisdb fail"))});
         })
     } else {
+        
+        console.log(`socket authentication error: no token provided by ${socket.username}`);
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
     if(! socket.sentInit){
         socket.sentInit = true;
         // set connected to redis.
+        
+        console.log(`socket player connected for ${socket.username}`);
+        socket.join(socket.gamesessionid);
+
         redisdb.setPlayerConnected(socket.gamesessionid,socket.id,socket.username).then(()=>{
             Promise.all([
                 //TODO chain this in redis! too inefficient.
@@ -141,12 +154,19 @@ io.use(function (socket, next) {
     //remember that we have to authenticate the socket by looking up the id's username here.
     socket.on(events.PLAYER_THREW, (data, response) => {
         let username;
-        let gamesessionid = socket.rooms[1]; // i think this is the right way.
+
+        let gamesessionid = socket.gamesessionid;
+
+        console.log(`gmsapp::events.PLAYER_THREW: socket room : ${JSON.stringify(socket.rooms)}`);
+        console.log(`gmsapp::events.PLAYER_THREW: socket ${socket.username} in room: ${JSON.stringify(gamesessionid)} `);
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
             // see if it is match event.
             username = un; // hmget returns an array, because we hmget can be used to get values for several keys.
-            if (username === undefined)
-                response({success: false, error: "autherror: no such username or roomname"});
+            if (username == undefined){
+                let responseobj = {success: false, error: `autherror: no such username or roomname: ${username}`};
+                response(responseobj);
+            }
+
             // find out if it already is a match event.
             /*the order is :currentTurn first, then getMatch. if we do it the other way
                 around (getMatch -> currentTurn), then for every player (except one),
@@ -155,7 +175,12 @@ io.use(function (socket, next) {
                So currentTurn->getMatch will make us have one less redis call
                (since currentTurn will invalidate all but one player - the playerinturn).
             */
-            redisdb.getCurrentTurn(gamesessionid).then((playerinturn) => {
+
+            console.log(`gmsapp::events.PLAYER_THREW: getting current turn for game sesh id: ${gamesessionid}`);
+            redisdb.getCurrentTurn(gamesessionid).then((turn) => {
+                console.log(`turn object: ${JSON.stringify(turn)}`);
+                let playerinturn = turn.playerinturn;
+                console.log(`gmsapp::events.PLAYER_THREW: ${username} THREW. ${playerinturn} was supposed to throw.`);
                 if (playerinturn === username) {
                     // see if it is a match
                     redisdb.getMatch(gamesessionid).then((ismatch) => {
@@ -186,6 +211,7 @@ io.use(function (socket, next) {
                                     });
                                 } else {
                                     // just a normal throw.
+
                                     io.to(gamesessionid).emit(events.NEXT_TICK, {
                                         match: false,
                                         piletop: poppedcard, // next top of pile.
@@ -201,11 +227,18 @@ io.use(function (socket, next) {
                     })
                 } else {
                     // not player's turn to throw.
-                    response.json({
+                    response({
                         success: false,
                         error: "not your turn!"
                     })
                 }
+            }).catch((e)=>{
+
+                console.log(`FAIL TO GET CURENT TURN`);
+                response({
+                    success:false,
+                    error:"FAIL TO GET CURRENT TURN"
+                })
             })
         })
     });
@@ -232,17 +265,18 @@ io.use(function (socket, next) {
                                 io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username});
                                 redisdb.getNplayers(gamesessionid).then((nplayers) => {
                                     if (slappedplayers.length === nplayers) {
-                                        const loser = slappedplayers.pop();
+                                        const loser = slappedplayers.peekBack();
                                         Promise.all([
                                             redisdb.popAllPileToLoser(gamesessionid,loser),
                                                 redisdb.resetSlaps(gamesesionid),
-                                                redisdb.setCurrentCounter(gamesessionid, nextplayer)
+                                                redisdb.setCurrentCounter(gamesessionid, loser)
                                         ]).then((data)=>{
                                             let poppedpile = data[0];
                                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                                 loser: loser,
                                                 loserAddToPile: poppedpile.length,
                                                 nextplayer:loser,
+                                                matchResult: slappedplayers
                                             });
                                         }).catch((e)=>{
                                             response({success:false, error:`${e.stack}`});
