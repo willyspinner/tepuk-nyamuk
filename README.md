@@ -19,7 +19,7 @@ This project has three parts.
 I am leveraging React-Web with redux's state change capabilities to make programming the game's UI easier.
 #### 2. Node.JS App Service (App Central Service)
 Built using the express framework and Postgresql database, This service manages the registration of users, creation and deletion of games, joining and leaving of game lobbies, as well as controlling socket.io routes to update state in real time.
-#### 3. Node.JS Game Service 
+#### 3. Node.JS Game Marshalling Service 
 This service is the gameplay server. By using redis as an in-memory DB to allow for lightning fast reads and writes, and socket.io to communicate bidirectionally with players, it manages the entirety of the tepuk-nyamuk games from start to finish.
 ## How to run a demo
 ### requirements
