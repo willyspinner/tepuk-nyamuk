@@ -9,11 +9,11 @@ Tepuk nyamuk is an indonesian card game which is very fun to play!. How it works
 * First person to finish their own pile, and successfuly slaps three times wins!
 
 
-### controls
+## controls
 
 press `t` to throw a card from your own pile, and `space` to slap the center pile. Careful not to slap the center pile unless the card and counter matches!
 
-### How am I building it?
+## How am I building it?
 This project has three parts.
 #### 1. React-web Front end
 I am leveraging React-Web with redux's state change capabilities to make programming the game's UI easier.
