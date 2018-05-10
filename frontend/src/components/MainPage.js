@@ -95,7 +95,7 @@ class MainPage extends Component {
                className="mainPage__registerModal"
                    >
                    <h2
-                       style={{marginTop:"10px"}}
+                       style={{marginTop:"20px"}}
                    >
                        Welcome.
                    </h2>

@@ -28,7 +28,7 @@ const gameplayReducer = (state= {},action)=>{
             return {
                 ...state,
                 counter: state.counter + 1,
-                match: state.counter + 1 === action.card,
+                match: ((state.counter -1 ) % 13 )+ 1=== action.card,
                 playerinturn:action.nextplayer,
                 players : state.players.map((player)=>{
                     if(player.username === action.username && state.playerinturn === player.username) {
@@ -65,16 +65,20 @@ const gameplayReducer = (state= {},action)=>{
                 pile: [],
                 playerinturn: action.loser,
                 counter: 0,
+                match: false,
                 players : state.players.map((player)=>{
                     if(player.username === action.loser) {
+
+                        console.log(`receive match result zeroing hasslapped for loser ${player.username}`);
                         return {
                             ...player,
-                            nhand: player.nhand + state.loseraddtopile,
+                            nhand: player.nhand + action.loseraddtopile,
                             hasslapped: false,
                             slapreactiontime:undefined
                         }
                     }
                     else{
+                        console.log(`receive match result zeroing hasslapped for ${player.username}`);
                         return {
                             ...player,
                             hasslapped:false,
