@@ -185,7 +185,6 @@ io.use(function (socket, next) {
                 if (playerinturn === username) {
                     // see if it is a match
                     redisdb.getMatch(gamesessionid).then((ismatch) => {
-                        
                         console.log(`gmsapp::events.PLAYER_THREW. is match? ${ismatch}`);
                         if (ismatch === 1)
                             response({
@@ -208,7 +207,8 @@ io.use(function (socket, next) {
                                                 match: true,
                                                 piletop: poppedcard, // next top of pile.
                                                 nextplayer: nextcounter.nextplayer,
-                                                counter: nextcounter.nextcounter
+                                                counter: nextcounter.nextcounter,
+                                                playerthrew : username
                                             });
                                             response({
                                                 success: true,
@@ -222,6 +222,7 @@ io.use(function (socket, next) {
                                             piletop: poppedcard, // next top of pile.
                                             nextplayer: nextcounter.nextplayer,
                                             counter: nextcounter.nextcounter
+                                            playerthrew : username
                                         });
                                         response({
                                             success: true

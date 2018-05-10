@@ -17,14 +17,28 @@
   justify-content: flex-start;
   margin-left:$s-size;
 }
+.mainPage__registerModal {
+  background-color:#91d5ff;
+  position: absolute;
+
+  top: 30%;
+  left: 30%;
+  right: 30%;
+  bottom: 30%;
+  padding-left: 3%;
+  padding-right:3%;
+
+}
+
 .mainPageHeader {
   text-align:center;
 }
 .mainPage__joinModal{
-  // display:flex;
-  // flex: 1;
-  // flex-direction:column;
-  // justify-content: center;
-  // width: $xl-size;
-  // height: $xl-size;
+  position: absolute;
+  top: 40px;
+  left: 20%;
+  right: 20%;
+  bottom: 40px;
+  padding-left: 2%;
+  padding-right:2%;
 }

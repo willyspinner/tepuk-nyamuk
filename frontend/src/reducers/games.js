@@ -7,7 +7,7 @@ const gamesReducer = (state = [], action) => {
       return state.filter(({id}) => id !==  action.id);
       case 'JOIN_GAME':
         return state.map((game)=>{
-            if (game.gameId === action.gameId)
+            if (game.uuid === action.uuid)
             {
                 game.players.push(action.username);
             }
@@ -16,8 +16,8 @@ const gamesReducer = (state = [], action) => {
         )
       case 'LEAVE_GAME':
           return state.map((game)=>{
-              console.log(`checking ${game.gameId} with ${action.gameId}`);
-                  if (game.gameId === action.gameId)
+              console.log(`checking ${game.uuid} with ${action.uuid}`);
+                  if (game.uuid === action.uuid)
                       return {
                           ...game,
                             players: game.players.filter((player_username)=>player_username !== action.username)

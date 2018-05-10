@@ -13,7 +13,7 @@ import GameListItem from './GameListItem';
             <GameListItem
                 key={idx}
                 game={game}
-                onJoin={()=>{this.onJoinHandler(game.gameId)}}
+                onJoin={()=>{this.onJoinHandler(game.uuid)}}
             />
         ))}
     </div>

@@ -8,8 +8,8 @@ class GameLobbyPage extends Component {
     constructor(props){
         super(props);
         this.state = {
-            gameId: props.match.params.gameId,
-            game: this.props.games.filter(g=>g.gameId === props.match.params.gameId
+            uuid: props.match.params.uuid,
+            game: this.props.games.filter(g=>g.uuid === props.match.params.uuid
                 )[0], // NOTE: this doesn't have to be from our props. Can just be from
             // ws connection.
             isStartingGame:false
@@ -21,7 +21,7 @@ class GameLobbyPage extends Component {
     onLeaveHandler=()=>{
         console.log(`leaving. STarting game? : ${this.state.isStartingGame}`);
         if(!this.state.isStartingGame)
-        this.props.dispatch(startLeaveGame(this.state.gameId,this.props.user.username))
+        this.props.dispatch(startLeaveGame(this.state.uuid,this.props.user.username))
             .then(() => {
                 console.log(`pushing to go back to / `);
                     this.props.history.push('/')
@@ -32,14 +32,17 @@ class GameLobbyPage extends Component {
         //TEST
         this.setState({isStartingGame:true}, ()=> {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
-            this.props.history.push(`/game/play/${this.state.gameId}`);
+            this.props.history.push(`/game/play/${this.state.uuid}`);
         });
     }
     render(){
         if(!this.props.user.username)
             return (<h4>ERROR: GAME LOBBY</h4>);
         if(!this.state.game)
+        {
+            console.log(`GameLobbyPage: this.state.game undefined.`);
             return (<h4> ERROR: GAME LOBBY</h4>);
+        }
         return (
             <div>
 

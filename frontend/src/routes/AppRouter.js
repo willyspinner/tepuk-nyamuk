@@ -10,8 +10,8 @@ const AppRouter =()=> (
         <div>
             <Switch>
                 <Route path="/" component={MainPage} exact = {true}/>
-                <Route path="/game/lobby/:gameId" component={GameLobbyPage} exact = {true}/>
-                <Route path="/game/play/:gameId" component={GamePlayPage} exact = {true}/>
+                <Route path="/game/lobby/:uuid" component={GameLobbyPage} exact = {true}/>
+                <Route path="/game/play/:uuid" component={GamePlayPage} exact = {true}/>
                 <Route component={()=>(<h1> ROUTE NOT FOUND</h1>)}/>
             </Switch>
         </div>

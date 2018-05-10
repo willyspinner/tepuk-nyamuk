@@ -35,6 +35,15 @@ return {
   // webpack has an array of 'rules'. Each 'rule' determines what webpack 
   // should do when bundling.
     rules:[
+        {
+            test: /\.(jpe?g|png|gif|svg)$/i,
+            loaders: [
+                'file-loader',
+                //'image-webpack-loader'
+                //'file-loader?hash=sha512&digest=hex&name=[hash].[ext]',
+                //'image-webpack-loader?bypassOnDebug&optimizationLevel=7&interlaced=false'
+            ]
+        },
       {
         loader: 'babel-loader', // what we use
         test: /\.js$/, // regex for which ones we want to run this rule on. (only on js files)
