@@ -7,6 +7,7 @@ import GamePlayTutorial from './GamePlayTutorial';
 import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
 import {Input,Button} from 'antd';
+import {initializeGame} from "../actions/gameplay";
 class MainPage extends Component {
     state={
         username: this.props.user.username,
@@ -65,6 +66,27 @@ class MainPage extends Component {
         })
 
     }
+
+    onTutorialStartHandler = ()=>{
+
+        const allplayers = [this.props.user.username,"bob","berdog","Jonathan","Mike"];
+        const  playerinturn = this.props.user.username;
+        let nhands = 10;
+        this.props.dispatch(initializeGame(
+            playerinturn,
+            allplayers,
+            nhands
+        ));
+         this.setState((prevState)=>({
+             allplayers,
+             nhands,
+             playerinturn,
+             showTutorial:true,
+         }));
+    }
+
+
+
     render(){
         const registerModal = (
                <Modal
@@ -112,6 +134,7 @@ class MainPage extends Component {
                    >
                        {this.state.isLoggingIn? "login": "register"}
                    </Button>
+
                    <Button
                       type="dashed"
                       ghost
@@ -136,15 +159,22 @@ class MainPage extends Component {
             isOpen = {this.state.isJoiningGame}
             contentLabel = "Joining game..."
             ariaHideApp = {false}
-        >
+            >
                 <ReactLoading type={"cylon"} color={"blue"} height={159} width={90} />
                 <h1> joining game...</h1>
-        </Modal>);
+            </Modal>);
+
+
         const tutorialModal = (
             <Modal
-                isOpen={this.state.showTutorial}
+                isOpen={true}
             >
-                <GamePlayTutorial isTutorial={true} tutorialLevel={3}/>
+                <GamePlayTutorial
+                    tutorialLevel={3}
+                    nhands={this.state.nhands}
+                    allplayers={this.state.allplayers}
+                    playerinturn={this.state.playerinturn}
+                />
             </Modal>
 
         );
@@ -161,13 +191,13 @@ class MainPage extends Component {
         { /* modals here */ }
         {registerModal}
         {joinGameModal}
-        {tutorialModal}
+        {this.state.showTutorial? tutorialModal: null}
         <GameList
         onJoin={this.onGameJoinHandler}
         games={this.props.games}
         />
         Don't know how to play? Do a tutorial below.
-        <Button onClick={()=>this.setState((prevState)=>({showTutorial: !prevState.showTutorial}))}>
+        <Button onClick={this.onTutorialStartHandler}>
             Tutorial
         </Button>
     </div>

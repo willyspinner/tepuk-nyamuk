@@ -3,107 +3,158 @@
 import React,{Component} from 'react';
 import {initializeGame,playerSlap,playerThrow,receiveMatchResult} from '../actions/gameplay';
 import {connect} from 'react-redux';
+import PlayingCard from './ui/PlayingCard';
 import key from 'keymaster';
+import {Row,Col} from 'antd';
 /*
 props:
-isTutorial =___ (true or false)
 tutorialLevel= 1 to 10 (difficulty of tutorial - 1 is easy, 10 is difficult)
 
  */
-class GamePlay extends Component{
+class GamePlayTutorial extends Component{
+    // methods for this tutorial only.
+    throw= (username)=>{
+        let poppedcard = null;
+        this.setState((prevState)=>{
+            return {
+                // slap: prevState.slap + 1,
+                allplayers: this.state.allplayers.map((player)=>{
+                    if(player.username === username){
+                        console.log(`popping for:${player.username}`);
+                        poppedcard = player.hand.pop();
+                        return {
+                            username,
+                            hand: player.hand,
+                        }
+                    }
+                    else
+                        return player;
+                })
+            }
+        });
+        let nextplayer = this.state.allplayers[(this.state.allplayers.map((player)=>player.username).indexOf(username) + 1) % this.state.allplayers.length].username;
+        this.props.dispatch(playerThrow(username,poppedcard, nextplayer));
+
+    }
+    slap = (username,reactiontime)=>{
+        this.props.dispatch(playerSlap(username, reactiontime))
+    }
     constructor(props){
         super(props);
+        //state
+        let nhands = this.props.nhands;
+        let allplayers = this.props.allplayers;
+        const cards = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+        this.state = { // GamePlayTutorial's state becomes 'redis' now.
+            allplayers : allplayers.map((player)=>{
+                // each receies their own stuff.
+                return {
+                    username: player,
+                    hand: Array.from(Array(nhands)).map( (c) => cards[Math.floor(Math.random()*cards.length)])
+                }
+            })
+        }
 
         // key bindings
         key('t',()=>{
-           alert('you threw');
+            if( this.props.gameplay.playerinturn === this.props.myusername){
+                this.throw(this.props.myusername);
+            }else{
+                alert("it isn't your turn!");
+            }
         });
         key('space',()=>{
-            alert('you slapped');
-        })
-        if(props.isTutorial === true){
-            const otherplayers = ["bob","berdog","Jonathan","Mike","fool"];
-            const allplayers = [props.myusername, ...otherplayers];
-            const  playerinturn = this.props.myusername;
-            let nhands = 10;
-            const reactiontime =0.4 +  (1/ (props.tutorialLevel? props.tutorialLevel: 5)) ; // for slapping ,this is scaled by 0 to 1 (Math.random)
-            const cards = [1,2,3,4,5,6,7,8,9,10,11,12,13];
-            const myhand =  Array.from(Array(nhands)).map( (c) => cards[Math.floor(Math.random()*cards.length)]);
-            this.state = { // our state becomes 'redis' now.
-                allplayers,
-                otherplayers : otherplayers.filter((player)=>player!==props.myusername).map((player)=>{
-                    // each receies their own stuff.
-                    return {
-                        username: player,
-                        hand: Array.from(Array(nhands)).map( (c) => cards[Math.floor(Math.random()*cards.length)])
-                    }
-                })
+            if(!this.props.gameplay.match){
+                this.slap(this.props.myusername,123091); // you just slapped mistakenly.
+                this.determineLoser();
             }
-            props.dispatch(initializeGame(
-                playerinturn,
-                myhand,
-                allplayers,
-                nhands
-            ));
-            // set reaction times for everyone.
-            players.forEach((playerusername)=>{
-                if(this.props.gameplay.match ){
-                    const actualreactiontime = reactiontime * Math.random();
-                    setTimeout(()=>{
-                        this.props.dispatch(playerSlap(playerusername, actualreactiontime))
-                    }, actualreactiontime * Math.random());
-                }
-                if(this.props.gameplay.playerinturn === playerusername){
-                    setTimeout(()=>{
-                        let popped = null;
-                        let nextplayer = null;
-                        this.setState((prevState)=>{
-                            nextplayer = (this.state.allplayers.indexOf(playerusername) + 1 ) % (this.state.allplayers.length);
-                            return {
-                                ...prevState,
-                                otherplayers : prevState.otherplayers.map((playerObj)=>{
-                                    // each receies their own stuff.
-                                    if (playerObj.username === playerusername){
-                                        popped =playerObj.hand.pop();
-                                        return {
-                                            hand: playerObj.hand
-                                        }
-                                    }
-                                    else
-                                        return playerObj;
-                                })
-                            }
-                        });
-                        this.props.dispatch(playerThrow(playerusername,popped, nextplayer));
-                    }, 1/ reactiontime);
-                }
+            this.slap(this.props.myusername, performance.now() - this.state.myreactiontime);
+        })
+            // set reaction times for other players.
+    }
+    determineLoser= ()=>{
+        let loser = undefined;
+        this.props.gameplay.players.forEach((player)=>{
+            if(!loser)
+                loser= player;
+            else
+            if(loser.reactiontime < player.reactiontime)
+                loser = player;
+        });
+        let addtopile = this.props.gameplay.pile.length;
+        this.props.dispatch(receiveMatchResult(loser,addtopile))
+    }
+componentDidUpdate(prevProps,prevState){
+        if(this.props.gameplay.players.filter((player)=>player.hasslapped === false).length ===0){
+            // MATCH RESULT
+            determineLoser();
+            return;
+        }
+        if(prevProps.gameplay.playerinturn !== this.props.gameplay.playerinturn){
 
+            if(this.props.gameplay.match ){
+                this.setState({myreactiontime: performance.now()})
+            }
+
+            const reactiontime =3 +  (1/ (this.props.tutorialLevel? this.props.tutorialLevel: 5)) ; // for slapping ,this is scaled by 0 to 1 (Math.random)
+            this.state.allplayers.forEach((player)=>{
+                if(player.username === this.props.myusername)
+                    return;
+                if(this.props.gameplay.match ){
+                    const actualreactiontime = reactiontime * Math.random() * 1000;
+                    setTimeout(()=>{
+                        this.slap(player.username,actualreactiontime)
+                    }, actualreactiontime);
+                    return;
+                }
+                if(this.props.gameplay.playerinturn === player.username){
+                    setTimeout(()=>{
+                        this.throw(player.username);
+                    }, (1/ reactiontime) * 2700);
+                }
             })
         }
-    }
-
+}
     render () {
+
         return (
             <div>
                 <h1> gameplay: prototype </h1>
                 player turn : {this.props.gameplay.playerinturn}
-                <div style={{flex: 1, flexDirection:"row"}}>
-                    {this.props.gameplay.players.map((player)=>{
-                        return (
-                            <div>
-                                {player.username}
-                                <br/>
-                                cards in hand: {player.nhand}
-                                <br/>
-                                streaks: {player.streaks}
-                                <br/>
-                                {player.hasslapped? "SLAPPED":null}
-                                <br/>
-                                {player.hasslapped? `reaction time : ${player.slapreactiontime}`:null}
-                            </div>
-                        );
-                    })}
-                </div>
+                <Row>
+                    <Col span={8}>
+                        <div style={{flex: 1, flexDirection:"row"}}>
+                            {this.props.gameplay.players.map((player,idx)=>{
+                                return (
+                                    <div key ={idx}>
+                                        {player.username}
+                                        <br/>
+                                        cards in hand: {player.nhand}
+                                        <br/>
+                                        streaks: {player.streaks}
+                                        <br/>
+                                        {player.hasslapped? "SLAPPED":null}
+                                        <br/>
+                                        {player.hasslapped? `reaction time : ${player.slapreactiontime}`:null}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </Col>
+                    <Col span={8}>
+                        {this.props.gameplay.pile.length ===0 ?null:
+                            (
+                            <PlayingCard
+                            suit={"S"}
+                            number={this.props.gameplay.pile[this.props.gameplay.pile.length -1]}
+                            />
+                            )
+                        }
+                    </Col>
+                    <Col span={8}>
+                        <h1>counter: {(this.props.gameplay.counter - 1  % 13 )+ 1 }</h1>
+                    </Col>
+                </Row>
             </div>
         );
     }
@@ -114,5 +165,5 @@ const mapStateToProps =(state)=>({
     myusername: state.user.username
 });
 
-export default connect(mapStateToProps,undefined)(GamePlay);
+export default connect(mapStateToProps,undefined)(GamePlayTutorial);
 

@@ -13,13 +13,12 @@ Any sort of throwing by the player, or registration of throwings of other users,
 
  */
 
-export const initializeGame = (playerinturn,playerhand, players ,nhands)=> ({
+export const initializeGame = (playerinturn, players ,nhand)=> ({
     //NOTE here that players is siimply an array of usernams.
     type: 'INIT_GAME',
     game: {
         nhand,
         playerinturn,
-        playerhand,
         pile : [],
         players
     }
@@ -41,7 +40,7 @@ export const playerSlap = (username,slapreactiontime) => ({
     slapreactiontime
 });
 
-export const resolveMatchResult = (loser,loseraddtopile,nextplayer)=>({
+export const receiveMatchResult = (loser,loseraddtopile,nextplayer)=>({
     type: "RECEIVE_MATCH_RESULT",
     loser,
     loseraddtopile,

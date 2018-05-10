@@ -7,6 +7,7 @@ const gameplayReducer = (state= {},action)=>{
         case 'INIT_GAME':
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`)
             return {
+                counter:0,
                 playerinturn : action.game.playerinturn,
                 playerhand: action.game.playerhand,
                 pile: action.game.pile,
@@ -21,20 +22,26 @@ const gameplayReducer = (state= {},action)=>{
                 })
             };
         case 'PLAYER_THREW':
+            if(state.match === true)
+                return state;
+            else
             return {
                 ...state,
+                counter: state.counter + 1,
+                match: state.counter + 1 === action.card,
+                playerinturn:action.nextplayer,
                 players : state.players.map((player)=>{
                     if(player.username === action.username && state.playerinturn === player.username) {
                         return {
                             ...player,
-                            nhand: player.nhand - 1,
+                            nhand: player.nhand === 0? 0: player.nhand - 1,
                         };
                     }
                     else
                         return player;
                 }),
                 pile: [...state.pile,action.card]
-            }
+            };
         case 'PLAYER_SLAP':
             return {
                 ...state,
@@ -56,6 +63,8 @@ const gameplayReducer = (state= {},action)=>{
             return {
                 ...state,
                 pile: [],
+                playerinturn: action.loser,
+                counter: 0,
                 players : state.players.map((player)=>{
                     if(player.username === action.loser) {
                         return {
@@ -74,6 +83,8 @@ const gameplayReducer = (state= {},action)=>{
                     }
                 })
             }
+        default:
+            return state;
 
     }
 
