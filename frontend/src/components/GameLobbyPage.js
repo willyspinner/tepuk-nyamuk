@@ -3,7 +3,8 @@ import {connect} from 'react-redux';
 import {List,Button} from 'antd';
 import ReactLoading from 'react-loading';
 import {startLeaveGame} from "../actions/games";
-
+import ChatRoom from './ui/ChatRoom';
+import {sampleChatRoomFeed} from "../constants/sampleData";
 class GameLobbyPage extends Component {
     constructor(props){
         super(props);
@@ -67,10 +68,13 @@ class GameLobbyPage extends Component {
                 <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
                 <h3>Waiting for {this.state.game.creator} to start the game...</h3>
 
+                <ChatRoom
+                    messageFeed={sampleChatRoomFeed}
+                />
                 {
                     //TEMPDIS
-                    /*this.state.game.creator === this.props.user.username?*/
-                    1===1?
+                    this.state.game.creator === this.props.user.username?
+                    //1===1?
                     (
                         <Button onClick={this.onGameStartHandler}>
                             Start game

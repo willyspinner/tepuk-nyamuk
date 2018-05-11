@@ -89,6 +89,7 @@ class GamePlayTutorial extends Component{
         alert(`after slap event: loser: ${JSON.stringify(loser)}`);
         //TODO: not sure if putting the below works.
         //TODO: this is a sketchy way to alleviate the problem. seriosuly. ew
+        // eh. whatever. This isn't the REAL game implementation anyway.
         setTimeout(()=>this.updateThrowHandler,1000);
     }
     // used for the other bot players to check whether they should throw.

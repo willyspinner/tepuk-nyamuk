@@ -8,6 +8,9 @@ import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
 import {Input,Button} from 'antd';
 import {initializeGame} from "../actions/gameplay";
+import ChatRoom from './ui/ChatRoom';
+import {sampleChatRoomFeed} from "../constants/sampleData";
+
 class MainPage extends Component {
     state={
         username: this.props.user.username,
@@ -93,6 +96,7 @@ class MainPage extends Component {
                contentLabel="Welcome"
                isOpen={!this.state.username}
                className="mainPage__registerModal"
+               ariaHideApp={false}
                    >
                    <h2
                        style={{marginTop:"20px"}}
@@ -195,6 +199,9 @@ class MainPage extends Component {
         <GameList
         onJoin={this.onGameJoinHandler}
         games={this.props.games}
+        />
+        <ChatRoom
+            messageFeed={sampleChatRoomFeed}
         />
         Don't know how to play? Do a tutorial below.
         <Button onClick={this.onTutorialStartHandler}>
