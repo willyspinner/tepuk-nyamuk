@@ -165,7 +165,9 @@ componentDidUpdate(prevProps,prevState){
                         }
                     </Col>
                     <Col span={8}>
+                        <span className={"showCounter"}>
                         <h1>counter: {((parseInt(this.props.gameplay.counter) - 1)  % 13 )+ 1 }</h1>
+                        </span>
                     </Col>
                 </Row>
             </div>

@@ -1,0 +1,9 @@
+span.gameCounter {
+  transition: 400ms all ease;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.showCounter {
+  opacity: 1;
+}

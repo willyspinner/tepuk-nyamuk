@@ -3,7 +3,7 @@ export const sampleChatRoomFeed = [
         sender: "willyboomboom",
         message: "hiii whatsuppp",
         tag:[],
-        timestamp: 1526022976,
+        timestamp: 1526021976,
     },
     {
         sender: "willyzpin",
