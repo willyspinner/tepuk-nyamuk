@@ -1,9 +1,11 @@
 
 const userReducer = (state = {}, action) => {
   switch (action.type) {
-      case 'REGISTER_USER':
+      case 'USER_LOGGED_IN':
         return {
-      username:action.username
+            ...state,
+      username:action.username,
+            token: action.token
         };
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);

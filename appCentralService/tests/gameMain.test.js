@@ -70,6 +70,27 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
                 });
             });
     });
+    it('should not create duplicates', function (done) {
+        request.post({
+                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                form: {
+                    username: 'willyboomboom',
+                    password: 'berdoge'
+                },
+            },
+            (err, res, body) => {
+                if (err) {
+                    console.log(`ERROR HERE`);
+                    done(err);
+                }
+                assert.equal(false, JSON.parse(body).success);
+                const token = JSON.parse(body).token;
+                assert.equal(undefined, token);
+                assert.equal("User already exists.", JSON.parse(body).error);
+                done();
+            });
+    });
+
     it(' login with wrong pw should be invalidated', function (done) {
         console.log(`posting to http://localhost:${process.env.PORT}/appcs/user/auth`);
         request.post({
@@ -132,7 +153,6 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
             assert.equal(socket_sent_game.creator, newgame.creator);
             assert.equal(socket_sent_game.name, newgame.name);
             assert.deepEqual(socket_sent_game.players, [newgame.creator]);
-            done();
         });
         // TEST our create game endpoint here.
         request.post({
@@ -146,9 +166,10 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                 if (err)
                     done(err);
                 this.newgameuuid = JSON.parse(body).game.uuid;
-                
+
                 console.log(`${body}`);
                 console.log(`CREATE game ok. `);
+                done();
             });
     });
 
