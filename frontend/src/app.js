@@ -22,8 +22,8 @@ let game_2 = {
     creator:"berdog",
     uuid:"1223"
 }
-store.dispatch(addGame(game_1));
-store.dispatch(addGame(game_2));
+//store.dispatch(addGame(game_1));
+//store.dispatch(addGame(game_2));
 
 /*
 init redux GET stubs for getting all the games.

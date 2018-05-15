@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser,logoutUser} from "../actions/user";
+import {startGetOpenGames} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
@@ -57,6 +58,9 @@ class MainPage extends Component {
             else
                 alert(JSON.stringify(e));
         });
+    }
+    getOpenGames = ()=>{
+        this.props.dispatch(startGetOpenGames());
     }
     registerUserHandler = () => {
         console.log(`calling loginUserHandler`);

@@ -130,6 +130,7 @@ app.get('/appcs/game', (req, res) => {
     }).catch((e) => {
         res.json({
             success: false,
+            error:e
         })
     });
 });

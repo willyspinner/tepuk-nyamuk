@@ -174,7 +174,6 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
     });
 
     it('should receive game delete updates ', function(done){
-        //TODO: something still failinig here. this.newgameuuid is still undefined!!!
         this.socket.on(EVENTS.GAME_DELETED,(data)=>{
             assert.equal(data.gameuuid,this.newgameuuid);
             done();
