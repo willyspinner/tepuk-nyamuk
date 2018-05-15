@@ -273,6 +273,7 @@ io.use(function (socket, next) {
             if (err)
                 return next(new Error('WS Auth Error'));
             socket.username = decoded.username;
+            socket.token = socket.handshake.query.token;//TODO: is this needed?
             next();
         })
     } else {
@@ -294,28 +295,37 @@ io.use(function (socket, next) {
     WS player Join game lobby (room)
     TODO: this socket route here is very costly (expensive).
     TODO: should be a way to make this more efficient.
+
+    TODO: also, there is a way of impersonation here. Be careful.
+    TODO: FIX THIS ^^
      */
     socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data,response) => {
         const clientUsername = data.username;
         const roomName = data.gameid;
+        if(socket.username !== clientUsername){
+            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+            return;
+        }
         db.getUser(clientUsername).then((user)=>{
             console.log(`user.gameid: ${user.gameid}`);
             if(user.gameid == null){
                 if(! uuidvalidate(data.gameid)){
                     console.log(`got invalid uuid here.`);
-                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
+                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                    return;
                 }
                     
                 db.getGame(data.gameid).then((game)=>{
                     if (game == undefined) {
                         console.log(`the game referred to by data.gameid is not real.`);
                         response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                        return;
                     }
                     else{
                         db.joinGame(clientUsername, roomName).then( () => {
                             socket.join(roomName);
                             io.to(`${roomName}`)
-                                .emit('userJoined', clientUsername);
+                                .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
                             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
                         }).catch((e) => {
                             console.log(`NO ACK ERROR`);
@@ -348,7 +358,7 @@ io.use(function (socket, next) {
             let joinedRoom = clientUserObj.gameid;
             socket.leave(`${joinedRoom}`);
             clientUserObj.socketid = null;
-            io.to(`${joinedRoom}`).emit('userLeft', clientUserObj.username);
+            io.to(`${joinedRoom}`).emit(EVENTS.LOBBY.USER_LEFT, clientUserObj.username);
             response(EVENTS.LOBBY.CLIENT_LEAVE_ACK);
         }).catch((e) => {
             response(EVENTS.LOBBY.CLIENT_LEAVE_NOACK);

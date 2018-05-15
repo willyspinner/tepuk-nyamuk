@@ -1,5 +1,6 @@
 import request from 'request';
-import {GETOPENGAMES} from "../serverroutes/AppCSRoutes";
+import moment from 'moment';
+import {GETOPENGAMES,CREATEGAME} from "../serverroutes/AppCSRoutes";
 
 export const addGame = ( game )=> ({
   type: 'ADD_GAME',
@@ -28,10 +29,21 @@ export const startGetOpenGames = ()=>{
 }
 //NOTE: creating and adding a game(from server) uses the same local redux action.
 // (ADD_GAME)
-//TODO: actual creating a  game:
-export const startCreateGame = (expenseData = {}) => {
+export const startCreateGame = (gameObj) => {
     return (reduxDispatch, getState) =>{
-
+    //TODO: actual creating a  game:
+        return new Promise((resolve,reject)=>{
+        gameObj.createdat = moment.now();
+        gameObj.creator = getState().user.username;
+            request.post(CREATEGAME(gameObj ,getState().user.token),
+                (err,res,body)=>{
+                    if(err){
+                        reject({error:"couldn't connect to server"})
+                        return;
+                    }
+                    resolve(JSON.parse(body));
+                })
+        });
     }
     ;
 }
@@ -63,8 +75,9 @@ export const startJoinGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
         //TODO: send an axios POST to join
-    reduxDispatch(joinGame(uuid,username));
+        //TODO: dispatch to alter gameid redux state.
     return new Promise((resolve,reject)=>{
+        reduxDispatch(joinGame(uuid,username));
         setTimeout(()=>{
             resolve();
         },1000);

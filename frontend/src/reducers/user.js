@@ -9,6 +9,7 @@ const userReducer = (state = {}, action) => {
         };
       case 'USER_LOG_OUT':
           return {} ; //blank.
+
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;

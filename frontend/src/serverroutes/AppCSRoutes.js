@@ -36,3 +36,14 @@ export const LOGINUSER = (username,password)=>{
         timeout: 16000, // 16 sec timeout
     }
 };
+
+export const CREATEGAME=(game,token)=>{
+    return   {
+        url : `${ROOTURL}/appcs/game/create`,
+        form: {
+            game: JSON.stringify(game),
+            token
+        },
+        timeout: 16000, // 16 sec timeout
+    }
+}

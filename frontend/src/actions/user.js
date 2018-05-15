@@ -13,9 +13,10 @@ export const startRegisterUser = (username,password)=> {
         return new Promise((resolve, reject) => {
             request.post(NEWUSER(username, password),
                 (err, res, body) => {
-                
-                    if (err)
-                        reject({error: JSON.stringify(err)});
+                    if (err){
+                        reject({error:"server error. Unable to connect at this time."});
+                        return;
+                    }
                     if(!body){
                         reject({error: "server error"});
                         return;
@@ -36,20 +37,18 @@ export const startLoginUser = (username,password)=>{
             request.post(LOGINUSER(username, password),
                 (err, res, body) => {
                     if (err){
-                        reject({error: JSON.stringify(err)});
+                        reject({error:"server error. Unable to connect at this time."});
                        return;
                     }
-                    if (err.code === 'ETIMEDOUT'){
-                        reject({error: "server timed out."});
-                        return;
-                    }
 
+                    console.log(`! body: ${!body}`);
                    if(!body){
                        reject({error: "server error"});
                        return;
                    }
 
                     let resobj = JSON.parse(body);
+                    
                     if (resobj.success) {
                         reduxDispatch(userLoggedIn(username, resobj.token));
                         resolve(resobj);
@@ -63,3 +62,16 @@ export const logoutUser = ()=>({
     type:"USER_LOG_OUT"
     });
 
+export const connectSocket = (socketid)=>({
+    type: "USER_CONNECT_SOCKET",
+    socketid
+})
+
+
+export const startConnectSocket = ()=>{
+    return (reduxDispatch)=>{
+        return new Promise((resolve,reject)=>{
+            
+        });
+    }
+}

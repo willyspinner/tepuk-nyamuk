@@ -203,7 +203,7 @@ const self = module.exports = {
         return new Promise ((resolve,reject)=>{
             const getuserquery = {
                 text:
-                    `SELECT ${fields.USERS.USERNAME},${fields.USERS.GAMEID} `+
+                    `SELECT ${fields.USERS.USERNAME},${fields.USERS.GAMEID},  ${fields.USERS.SOCKET_ID} `+
                     `FROM ${fields.USERS.TABLENAME} `+
                     ` WHERE ${fields.USERS.USERNAME} = $1 ;`,
                 values: [username]

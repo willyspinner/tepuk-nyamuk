@@ -17,6 +17,18 @@
   justify-content: flex-start;
   margin-left:$s-size;
 }
+.mainPage__createGameModal {
+  background-color:#91d5ff;
+  position: absolute;
+  border-radius: 10px;
+  top: 30%;
+  left: 30%;
+  right: 30%;
+  //bottom: 30%;
+  padding-left: 3%;
+  padding-right:3%;
+
+}
 .mainPage__registerModal {
   background-color:#91d5ff;
   position: absolute;

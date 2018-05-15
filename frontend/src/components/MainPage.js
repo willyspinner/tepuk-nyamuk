@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {startJoinGame} from "../actions/games";
+import {startCreateGame, startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser,logoutUser} from "../actions/user";
 import {startGetOpenGames} from "../actions/games";
 import GameList from './GameList';
@@ -11,6 +11,7 @@ import {Input, Button} from 'antd';
 import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
+import CreateGameForm from './ui/createGameForm';
 
 class MainPage extends Component {
     state = {
@@ -20,6 +21,7 @@ class MainPage extends Component {
         isJoiningGame: false,
         isLoggingIn: true,
         showTutorial: false,
+        isCreatingGame: false,
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
@@ -41,7 +43,6 @@ class MainPage extends Component {
         if (!this.state.isLoggingIn && this.state.repeatPassword !== this.state.password)
             return {success: false, error: "passwords do not match"}
         return {success: true}
-
     }
     loginUserHandler = () => {
         console.log(`calling loginUserHandler`);
@@ -78,6 +79,8 @@ class MainPage extends Component {
                 alert(e.error);
             else
                 alert(JSON.stringify(e));
+            //TODO: join the game as master.
+
         })
     }
 
@@ -107,7 +110,27 @@ class MainPage extends Component {
         })
         this.props.dispatch(logoutUser());
     }
+    onGameCreateHandler=  (valuesObj)=>{
+        this.props.dispatch(startCreateGame({name:valuesObj.name})).then((obj)=>{
+            console.log(`game creation response: ${JSON.stringify(obj)}`);
+            this.setState({isCreatingGame: false});
+        });
+    }
     render() {
+
+        const createGameModal = (
+            <Modal
+                contentLabel={"Create Game"}
+                isOpen={this.state.isCreatingGame}
+                onRequestClose={()=>this.setState({isCreatingGame:false})}
+                className="mainPage__createGameModal"
+                ariaHideApp={true}
+            >
+                <CreateGameForm
+                    onGameFormSubmit={this.onGameCreateHandler}
+                />
+            </Modal>
+        );
         const registerModal = (
             <Modal
                 contentLabel="Welcome"
@@ -221,6 +244,7 @@ class MainPage extends Component {
                 -> join open games
                 -> create own game
                 {/* modals here */}
+                {createGameModal}
                 {registerModal}
                 {joinGameModal}
                 {this.state.showTutorial ? tutorialModal : null}
@@ -228,6 +252,11 @@ class MainPage extends Component {
                     onJoin={this.onGameJoinHandler}
                     games={this.props.games}
                 />
+                <Button
+                onClick={()=>this.setState({isCreatingGame:true})}>
+                    Create a game
+                </Button>
+                <h2>Chatroom</h2>
                 <ChatRoom
                     messageFeed={sampleChatRoomFeed}
                 />
