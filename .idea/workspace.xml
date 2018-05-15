@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/ui/CreateGameForm.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" afterDir="false" />
+    <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="made socket client singleton">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/db/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/db/db.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/actions/games.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/games.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/actions/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/MainPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/MainPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/reducers/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/reducers/user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -47,8 +38,8 @@
           <file leaf-file-name="user.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="198">
-                  <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
+                <state relative-caret-position="313">
+                  <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
                 </state>
               </provider>
             </entry>
@@ -56,8 +47,8 @@
           <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-290">
-                  <caret line="296" column="42" selection-start-line="296" selection-start-column="42" selection-end-line="296" selection-end-column="42" />
+                <state relative-caret-position="142">
+                  <caret line="320" column="44" selection-start-line="320" selection-start-column="44" selection-end-line="320" selection-end-column="44" />
                 </state>
               </provider>
             </entry>
@@ -93,11 +84,11 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="666">
-                  <caret line="45" column="54" lean-forward="true" selection-start-line="45" selection-start-column="54" selection-end-line="45" selection-end-column="54" />
+                <state relative-caret-position="187">
+                  <caret line="55" column="31" selection-start-line="55" selection-start-column="31" selection-end-line="55" selection-end-column="31" />
                   <folding>
                     <element signature="e#0#40#0" expanded="true" />
                   </folding>
@@ -105,11 +96,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="user.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="211">
-                  <caret line="66" column="12" lean-forward="true" selection-start-line="66" selection-start-column="12" selection-end-line="66" selection-end-column="12" />
+                <state relative-caret-position="140">
+                  <caret line="64" column="13" selection-start-line="64" selection-start-column="13" selection-end-line="64" selection-end-column="13" />
                   <folding>
                     <element signature="e#0#30#0" expanded="true" />
                   </folding>
@@ -222,14 +213,14 @@
         <option value="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" />
         <option value="$PROJECT_DIR$/frontend/src/components/ui/CreateGameForm.js" />
         <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
-        <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/MainPage.js" />
         <option value="$PROJECT_DIR$/appCentralService/constants/socketEvents.js" />
         <option value="$PROJECT_DIR$/appCentralService/db/db.js" />
         <option value="$PROJECT_DIR$/appCentralService/app.js" />
-        <option value="$PROJECT_DIR$/frontend/src/socket/socketclient.js" />
         <option value="$PROJECT_DIR$/frontend/src/actions/games.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/user.js" />
+        <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
+        <option value="$PROJECT_DIR$/frontend/src/socket/socketclient.js" />
       </list>
     </option>
   </component>
@@ -383,7 +374,7 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="editing.templates" />
+    <property name="settings.editor.selected.configurable" value="preferences.toDoOptions" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -515,7 +506,7 @@
       <workItem from="1525839302116" duration="45524000" />
       <workItem from="1526021691244" duration="1987000" />
       <workItem from="1526069239821" duration="4248000" />
-      <workItem from="1526339287808" duration="14818000" />
+      <workItem from="1526339287808" duration="16323000" />
     </task>
     <servers />
   </component>
@@ -552,9 +543,9 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="231581000" />
+    <option name="totallyTimeSpent" value="233086000" />
   </component>
-  <component name="TodoView">
+  <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
       <is-autoscroll-to-source value="true" />
     </todo-panel>
@@ -567,16 +558,17 @@
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49408984" visible="true" weight="0.16640127" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32918397" />
-      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" id="TODO" order="6" sideWeight="0.49920383" visible="true" weight="0.32918397" />
+      <window_info anchor="bottom" id="Messages" sideWeight="0.49920383" weight="0.32918397" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.30130294" side_tool="true" weight="0.25172892" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49761146" weight="0.32780084" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.70461786" visible="true" weight="0.36514524" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32890856" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.70461786" weight="0.36514524" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49920383" weight="0.32780084" />
       <window_info anchor="bottom" id="Quokka" order="8" weight="0.32890856" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.5007962" side_tool="true" visible="true" weight="0.32918397" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49408984" visible="true" weight="0.16640127" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49761146" weight="0.32780084" />
       <window_info id="Structure" order="1" sideWeight="0.50718683" side_tool="true" weight="0.11066879" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.29538217" side_tool="true" visible="true" weight="0.36514524" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4994726" weight="0.3988036" />
       <window_info id="Favorites" order="2" sideWeight="0.50591016" side_tool="true" weight="0.10548523" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -614,6 +606,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="made socket client singleton" />
+    <option name="LAST_COMMIT_MESSAGE" value="made socket client singleton" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -942,16 +938,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="45" column="54" lean-forward="true" selection-start-line="45" selection-start-column="54" selection-end-line="45" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/appCentralService/tests/dummydata/dummydata.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -959,27 +945,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="66" column="12" lean-forward="true" selection-start-line="66" selection-start-column="12" selection-end-line="66" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#30#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/reducers/games.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="11" column="27" selection-start-line="11" selection-start-column="27" selection-end-line="11" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-290">
-          <caret line="296" column="42" selection-start-line="296" selection-start-column="42" selection-end-line="296" selection-end-column="42" />
         </state>
       </provider>
     </entry>
@@ -993,10 +962,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="320" column="44" selection-start-line="320" selection-start-column="44" selection-end-line="320" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="64" column="13" selection-start-line="64" selection-start-column="13" selection-end-line="64" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
+        <state relative-caret-position="313">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="55" column="31" selection-start-line="55" selection-start-column="31" selection-end-line="55" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

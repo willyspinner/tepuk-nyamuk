@@ -7,7 +7,7 @@ export const userLoggedIn = (username,token)=>({
     type: 'USER_LOGGED_IN',
     username,
     token
-})
+});
 export const startRegisterUser = (username,password)=> {
     return (reduxDispatch) => {
         return new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ export const startLoginUser = (username,password)=>{
 export const logoutUser = ()=>({
     type:"USER_LOG_OUT"
     });
-
+// when the user gets their own socket id.
 export const connectSocket = (socketid)=>({
     type: "USER_CONNECT_SOCKET",
     socketid

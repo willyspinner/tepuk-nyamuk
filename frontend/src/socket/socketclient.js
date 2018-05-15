@@ -1,9 +1,8 @@
 import ioclient from 'socket.io-client';
 import EVENTS from '../../../appCentralService/constants/socketEvents';
 
-//TODO: MAKE this a singleton class.
-export default class SocketClient {
-    constructor(connectionStr,query=undefined,token= undefined){
+class SocketClient {
+    connect(connectionStr,query=undefined,token= undefined){
         if(!query)
             this.socket = ioclient(connectionStr,{
                 query: {
@@ -45,7 +44,6 @@ export default class SocketClient {
         this.socket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
             if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){
                 onSuccessLeave();
-                return;
             }else{
                 onfailLeave();
             }
@@ -58,3 +56,7 @@ export default class SocketClient {
             this.socket.close();
     }
 }
+
+const instance = new SocketClient();
+Object.freeze(instance);
+export default instance;
