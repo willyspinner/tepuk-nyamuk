@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/appCentralService/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/actions/games.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/games.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/MainPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/MainPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appCentralService/db/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/db/db.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/actions/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/user.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -47,8 +43,8 @@
           <file leaf-file-name="AppCSRoutes.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="190">
-                  <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
+                <state relative-caret-position="328">
+                  <caret line="21" column="14" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
                 </state>
               </provider>
             </entry>
@@ -66,11 +62,11 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="MainPage.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="MainPage.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="349">
-                  <caret line="62" column="49" selection-start-line="62" selection-start-column="49" selection-end-line="62" selection-end-column="49" />
+                <state relative-caret-position="202">
+                  <caret line="56" column="25" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="25" />
                   <folding>
                     <element signature="e#0#39#0" expanded="true" />
                     <element signature="e#2753#3213#0" />
@@ -82,8 +78,8 @@
           <file leaf-file-name="games.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/actions/games.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-222">
-                  <caret line="8" column="5" lean-forward="true" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
+                <state relative-caret-position="37">
+                  <caret line="15" column="24" lean-forward="true" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
                   <folding>
                     <element signature="e#0#30#0" expanded="true" />
                   </folding>
@@ -94,8 +90,8 @@
           <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="351">
-                  <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
+                <state relative-caret-position="292">
+                  <caret line="55" column="20" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="20" />
                   <folding>
                     <element signature="e#0#30#0" expanded="true" />
                   </folding>
@@ -103,11 +99,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
+          <file leaf-file-name="db.js" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
+                <state relative-caret-position="315">
+                  <caret line="393" column="24" selection-start-line="393" selection-start-column="24" selection-end-line="393" selection-end-column="24" />
                 </state>
               </provider>
             </entry>
@@ -118,7 +114,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mainPage__</find>
       <find>gameId</find>
       <find>leaveGame</find>
       <find>Array.from</find>
@@ -148,6 +143,7 @@
       <find>this.state.username</find>
       <find>app.get</find>
       <find>/appcs/game</find>
+      <find>reject</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -172,7 +168,6 @@
         <option value="$PROJECT_DIR$/appCentralService/constants/socketEvents.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/appCentralService/db/db.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/db/constants/cardgameconstants.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/db.test.js" />
         <option value="$PROJECT_DIR$/appCentralService/.appcs.test.env" />
@@ -198,7 +193,6 @@
         <option value="$PROJECT_DIR$/frontend/src/styles/components/GameplayPage.scss" />
         <option value="$PROJECT_DIR$/frontend/webpack.config.js" />
         <option value="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" />
-        <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/user.js" />
         <option value="$PROJECT_DIR$/frontend/src/app.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/games.js" />
@@ -207,6 +201,8 @@
         <option value="$PROJECT_DIR$/frontend/src/actions/games.js" />
         <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/MainPage.js" />
+        <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
+        <option value="$PROJECT_DIR$/appCentralService/db/db.js" />
       </list>
     </option>
   </component>
@@ -485,7 +481,7 @@
       <workItem from="1525839302116" duration="45524000" />
       <workItem from="1526021691244" duration="1987000" />
       <workItem from="1526069239821" duration="4248000" />
-      <workItem from="1526339287808" duration="7529000" />
+      <workItem from="1526339287808" duration="8352000" />
     </task>
     <servers />
   </component>
@@ -522,7 +518,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="224292000" />
+    <option name="totallyTimeSpent" value="225115000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -876,13 +872,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1773">
-          <caret line="201" column="24" selection-start-line="201" selection-start-column="24" selection-end-line="201" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-175">
@@ -890,27 +879,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#30#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -935,31 +907,55 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/actions/games.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-222">
-          <caret line="8" column="5" lean-forward="true" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
+        <state relative-caret-position="37">
+          <caret line="15" column="24" lean-forward="true" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="21" column="14" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="62" column="49" selection-start-line="62" selection-start-column="49" selection-end-line="62" selection-end-column="49" />
+        <state relative-caret-position="202">
+          <caret line="56" column="25" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="25" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
             <element signature="e#2753#3213#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="55" column="20" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="393" column="24" selection-start-line="393" selection-start-column="24" selection-end-line="393" selection-end-column="24" />
         </state>
       </provider>
     </entry>

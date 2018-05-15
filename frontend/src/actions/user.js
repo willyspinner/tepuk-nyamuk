@@ -14,9 +14,12 @@ export const startRegisterUser = (username,password)=> {
             request.post(NEWUSER(username, password),
                 (err, res, body) => {
                 
-                console.log(`register user got resposnse : ${body}`);
                     if (err)
                         reject({error: JSON.stringify(err)});
+                    if(!body){
+                        reject({error: "server error"});
+                        return;
+                    }
                     let resobj = JSON.parse(body);
                     if (resobj.success) {
                         reduxDispatch(userLoggedIn(username, resobj.token));
@@ -32,8 +35,20 @@ export const startLoginUser = (username,password)=>{
         return new Promise((resolve, reject) => {
             request.post(LOGINUSER(username, password),
                 (err, res, body) => {
-                    if (err)
+                    if (err){
                         reject({error: JSON.stringify(err)});
+                       return;
+                    }
+                    if (err.code === 'ETIMEDOUT'){
+                        reject({error: "server timed out."});
+                        return;
+                    }
+
+                   if(!body){
+                       reject({error: "server error"});
+                       return;
+                   }
+
                     let resobj = JSON.parse(body);
                     if (resobj.success) {
                         reduxDispatch(userLoggedIn(username, resobj.token));

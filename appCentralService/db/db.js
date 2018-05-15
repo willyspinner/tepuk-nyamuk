@@ -259,8 +259,10 @@ const self = module.exports = {
             };
             console.log(`trying to deleting user ${JSON.stringify(deleteuserquery)}`);
             client.query(deleteuserquery,(err,res)=>{
-                if(err)
+                if(err){
                     reject(err);
+                    return;
+                }
                 resolve(res);
             })
 
@@ -281,8 +283,10 @@ const self = module.exports = {
                 return !!err;
             }
             client.query('BEGIN', (err) => {
-                if (shouldAbort(err))
+                if (shouldAbort(err)){
                     reject(err);
+                    return;
+                }
                 const updateGamesTableQuery = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.PLAYERS} = array_append(${fields.GAMES.PLAYERS}, $1) `+
@@ -290,8 +294,10 @@ const self = module.exports = {
                     values: [username, gameId]
                 } ;
                 client.query(updateGamesTableQuery, (err, res) => {
-                    if (shouldAbort(err))
+                    if (shouldAbort(err)){
                         reject(err);
+                        return;
+                    }
                     const updateUsersTableQuery = {
                         text: `UPDATE ${fields.USERS.TABLENAME} `+
                         `SET ${fields.USERS.GAMEID} = $1 `+
@@ -299,12 +305,16 @@ const self = module.exports = {
                         values: [gameId,username]
                     }
                     client.query(updateUsersTableQuery, (err, res) => {
-                        if (shouldAbort(err))
+                        if (shouldAbort(err)){
                             reject(err);
+                            return;
+                        }
+
                         client.query('COMMIT', (err) => {
                             if (err) {
                                 console.error('Error committing transaction', err.stack)
                                 reject(err);
+                                return;
                             }
                             resolve();
                         })
@@ -330,8 +340,10 @@ const self = module.exports = {
                 return !!err;
             }
             client.query('BEGIN', (err) => {
-                if (shouldAbort(err))
+                if (shouldAbort(err)){
                     reject(err);
+                    return;
+                }
                 const updateGamesTableQuery = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.PLAYERS} = array_remove(${fields.GAMES.PLAYERS}, $1) `+
@@ -339,8 +351,10 @@ const self = module.exports = {
                     values: [userObj.username, userObj.gameid]
                 } ;
                 client.query(updateGamesTableQuery, (err, res) => {
-                    if (shouldAbort(err))
+                    if (shouldAbort(err)){
                         reject(err);
+                        return;
+                    }
                     const updateUsersTableQuery = {
                         text: `UPDATE ${fields.USERS.TABLENAME} `+
                         `SET ${fields.USERS.GAMEID} = $1 `+
@@ -348,12 +362,15 @@ const self = module.exports = {
                         values: [null,userObj.username]
                     }
                     client.query(updateUsersTableQuery, (err, res) => {
-                        if (shouldAbort(err))
+                        if (shouldAbort(err)){
                             reject(err);
+                            return;
+                        }
                         client.query('COMMIT', (err) => {
                             if (err) {
                                 console.error('Error committing transaction', err.stack)
                                 reject(err);
+                                return;
                             }
                             resolve();
                         })
@@ -372,8 +389,11 @@ const self = module.exports = {
                values: [gameid]
             };
            client.query(startgamequery,(err,res)=>{
-             if(err)
+             if(err){
                  reject(err);
+                 return;
+
+             }
              resolve();
            })
         });
