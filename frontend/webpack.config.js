@@ -20,6 +20,9 @@ module.exports = (env) => {
   const isProduction = env === 'production';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
+    node:{
+        fs:'empty'
+    },
   entry: './src/app.js',// remember to use ./ syntax.
   //details for our output file.
   output : {

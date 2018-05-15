@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appCentralService/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/actions/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/user.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/MainPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/MainPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/reducers/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/reducers/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/webpack.config.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -26,38 +29,11 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="user.js" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-147">
-                  <caret line="7" column="13" lean-forward="true" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-                  <folding>
-                    <element signature="e#0#30#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="AppCSRoutes.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="AppCSRoutes.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="90">
-                  <caret line="5" column="13" lean-forward="true" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-                  <folding>
-                    <element signature="n#!!doc" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="MainPage.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="123">
-                  <caret line="37" column="14" selection-start-line="37" selection-start-column="14" selection-end-line="37" selection-end-column="14" />
-                  <folding>
-                    <element signature="e#0#39#0" expanded="true" />
-                  </folding>
+                <state relative-caret-position="333">
+                  <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
                 </state>
               </provider>
             </entry>
@@ -65,17 +41,17 @@
           <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="656">
-                  <caret line="287" column="39" lean-forward="true" selection-start-line="287" selection-start-column="39" selection-end-line="287" selection-end-column="39" />
+                <state relative-caret-position="227">
+                  <caret line="156" column="19" selection-start-line="156" selection-start-column="19" selection-end-line="156" selection-end-column="19" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="db.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
+          <file leaf-file-name="MainPage.scss" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-1773">
-                  <caret line="201" column="24" selection-start-line="201" selection-start-column="24" selection-end-line="201" selection-end-column="24" />
+                <state relative-caret-position="-175">
+                  <caret line="11" column="1" lean-forward="true" selection-start-line="11" selection-start-column="1" selection-end-line="11" selection-end-column="1" />
                 </state>
               </provider>
             </entry>
@@ -87,13 +63,24 @@
           <file leaf-file-name="MainPage.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="248">
-                  <caret line="179" column="13" lean-forward="true" selection-start-line="179" selection-start-column="13" selection-end-line="179" selection-end-column="13" />
+                <state relative-caret-position="355">
+                  <caret line="102" column="31" selection-start-line="102" selection-start-column="31" selection-end-line="102" selection-end-column="31" />
                   <folding>
                     <element signature="e#0#39#0" expanded="true" />
-                    <element signature="e#1348#1364#0" />
-                    <element signature="e#1843#2253#0" />
+                    <element signature="e#1410#1787#0" />
                     <element signature="e#2753#3213#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="351">
+                  <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
+                  <folding>
+                    <element signature="e#0#30#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -102,8 +89,8 @@
           <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="72">
-                  <caret line="4" column="16" lean-forward="true" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+                <state relative-caret-position="180">
+                  <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
                 </state>
               </provider>
             </entry>
@@ -114,11 +101,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>socket room :</find>
-      <find>zrank</find>
-      <find>emit(events.PLAYER</find>
-      <find>type of re</find>
-      <find>Button</find>
       <find>Input</find>
       <find>password</find>
       <find>mainPage__</find>
@@ -142,8 +124,13 @@
       <find>reactiontime</find>
       <find>playerinturn</find>
       <find>registerUser</find>
-      <find>getUser</find>
+      <find>node</find>
       <find>username</find>
+      <find>getUser</find>
+      <find>getUserS</find>
+      <find>this.state.username</find>
+      <find>registerModalOpen</find>
+      <find>res.json</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -172,14 +159,12 @@
         <option value="$PROJECT_DIR$/gameMarshallingService/db/constants/cardgameconstants.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/db.test.js" />
         <option value="$PROJECT_DIR$/appCentralService/.appcs.test.env" />
-        <option value="$PROJECT_DIR$/appCentralService/app.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/constants/socketEvents.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/tests/dummydata/dummydata.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/.gms.test.env" />
         <option value="$PROJECT_DIR$/gameMarshallingService/tests/redisdb.test.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/db/redisdb.js" />
         <option value="$PROJECT_DIR$/gameMarshallingService/tests/gmsapp.test.js" />
-        <option value="$PROJECT_DIR$/frontend/webpack.config.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/games.js" />
         <option value="$PROJECT_DIR$/frontend/src/actions/games.js" />
         <option value="$PROJECT_DIR$/frontend/src/app.js" />
@@ -189,7 +174,6 @@
         <option value="$PROJECT_DIR$/frontend/src/components/GamePlay.js" />
         <option value="$PROJECT_DIR$/frontend/src/store/configureStore.js" />
         <option value="$PROJECT_DIR$/frontend/src/actions/gameplay.js" />
-        <option value="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/gameplay.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/ui/ChatRoom.js" />
@@ -198,10 +182,13 @@
         <option value="$PROJECT_DIR$/frontend/src/styles/styles.scss" />
         <option value="$PROJECT_DIR$/frontend/src/components/GamePlayTutorial.js" />
         <option value="$PROJECT_DIR$/frontend/src/styles/components/GameplayPage.scss" />
-        <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" />
+        <option value="$PROJECT_DIR$/frontend/webpack.config.js" />
+        <option value="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" />
         <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/user.js" />
+        <option value="$PROJECT_DIR$/appCentralService/app.js" />
+        <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/MainPage.js" />
       </list>
     </option>
@@ -241,62 +228,24 @@
             <path>
               <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
               <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
               <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
               <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="actions" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="constants" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="reducers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="routes" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="serverroutes" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="store" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -338,7 +287,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Mocha.AppCS: test all">
+  <component name="RunManager" selected="npm.frontend: dev-server">
     <configuration name="AppCS: node app.js" type="NodeJSConfigurationType" factoryName="Node.js" path-to-js-file="app.js" working-dir="$PROJECT_DIR$/appCentralService" />
     <configuration name="frontend: dev-server" type="js.build_tools.npm" factoryName="npm">
       <package-json value="$PROJECT_DIR$/frontend/package.json" />
@@ -449,7 +398,7 @@
       <workItem from="1525839302116" duration="45524000" />
       <workItem from="1526021691244" duration="1987000" />
       <workItem from="1526069239821" duration="4248000" />
-      <workItem from="1526339287808" duration="2985000" />
+      <workItem from="1526339287808" duration="6126000" />
     </task>
     <servers />
   </component>
@@ -486,7 +435,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="219748000" />
+    <option name="totallyTimeSpent" value="222889000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -501,15 +450,15 @@
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49408984" visible="true" weight="0.12977707" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49408984" visible="true" weight="0.16640127" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32918397" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.30130294" side_tool="true" weight="0.25172892" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.60509557" visible="true" weight="0.22544952" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.22544952" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32890856" />
       <window_info anchor="bottom" id="Quokka" order="8" weight="0.32890856" />
       <window_info id="Structure" order="1" sideWeight="0.50718683" side_tool="true" weight="0.11066879" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.39490446" side_tool="true" visible="true" weight="0.22544952" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" side_tool="true" visible="true" weight="0.22544952" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4994726" weight="0.3988036" />
       <window_info id="Favorites" order="2" sideWeight="0.50591016" side_tool="true" weight="0.10548523" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -688,13 +637,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/webpack.config.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="41" column="18" selection-start-line="41" selection-start-column="18" selection-end-line="41" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/components/GameList.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
@@ -782,13 +724,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="22" column="22" selection-start-line="22" selection-start-column="22" selection-end-line="22" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/styles/components/GameplayPage.scss">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
@@ -865,6 +800,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/webpack.config.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="79" column="13" selection-start-line="79" selection-start-column="13" selection-end-line="79" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1773">
@@ -872,55 +821,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
+    <entry file="file://$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="83" column="30" lean-forward="true" selection-start-line="83" selection-start-column="30" selection-end-line="83" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="13" lean-forward="true" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="656">
-          <caret line="287" column="39" lean-forward="true" selection-start-line="287" selection-start-column="39" selection-end-line="287" selection-end-column="39" />
+        <state relative-caret-position="-175">
+          <caret line="11" column="1" lean-forward="true" selection-start-line="11" selection-start-column="1" selection-end-line="11" selection-end-column="1" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/reducers/user.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="16" lean-forward="true" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        <state relative-caret-position="180">
+          <caret line="10" column="30" selection-start-line="10" selection-start-column="30" selection-end-line="10" selection-end-column="30" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-147">
-          <caret line="7" column="13" lean-forward="true" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        <state relative-caret-position="351">
+          <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="227">
+          <caret line="156" column="19" selection-start-line="156" selection-start-column="19" selection-end-line="156" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="333">
+          <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="179" column="13" lean-forward="true" selection-start-line="179" selection-start-column="13" selection-end-line="179" selection-end-column="13" />
+        <state relative-caret-position="355">
+          <caret line="102" column="31" selection-start-line="102" selection-start-column="31" selection-end-line="102" selection-end-column="31" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
-            <element signature="e#1348#1364#0" />
-            <element signature="e#1843#2253#0" />
+            <element signature="e#1410#1787#0" />
             <element signature="e#2753#3213#0" />
           </folding>
         </state>

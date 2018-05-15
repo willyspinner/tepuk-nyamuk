@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {startJoinGame} from "../actions/games";
-import {startLoginUser, startRegisterUser} from "../actions/user";
+import {startLoginUser, startRegisterUser,logoutUser} from "../actions/user";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
@@ -13,23 +13,20 @@ import {sampleChatRoomFeed} from "../constants/sampleData";
 
 class MainPage extends Component {
     state = {
-        username: this.props.user.username,
         inputusername: "",
         password: "",
         repeatPassword: "",
         isJoiningGame: false,
         isLoggingIn: true,
         showTutorial: false,
-        registerModalOpen: true,
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
-        this.props.dispatch(startJoinGame(gameId, this.state.username)).then((/*empty resolve arg*/) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username)).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
             alert("Sorry! There was a server error.");
         })
-        //TODO: axios returns promise from action.
         // we render a modal for loading until the promise is returned.
         // for now, the promise is just a stub to simulate server response time.
 
@@ -46,14 +43,14 @@ class MainPage extends Component {
 
     }
     loginUserHandler = () => {
-        if (!this.validateInput().success)
+        console.log(`calling loginUserHandler`);
+        let validateInput = this.validateInput();
+        if (!validateInput.success){
+            alert(validateInput.error);
             return;
+        }
         this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
             .then(() => {
-                this.setState({
-                    username: this.state.username,
-                    registerModalOpen: false
-                });
             }).catch((e) => {
             if (e.error)
                 alert(e.error);
@@ -62,17 +59,16 @@ class MainPage extends Component {
         });
     }
     registerUserHandler = () => {
-        if (!this.validateInput().success)
+        console.log(`calling loginUserHandler`);
+        let validateInput = this.validateInput();
+        if (!validateInput.success){
+            alert(validateInput.error);
             return;
-
+        }
 
         this.props.dispatch(startRegisterUser(this.state.inputusername,
             this.state.password))
             .then(() => {
-                this.setState({
-                    username: this.state.username,
-                    registerModalOpen: false
-                });
             }).catch((e) => {
             if (e.error)
                 alert(e.error);
@@ -99,14 +95,21 @@ class MainPage extends Component {
         }));
     }
 
-
+    logoutHandler = ()=>{
+        this.setState({
+            inputusername: "",
+            password: "",
+            repeatPassword: "",
+        })
+        this.props.dispatch(logoutUser());
+    }
     render() {
         const registerModal = (
             <Modal
                 contentLabel="Welcome"
-                isOpen={this.state.registerModalOpen}
+                isOpen={!this.props.user.username}
                 className="mainPage__registerModal"
-                ariaHideApp={false}
+                ariaHideApp={true}
             >
                 <h2
                     style={{marginTop: "20px"}}
@@ -117,7 +120,7 @@ class MainPage extends Component {
                 <Input size="large"
                        placeholder="name"
                        value={this.state.inputusername}
-                       onPressEnter={this.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
+                       onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
                        style={{marginBottom: "4px"}}
                        onChange={(e) => {
                            this.setState({inputusername: e.target.value})
@@ -128,7 +131,7 @@ class MainPage extends Component {
                        type={"password"}
                        value={this.state.password}
                        style={{marginBottom: "4px"}}
-                       onPressEnter={this.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
+                       onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
                        onChange={(e) => {
                            this.setState({password: e.target.value})
                        }}
@@ -140,7 +143,7 @@ class MainPage extends Component {
                            type={"password"}
                            value={this.state.repeatPassword}
                            style={{marginBottom: "4px"}}
-                           onPressEnter={this.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
+                           onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
                            onChange={(e) => {
                                this.setState({repeatPassword: e.target.value})
                            }}
@@ -148,7 +151,8 @@ class MainPage extends Component {
                 }
                 <Button
                     type="primary"
-                    onClick = {this.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
+                    style={{marginBottom:"4px", marginTop: "4px"}}
+                    onClick = {this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
                 >
                     {this.state.isLoggingIn ? "login" : "register"}
                 </Button>
@@ -156,6 +160,7 @@ class MainPage extends Component {
                 <Button
                     type="dashed"
                     ghost
+                    style={{marginTop:"4px", marginBottom: "12px"}}
                     onClick={() => {
                         console.log(`logging in changed`);
                         this.setState((prevState) => ({isLoggingIn: !prevState.isLoggingIn}))
@@ -199,7 +204,9 @@ class MainPage extends Component {
         return (
 
             <div className="mainPageContainer">
-
+                <Button
+                onClick={this.logoutHandler}
+                >Logout</Button>
                 <h1 className="mainPageHeader"> Tepuk Nyamuk </h1>
                 Main page here.
                 You should be able to :

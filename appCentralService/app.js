@@ -26,10 +26,13 @@ const server = app.listen(app.get('port'));
 console.log(`app listening on ${app.get('port')}`);
 io.attach(server);
 
-
-
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 /*
-POST: /appcs/game/user/new.
+POST: /appcs/user/new.
 register a new user
 
 POST BODY:
@@ -81,11 +84,13 @@ POST BODY:
 app.post('/appcs/user/auth', (req, res) => {
     console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
     db.getUserSecrets(req.body.username).then((user) => {
-        if (!user)
+        if (!user){
             res.json({
                 success: false,
                 error: ` no such user ${req.body.username}`
             });
+            return;
+        }
         const passwordValid = bcrypt.compareSync(req.body.password, user.password);
         if (passwordValid) {
             let token = jwt.sign({username: user.username },
@@ -144,11 +149,13 @@ POST body:
 app.post('/appcs/game/create', (req, res) => {
     // the creator information is here already. (inside req.body.game object).
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err)
+        if (err){
             res.json({
                 success: false,
                 error: 'NOT AUTHENTICATED.'
             });
+            return;
+        }
         let game = req.body.game;
         game.creator = decoded.username;
         db.createGame(JSON.parse(game)).then((newgame) => {

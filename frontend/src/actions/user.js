@@ -13,6 +13,8 @@ export const startRegisterUser = (username,password)=> {
         return new Promise((resolve, reject) => {
             request.post(NEWUSER(username, password),
                 (err, res, body) => {
+                
+                console.log(`register user got resposnse : ${body}`);
                     if (err)
                         reject({error: JSON.stringify(err)});
                     let resobj = JSON.parse(body);
@@ -42,4 +44,7 @@ export const startLoginUser = (username,password)=>{
         });
     }
 }
+export const logoutUser = ()=>({
+    type:"USER_LOG_OUT"
+    });
 

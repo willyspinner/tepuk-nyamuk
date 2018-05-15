@@ -4,9 +4,11 @@ const userReducer = (state = {}, action) => {
       case 'USER_LOGGED_IN':
         return {
             ...state,
-      username:action.username,
+              username:action.username,
             token: action.token
         };
+      case 'USER_LOG_OUT':
+          return {} ; //blank.
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;
