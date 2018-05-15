@@ -204,9 +204,12 @@ class MainPage extends Component {
         return (
 
             <div className="mainPageContainer">
-                <Button
-                onClick={this.logoutHandler}
-                >Logout</Button>
+                {!!this.props.user.username?
+                    (
+                        <Button
+                            onClick={this.logoutHandler}
+                        >Logout</Button>
+                    ):null}
                 <h1 className="mainPageHeader"> Tepuk Nyamuk </h1>
                 Main page here.
                 You should be able to :
