@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {List,Button} from 'antd';
 import ReactLoading from 'react-loading';
-import {startLeaveGame} from "../actions/games";
+import {startLeaveGame,startRemoveGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
 class GameLobbyPage extends Component {
@@ -20,13 +20,23 @@ class GameLobbyPage extends Component {
         this.onLeaveHandler();
     }
     onLeaveHandler=()=>{
-        console.log(`leaving. STarting game? : ${this.state.isStartingGame}`);
-        if(!this.state.isStartingGame)
-        this.props.dispatch(startLeaveGame(this.state.uuid,this.props.user.username))
-            .then(() => {
-                console.log(`pushing to go back to / `);
-                    this.props.history.push('/')
-            })
+        console.log(`leaving. Starting game? : ${this.state.isStartingGame}`);
+        if(!this.state.isStartingGame){
+            this.props.dispatch(startLeaveGame(this.state.uuid,this.props.user.username))
+                .then(() => {
+                    if(this.props.user.username === this.state.game.creator){
+                        
+                        console.log(`dispatching startRemoveGame...`);
+                        this.props.dispatch(startRemoveGame(this.state.uuid)).then(()=>{
+                            console.log(`pushing to go back to / `);
+                            this.props.history.push('/')
+                        })
+        }else{
+            console.log(`pushing to go back to / `);
+            this.props.history.push('/')
+        }
+    });
+    }
     }
     onGameStartHandler= () => {
         //TODO: this needs to be run by some redux update caused by ws.
@@ -49,7 +59,7 @@ class GameLobbyPage extends Component {
 
                 <Button onClick={this.onLeaveHandler}
                         >
-                    leave game
+                    {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
                 </Button>
 
                 <h1 className="mainPageHeader"> Game Lobby Page </h1>

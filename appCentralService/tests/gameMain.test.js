@@ -188,8 +188,12 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                 },
             },
             (err, res, body) => {
-                if (err)
-                    done(err);
+                //if (err)
+                   // done(new Error("not deleted!"));
+                
+                console.log(`got body: ${body}`);
+                if(JSON.parse(body).success === false)
+                    done(new Error("not deleted!"));
             })
         })
     })

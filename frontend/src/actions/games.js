@@ -1,6 +1,9 @@
 import request from 'request';
 import moment from 'moment';
-import {GETOPENGAMES,CREATEGAME} from "../serverroutes/AppCSRoutes";
+import {GETOPENGAMES,CREATEGAME,DELETEGAME} from "../serverroutes/AppCSRoutes";
+export const gamesEmptyReduxState = ()=>({
+    type: "EMPTY_GAME_STATE"
+})
 
 export const addGame = ( game )=> ({
   type: 'ADD_GAME',
@@ -9,7 +12,6 @@ export const addGame = ( game )=> ({
         players: game.players? game.players: [game.creator]
     }
 });
-
 export const startGetOpenGames = ()=>{
     return (reduxDispatch) =>{
         return new Promise((resolve,reject)=>{
@@ -17,13 +19,6 @@ export const startGetOpenGames = ()=>{
             console.log(`actions/games::startGetOpenGames: GETOPENGAMES.. ${JSON.stringify(GETOPENGAMES())}`);
             request.get(GETOPENGAMES(),
                 (err,res,body)=>{
-                /*
-                    if(err){
-                        reject(`couldnt get open games. internal err ${JSON.stringify(err)}`);
-                        return;
-                    }
-                */
-                
                 console.log(`actions/games::startGetOpenGames: body obj is : ${body}`);
                     const resobj = JSON.parse(body);
                     if(!resobj.success){
@@ -58,19 +53,29 @@ export const startCreateGame = (gameObj) => {
 }
 
 
-export const removeGame = ({id} = {}) => { // ID MUST BE FILLED. NO DEFAULTS
-    if( typeof id === 'undefined')
-        return {};
+export const removeGame = (uuid) => { // ID MUST BE FILLED. NO DEFAULTS
     return {
         'type': 'REMOVE_GAME',
-        'id': id
+        uuid
     }
 
 }
 
-export const startRemoveGame = ({id}) => {
+export const startRemoveGame = (gameid) => {
     return (reduxDispatch,getState) => {
-        //TODO: send a DELETE request here
+        return new Promise((resolve,reject)=>{
+            request.delete(
+                DELETEGAME(gameid,getState().user.token,getState().user.socketid)
+                ,
+                (err,res,body)=>{
+                    const resobj = JSON.parse(body);
+                    if(resobj.success)
+                        resolve("ok");
+                    else
+                        reject("deletion of game unsuccessful..");
+                }
+            )
+        });
     };
 
 };
@@ -78,8 +83,10 @@ export const startRemoveGame = ({id}) => {
 export const joinGame = (uuid,username) => ({
     type :'JOIN_GAME',
     uuid,
-    username
+    username,
 })
+
+// used when the leader initially joins the game. just a simple local redux action
 export const startJoinGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
@@ -104,8 +111,7 @@ export const leaveGame = (uuid,username)=>({
 export const startLeaveGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
-        //TODO: send an axios POST to leave
-        
+        //TODO: send an axios POST to leave. DO THIS!
         console.log(`dispatching leave game... from start leave game`);
         reduxDispatch(leaveGame(uuid,username));
         return new Promise((resolve,reject)=>{

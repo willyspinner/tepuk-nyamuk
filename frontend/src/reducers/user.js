@@ -9,7 +9,11 @@ const userReducer = (state = {}, action) => {
         };
       case 'USER_LOG_OUT':
           return {} ; //blank.
-
+      case 'USER_CONNECT_SOCKET':
+          return {
+              ...state,
+              socketid: action.socketid
+          }
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;

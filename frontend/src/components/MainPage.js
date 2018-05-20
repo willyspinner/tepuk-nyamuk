@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
-import {startLoginUser, startRegisterUser,logoutUser} from "../actions/user";
-import {startGetOpenGames,addGame,removeGame} from "../actions/games";
+import {startLoginUser, startRegisterUser,logoutUser,connectSocket} from "../actions/user";
+import {startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
@@ -40,15 +40,15 @@ class MainPage extends Component {
     connectToGameUpdates= () =>{
         const connectionStr = "http://localhost:3000"//TODO: hard coding here.
 
-        this.state.socketclient.connect(connectionStr, this.props.user.token).then((str)=>{
-            
+        this.state.socketclient.connect(connectionStr, this.props.user.token).then((socketid)=>{
+            this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(()=>{
                 console.log(`connected here 2 `);
                 this.state.socketclient.subscribeToMainPage((newGame) =>
                         this.props.dispatch(addGame(newGame))
-                    , (deletedGame)=>
-                        this.props.dispatch(removeGame(deletedGame))
+                    , (deletedGameuuid)=>
+                        this.props.dispatch(removeGame( deletedGameuuid))
                 );
             }).catch((e)=>{
                 alert(`MainPage::connectToGameUpdates: couldnt get open games. error: ${e}`);
@@ -74,6 +74,11 @@ class MainPage extends Component {
             else
                 alert(JSON.stringify(e));
         });
+    }
+    onLeaderGameJoinHandler = (gameId)=>{
+        this.setState({isJoiningGame:true});
+        // the leader just goes straight to his/her lobby .
+        this.props.history.push(`/game/lobby/${gameId}`);
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
@@ -129,6 +134,7 @@ class MainPage extends Component {
             password: "",
             repeatPassword: "",
         })
+        this.props.dispatch(gamesEmptyReduxState());
         this.props.dispatch(logoutUser());
     }
 
@@ -136,6 +142,7 @@ class MainPage extends Component {
         this.props.dispatch(startCreateGame({name:valuesObj.name})).then((obj)=>{
             console.log(`game creation response: ${JSON.stringify(obj)}`);
             this.setState({isCreatingGame: false});
+            this.onLeaderGameJoinHandler(obj.game.uuid);
         });
     }
     render() {

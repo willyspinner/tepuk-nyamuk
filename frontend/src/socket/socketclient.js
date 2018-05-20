@@ -22,7 +22,9 @@ class SocketClient {
             this.mysocket = thatsocket;
             thatsocket.on('connect',()=>{
                 console.log(`socket connected and authenticated`);
-                resolve("socket connected and authenticated.");
+
+                console.log(`got id: ${thatsocket.id}`);
+                resolve(thatsocket.id);
             });
             //NOTEDIFF: setTimeout is placed here
             //setTimeout(()=>{reject("time out . more than 6000 ms")},6000);
@@ -31,13 +33,13 @@ class SocketClient {
 
     subscribeToMainPage(onGameCreate,onGameDelete){
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
-        this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.game));
+        this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
     }
     unsubscribeToMainPage(){
         this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
     }
-    subscribeToLobby(username,gameid,onUserJoin,onUserLeave){
+    subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted){
         this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
             (ackResponse)=>{
                 if(ackResponse ===EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
@@ -46,6 +48,13 @@ class SocketClient {
                     })
                     this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
                         onUserLeave(username);
+                    })
+                    this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
+                       onLobbyGameDeleted();
+                    })
+                    this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
+                        //TODO: establish GMS connection here...
+                        onLobbyGameStart();
                     })
                 }else{
                     //No ack.
@@ -56,6 +65,10 @@ class SocketClient {
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
         this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
             if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){
+                this.mysocket.removeAllListeners(EVENTS.LOBBY.GAME_START);
+                this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_GAME_DELETED);
+                this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_JOINED);
+                this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_LEFT);
                 onSuccessLeave();
             }else{
                 onfailLeave();

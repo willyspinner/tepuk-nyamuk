@@ -28,6 +28,7 @@ io.attach(server);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods","POST, GET, OPTIONS, DELETE, ")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
@@ -193,6 +194,7 @@ POST body:
 TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
+    console.log(`AppCS::app.js::delete game route: deletion attempt of ${req.params.gameid}`);
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err)
             res.json({success: false, error: 'unauthorized.'});
@@ -200,11 +202,18 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
             res.json({
                success:false,error: 'not vailid game id.'
             });
+
+        console.log(`AppCS::app.js::delete game route: jwt signature verified`);
+        console.log(`AppCS::app.js::delete game route: determining socketid...`);
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid &&
                     creator.username === decoded.username) {
+                    
+                    console.log(`AppCS::app.js::delete game route: credentials verified. `);
                     db.deleteGame(req.params.gameid).then(() => {
+                        
+                        console.log(`AppCS::app.js::delete game route: emitting to main lobby...`);
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: req.params.gameid
                         });
@@ -250,10 +259,12 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid) {
+                    //TODO: communicate with GMS.
+                    //TODO send all the sockets the JWT to access our GMS game room.
+                    //TODO
                     io
                         .to(req.params.gameid)
                         .emit(EVENTS.LOBBY.GAME_START);
-                    //TODO: communicate with GMS.
                     res.json({
                         success: true
                     });

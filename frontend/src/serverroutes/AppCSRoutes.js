@@ -43,3 +43,12 @@ export const CREATEGAME=(game,token)=>{
         timeout: 16000, // 16 sec timeout
     }
 }
+export const DELETEGAME= (gameid,token,socketid)=>{
+    return {
+        url: `http://localhost:${APPCS_PORT}/appcs/game/delete/${gameid}`,
+        form: {
+            socketid: socketid,
+            token: token,
+        },
+    };
+}

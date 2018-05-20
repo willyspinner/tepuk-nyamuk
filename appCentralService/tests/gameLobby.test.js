@@ -8,6 +8,7 @@ const ioclient = require('socket.io-client');
 const db = require('../db/db');
 const EVENTS = require('../constants/socketEvents');
 //NOTE: due to heavy DB testing we don't really need to test
+//TODO: THIS IS WRONG! we do need to test our endpoints..
 // our http endpoints..
 // theyre fine.
 // we do need to test our WS stuff initiated by the HTTP endpoints tho.
