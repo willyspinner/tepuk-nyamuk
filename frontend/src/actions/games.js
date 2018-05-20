@@ -53,7 +53,7 @@ export const removeGame = ({id} = {}) => { // ID MUST BE FILLED. NO DEFAULTS
     if( typeof id === 'undefined')
         return {};
     return {
-        'type': 'REMOVE_EXPENSE',
+        'type': 'REMOVE_GAME',
         'id': id
     }
 

@@ -250,7 +250,6 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                     io
                         .to(req.params.gameid)
                         .emit(EVENTS.LOBBY.GAME_START);
-                    //TODO
                     //TODO: communicate with GMS.
                     res.json({
                         success: true

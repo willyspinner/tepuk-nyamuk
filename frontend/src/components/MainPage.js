@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser,logoutUser} from "../actions/user";
-import {startGetOpenGames} from "../actions/games";
+import {startGetOpenGames,addGame,removeGame} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
@@ -12,6 +12,7 @@ import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
 import CreateGameForm from './ui/createGameForm';
+import SocketClient from '../socket/socketclient';
 
 class MainPage extends Component {
     state = {
@@ -22,6 +23,57 @@ class MainPage extends Component {
         isLoggingIn: true,
         showTutorial: false,
         isCreatingGame: false,
+    }
+    constructor(props){
+        super(props);
+        this.socketclient = SocketClient;
+
+    }
+
+    validateInput = () => {
+        if (this.state.inputusername === '')
+            return {success: false, error: "name can't be empty"};
+        if (this.state.password === '')
+            return {success: false, error: "password can't be empty!"};
+        if (!this.state.isLoggingIn && this.state.repeatPassword !== this.state.password)
+            return {success: false, error: "passwords do not match"}
+        return {success: true}
+    }
+    connectToGameUpdates= () =>{
+        const connectionStr = "http://localhost:3000"//TODO: hard coding here.
+        this.socketclient.connect(connectionStr, this.props.user.token).then(()=>{
+            console.log(`connected here 1 `);
+            this.props.dispatch(startGetOpenGames()).then(()=>{
+                console.log(`connected here 2 `);
+                this.socketclient.subscribeToMainPage((newGame) =>
+                        this.props.dispatch(addGame(newGame))
+                    , (deletedGame)=>
+                        this.props.dispatch(removeGame(deletedGame))
+                );
+            }).catch((e)=>{
+                alert('couldnt get open games');
+            });
+        }).catch((e)=>{
+           alert(`couldn't connect to live game updates... server timed out.${JSON.stringify(e)}`);
+        })
+    }
+
+    loginUserHandler = () => {
+        console.log(`calling loginUserHandler`);
+        let validateInput = this.validateInput();
+        if (!validateInput.success){
+            alert(validateInput.error);
+            return;
+        }
+        this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
+            .then(() => {
+                this.connectToGameUpdates();
+            }).catch((e) => {
+            if (e.error)
+                alert(e.error);
+            else
+                alert(JSON.stringify(e));
+        });
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
@@ -35,34 +87,6 @@ class MainPage extends Component {
 
     }
 
-    validateInput = () => {
-        if (this.state.inputusername === '')
-            return {success: false, error: "name can't be empty"};
-        if (this.state.password === '')
-            return {success: false, error: "password can't be empty!"};
-        if (!this.state.isLoggingIn && this.state.repeatPassword !== this.state.password)
-            return {success: false, error: "passwords do not match"}
-        return {success: true}
-    }
-    loginUserHandler = () => {
-        console.log(`calling loginUserHandler`);
-        let validateInput = this.validateInput();
-        if (!validateInput.success){
-            alert(validateInput.error);
-            return;
-        }
-        this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
-            .then(() => {
-            }).catch((e) => {
-            if (e.error)
-                alert(e.error);
-            else
-                alert(JSON.stringify(e));
-        });
-    }
-    getOpenGames = ()=>{
-        this.props.dispatch(startGetOpenGames());
-    }
     registerUserHandler = () => {
         console.log(`calling loginUserHandler`);
         let validateInput = this.validateInput();
@@ -70,22 +94,19 @@ class MainPage extends Component {
             alert(validateInput.error);
             return;
         }
-
         this.props.dispatch(startRegisterUser(this.state.inputusername,
             this.state.password))
             .then(() => {
+                this.connectToGameUpdates();
             }).catch((e) => {
             if (e.error)
                 alert(e.error);
             else
                 alert(JSON.stringify(e));
-            //TODO: join the game as master.
-
         })
     }
 
     onTutorialStartHandler = () => {
-
         const allplayers = [this.props.user.username, "bob", "berdog", "Jonathan", "Mike"];
         const playerinturn = this.props.user.username;
         let nhands = 10;
@@ -110,6 +131,7 @@ class MainPage extends Component {
         })
         this.props.dispatch(logoutUser());
     }
+
     onGameCreateHandler=  (valuesObj)=>{
         this.props.dispatch(startCreateGame({name:valuesObj.name})).then((obj)=>{
             console.log(`game creation response: ${JSON.stringify(obj)}`);
@@ -117,7 +139,6 @@ class MainPage extends Component {
         });
     }
     render() {
-
         const createGameModal = (
             <Modal
                 contentLabel={"Create Game"}

@@ -2,17 +2,26 @@ import ioclient from 'socket.io-client';
 import EVENTS from '../../../appCentralService/constants/socketEvents';
 
 class SocketClient {
-    connect(connectionStr,query=undefined,token= undefined){
-        if(!query)
-            this.socket = ioclient(connectionStr,{
-                query: {
-                    token:token
+    connect(connectionStr,token){
+        return new Promise((resolve,reject)=>{
+            
+            console.log(`io client obj: ${JSON.stringify(ioclient)}`);
+            console.log(`in connect method of SocketClient... trying to connect socket ;..`);
+            console.log(`connectionSTr: ${connectionStr}`);
+            console.log(`socket connecting with token : ${token}`);
+                this.socket = ioclient(connectionStr,{
+                    query: {
+                        token:token
+                    }
                 }
-            })
-        else
-            this.socket= ioclient(connectionStr, {query});
-        this.socket.on('connect',()=>{
-            console.log(`socket connected and authenticated`);
+                );
+
+            setTimeout(()=>reject("time out . more than 6000 ms"),6000);
+            console.log(`listening to connect event.`);
+            this.socket.on('connect',()=>{
+                console.log(`socket connected and authenticated`);
+                resolve();
+            });
         });
     }
 
