@@ -1,46 +1,50 @@
-import ioclient from 'socket.io-client';
+//import io from 'socket.io-client/dist/socket.io';
 import EVENTS from '../../../appCentralService/constants/socketEvents';
-
+//import ioclient from 'socket.io-client';
+const ioclient = require('socket.io-client');
 class SocketClient {
-    connect(connectionStr,token){
+    mysocket=null;
+    connect(connectionStr, token){
+        let thatsocket = this.mysocket;
         return new Promise((resolve,reject)=>{
-            
-            console.log(`io client obj: ${JSON.stringify(ioclient)}`);
             console.log(`in connect method of SocketClient... trying to connect socket ;..`);
             console.log(`connectionSTr: ${connectionStr}`);
             console.log(`socket connecting with token : ${token}`);
-                this.socket = ioclient(connectionStr,{
+
+            thatsocket =  ioclient(`${connectionStr}`,{
                     query: {
                         token:token
                     }
                 }
-                );
+            );
 
-            setTimeout(()=>reject("time out . more than 6000 ms"),6000);
-            console.log(`listening to connect event.`);
-            this.socket.on('connect',()=>{
+            console.log(`trying to listen to connect event.`);
+            this.mysocket = thatsocket;
+            thatsocket.on('connect',()=>{
                 console.log(`socket connected and authenticated`);
-                resolve();
+                resolve("socket connected and authenticated.");
             });
+            //NOTEDIFF: setTimeout is placed here
+            //setTimeout(()=>{reject("time out . more than 6000 ms")},6000);
         });
     }
 
     subscribeToMainPage(onGameCreate,onGameDelete){
-        this.socket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
-        this.socket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.game));
+        this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
+        this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.game));
     }
     unsubscribeToMainPage(){
-        this.socket.removeAllListeners(EVENTS.GAME_CREATED);
-        this.socket.removeAllListeners(EVENTS.GAME_DELETED);
+        this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
+        this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
     }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave){
-        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
+        this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
             (ackResponse)=>{
                 if(ackResponse ===EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
-                    this.socket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
+                    this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
                         onUserJoin(username);
                     })
-                    this.socket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
+                    this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
                         onUserLeave(username);
                     })
                 }else{
@@ -50,7 +54,7 @@ class SocketClient {
     }
 
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
-        this.socket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
+        this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
             if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){
                 onSuccessLeave();
             }else{
@@ -61,11 +65,14 @@ class SocketClient {
 
 
     close(){
-        if(this.socket)
-            this.socket.close();
+        if(this.mysocket)
+            this.mysocket.close();
     }
 }
 
 const instance = new SocketClient();
-Object.freeze(instance);
+//Object.freeze(instance);
+//NOTEDIFF: we don't use object.freeze here since in this way,
+//NOTEDIFF: we cannot manipulate the object once it leaves this blueprint and becomes our singleton.
 export default instance;
+//export default SocketClient;

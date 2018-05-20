@@ -122,7 +122,10 @@ TESTED . OK.
  */
 
 app.get('/appcs/game', (req, res) => {
+    
+    console.log(` appCS::app.js: querying open games...`);
     db.queryOpenGames().then((games) => {
+        console.log(`responding with games: ${JSON.stringify(games)}`);
         res.json({
             success: true,
             games
@@ -279,7 +282,6 @@ io.use(function (socket, next) {
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
-    //Isn't this wrong logic..
     if (!socket.sentMydata) {
         console.log(`socket connected : ${socket.username}`);
         //NOTE: I don't know if this will work or not.

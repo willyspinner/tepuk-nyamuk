@@ -6,6 +6,7 @@ import 'normalize.css/normalize.css'; // every import not starting with
 import {Provider} from 'react-redux';
 import configureStore from './store/configureStore';
 import {addGame} from './actions/games';
+'use-strict';
 const store = configureStore();
 import moment from 'moment';
 import 'antd/dist/antd.css';

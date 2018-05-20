@@ -19,10 +19,6 @@ export const NEWUSER= (username,password)=>{
 export const GETOPENGAMES= ()=>{
     return   {
         url : `${ROOTURL}/appcs/game`,
-        form: {
-            username,
-            password
-        },
         timeout: 16000, // 16 sec timeout
     }
 }

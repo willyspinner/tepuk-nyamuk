@@ -13,7 +13,6 @@ import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
 import CreateGameForm from './ui/createGameForm';
 import SocketClient from '../socket/socketclient';
-
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -23,11 +22,10 @@ class MainPage extends Component {
         isLoggingIn: true,
         showTutorial: false,
         isCreatingGame: false,
+        socketclient: SocketClient
     }
     constructor(props){
         super(props);
-        this.socketclient = SocketClient;
-
     }
 
     validateInput = () => {
@@ -41,17 +39,19 @@ class MainPage extends Component {
     }
     connectToGameUpdates= () =>{
         const connectionStr = "http://localhost:3000"//TODO: hard coding here.
-        this.socketclient.connect(connectionStr, this.props.user.token).then(()=>{
+
+        this.state.socketclient.connect(connectionStr, this.props.user.token).then((str)=>{
+            
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(()=>{
                 console.log(`connected here 2 `);
-                this.socketclient.subscribeToMainPage((newGame) =>
+                this.state.socketclient.subscribeToMainPage((newGame) =>
                         this.props.dispatch(addGame(newGame))
                     , (deletedGame)=>
                         this.props.dispatch(removeGame(deletedGame))
                 );
             }).catch((e)=>{
-                alert('couldnt get open games');
+                alert(`MainPage::connectToGameUpdates: couldnt get open games. error: ${e}`);
             });
         }).catch((e)=>{
            alert(`couldn't connect to live game updates... server timed out.${JSON.stringify(e)}`);

@@ -12,19 +12,28 @@ export const addGame = ( game )=> ({
 
 export const startGetOpenGames = ()=>{
     return (reduxDispatch) =>{
-        request.get(GETOPENGAMES,
-            (err,res,body)=>{
-                if(err){
-                    alert(`couldn't get open games. ${err}`)
-                    return;
-                }
-                const resobj = JSON.parse(body);
-                if(!resobj.success){
-                    alert(`couldn't get open games. ${resobj.error}`)
-                    return;
-                }
-                resobj.games.forEach((game)=>reduxDispatch(addGame(game)));
-        })
+        return new Promise((resolve,reject)=>{
+
+            console.log(`actions/games::startGetOpenGames: GETOPENGAMES.. ${JSON.stringify(GETOPENGAMES())}`);
+            request.get(GETOPENGAMES(),
+                (err,res,body)=>{
+                /*
+                    if(err){
+                        reject(`couldnt get open games. internal err ${JSON.stringify(err)}`);
+                        return;
+                    }
+                */
+                
+                console.log(`actions/games::startGetOpenGames: body obj is : ${body}`);
+                    const resobj = JSON.parse(body);
+                    if(!resobj.success){
+                        reject(`couldn't get open games. resobj err: ${resobj.error}`)
+                        return;
+                    }
+                    resobj.games.forEach((game)=>reduxDispatch(addGame(game)));
+                    resolve();
+                })
+        });
     }
 }
 //NOTE: creating and adding a game(from server) uses the same local redux action.
