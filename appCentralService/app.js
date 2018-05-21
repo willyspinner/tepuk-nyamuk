@@ -194,6 +194,8 @@ POST body:
 TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
+    console.log(``);
+    console.log(`----- DELETE /appcs/game/delete/:gameid -----`);
     console.log(`AppCS::app.js::delete game route: deletion attempt of ${req.params.gameid}`);
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err)
@@ -204,8 +206,12 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
             });
 
         console.log(`AppCS::app.js::delete game route: jwt signature verified`);
-        console.log(`AppCS::app.js::delete game route: determining socketid...`);
+
+        console.log(`get game user id: ${req.params.gameid}`);
         db.getGame(req.params.gameid).then((game) => {
+
+            console.log(`AppCS::app.js::delete game route: got game secrets: ${JSON.stringify(game)}`);
+            console.log(`AppCS::app.js::delete game route: determining socketid...`);
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid &&
                     creator.username === decoded.username) {
@@ -219,7 +225,7 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                         });
 
                         io
-                            .to(req.params.gameId)
+                            .to(req.params.gameid)
                             .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
                         res.json({
                             success: true,

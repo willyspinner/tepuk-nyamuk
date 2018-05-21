@@ -9,6 +9,7 @@ class GameLobbyPage extends Component {
     constructor(props){
         super(props);
         this.state = {
+            hasLeft: false,
             uuid: props.match.params.uuid,
             game: this.props.games.filter(g=>g.uuid === props.match.params.uuid
                 )[0], // NOTE: this doesn't have to be from our props. Can just be from
@@ -17,7 +18,8 @@ class GameLobbyPage extends Component {
         };
     }
     componentWillUnmount(){
-        this.onLeaveHandler();
+        if(!this.state.hasLeft)
+            this.onLeaveHandler();
     }
     onLeaveHandler=()=>{
         console.log(`leaving. Starting game? : ${this.state.isStartingGame}`);
@@ -29,6 +31,7 @@ class GameLobbyPage extends Component {
                         console.log(`dispatching startRemoveGame...`);
                         this.props.dispatch(startRemoveGame(this.state.uuid)).then(()=>{
                             console.log(`pushing to go back to / `);
+                            this.setState({hasLeft: true})
                             this.props.history.push('/')
                         })
         }else{

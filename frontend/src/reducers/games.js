@@ -24,7 +24,7 @@ const gamesReducer = (state = [], action) => {
                   }
                   return game;
               });
-      case "EMPTY_REDUX_STATE":
+      case "EMPTY_GAME_STATE":
           return [] // no more games.
     default:
       console.log(`GAME REDUCER DEFAULTING STATE for action ${action.type}`);

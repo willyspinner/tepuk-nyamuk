@@ -178,7 +178,8 @@ const self = module.exports = {
                     console.log(`query: ${JSON.stringify(query)}`);
                     resolve(undefined);
                 }
-                
+               
+               console.log(`appCS::db::getGame: returning res.rows of length:  ${res.rows.length}`); 
                 resolve(res.rows.length ===0? undefined: res.rows[0]);
             })
         });
