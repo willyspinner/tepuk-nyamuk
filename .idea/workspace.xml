@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="made socket client singleton">
-      <change beforePath="$PROJECT_DIR$/frontend/src/actions/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/MainPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/MainPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -48,11 +46,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="GameLobbyPage.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="GameLobbyPage.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="129">
-                  <caret line="24" column="33" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
+                <state relative-caret-position="372">
+                  <caret line="22" column="26" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
                   <folding>
                     <element signature="e#0#39#0" expanded="true" />
                   </folding>
@@ -60,7 +58,7 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="user.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="227">
@@ -76,16 +74,16 @@
       </split-first>
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="gameMain.test.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="gameMain.test.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="86">
-                  <caret line="145" column="7" selection-start-line="145" selection-start-column="7" selection-end-line="145" selection-end-column="7" />
+                <state relative-caret-position="114">
+                  <caret line="145" column="36" lean-forward="true" selection-start-line="145" selection-start-column="36" selection-end-line="145" selection-end-column="36" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="-935">
@@ -97,8 +95,8 @@
           <file leaf-file-name="gameLobby.test.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-1127">
-                  <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+                <state relative-caret-position="196">
+                  <caret line="75" column="45" selection-start-line="75" selection-start-column="45" selection-end-line="75" selection-end-column="45" />
                 </state>
               </provider>
             </entry>
@@ -193,9 +191,7 @@
         <option value="$PROJECT_DIR$/frontend/src/styles/components/MainPage.scss" />
         <option value="$PROJECT_DIR$/frontend/src/components/ui/CreateGameForm.js" />
         <option value="$PROJECT_DIR$/appCentralService/constants/socketEvents.js" />
-        <option value="$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js" />
         <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
-        <option value="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/user.js" />
         <option value="$PROJECT_DIR$/frontend/src/app.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/games.js" />
@@ -207,6 +203,8 @@
         <option value="$PROJECT_DIR$/frontend/src/components/MainPage.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" />
         <option value="$PROJECT_DIR$/frontend/src/actions/user.js" />
+        <option value="$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js" />
+        <option value="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" />
       </list>
     </option>
   </component>
@@ -410,6 +408,20 @@
       <node-interpreter value="$USER_HOME$/.nvm/versions/node/v6.11.5/bin/node" />
       <envs />
     </configuration>
+    <configuration name=" gameMain.test: game creation and game deletion events (WS).should receive game create updates" type="mocha-javascript-test-runner" factoryName="Mocha" temporary="true" nameIsGenerated="true">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <working-directory>$PROJECT_DIR$</working-directory>
+      <pass-parent-env>true</pass-parent-env>
+      <ui>bdd</ui>
+      <extra-mocha-options />
+      <test-kind>TEST</test-kind>
+      <test-file>$PROJECT_DIR$/appCentralService/tests/gameMain.test.js</test-file>
+      <test-names>
+        <name value=" gameMain.test: game creation and game deletion events (WS)" />
+        <name value="should receive game create updates" />
+      </test-names>
+    </configuration>
     <configuration name="AppCS: test all" type="mocha-javascript-test-runner" factoryName="Mocha">
       <node-interpreter>$USER_HOME$/.nvm/versions/node/v9.7.1/bin/node</node-interpreter>
       <node-options />
@@ -479,7 +491,13 @@
       <item itemvalue="Mocha.AppCS: test: postgresql db" />
       <item itemvalue="Node.js.AppCS: node app.js" />
       <item itemvalue="npm.frontend: dev-server" />
+      <item itemvalue="Mocha. gameMain.test: game creation and game deletion events (WS).should receive game create updates" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Mocha. gameMain.test: game creation and game deletion events (WS).should receive game create updates" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration>$USER_HOME$/.subversion</configuration>
@@ -520,26 +538,11 @@
       <workItem from="1529036831369" duration="1568000" />
       <workItem from="1529203492976" duration="1138000" />
       <workItem from="1529310935225" duration="98000" />
-      <workItem from="1529399326692" duration="8630000" />
+      <workItem from="1529399326692" duration="8797000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="AppCS__test_gameLobby - 2018.06.19 at 17h 20m 10s.xml">
-      <configuration name="AppCS: test gameLobby" configurationId="mocha-javascript-test-runner" />
-    </history-entry>
-    <history-entry file="AppCS__test_gameMain - 2018.06.19 at 17h 20m 15s.xml">
-      <configuration name="AppCS: test gameMain" configurationId="mocha-javascript-test-runner" />
-    </history-entry>
-    <history-entry file="AppCS__test_all - 2018.06.19 at 17h 20m 19s.xml">
-      <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
-    </history-entry>
-    <history-entry file="AppCS__test__postgresql_db - 2018.06.19 at 18h 31m 34s.xml">
-      <configuration name="AppCS: test: postgresql db" configurationId="mocha-javascript-test-runner" />
-    </history-entry>
-    <history-entry file="AppCS__test_all - 2018.06.19 at 18h 32m 23s.xml">
-      <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
-    </history-entry>
     <history-entry file="AppCS__test_all - 2018.06.19 at 18h 32m 49s.xml">
       <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
     </history-entry>
@@ -555,9 +558,24 @@
     <history-entry file="AppCS__test_all - 2018.06.19 at 18h 48m 33s.xml">
       <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
     </history-entry>
+    <history-entry file="_gameMain_test__game_creation_and_game_deletion_events_(WS)_should_receive_game_create_updates - 2018.06.19 at 22h 37m 23s.xml">
+      <configuration name=" gameMain.test: game creation and game deletion events (WS).should receive game create updates" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="_gameMain_test__game_creation_and_game_deletion_events_(WS)_should_receive_game_create_updates - 2018.06.19 at 22h 37m 35s.xml">
+      <configuration name=" gameMain.test: game creation and game deletion events (WS).should receive game create updates" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="AppCS__test_all - 2018.06.19 at 22h 37m 46s.xml">
+      <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="AppCS__test_all - 2018.06.19 at 22h 38m 17s.xml">
+      <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="AppCS__test_all - 2018.06.19 at 22h 38m 52s.xml">
+      <configuration name="AppCS: test all" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="263415000" />
+    <option name="totallyTimeSpent" value="263582000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -573,18 +591,18 @@
     <frame x="0" y="23" width="1280" height="777" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.490991" visible="true" weight="0.15843949" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.490991" visible="true" weight="0.15843949" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49442676" weight="0.25221238" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.3057325" side_tool="true" weight="0.31811896" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.47213376" weight="0.24631268" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49840763" weight="0.3259587" />
-      <window_info anchor="bottom" x="12" y="339" width="1256" height="214" id="Run" order="2" sideWeight="0.55414015" side_tool="true" visible="true" weight="0.34513274" />
+      <window_info active="true" anchor="bottom" x="12" y="339" width="1256" height="214" id="Run" order="2" sideWeight="0.4227707" side_tool="true" visible="true" weight="0.39823008" />
       <window_info anchor="bottom" id="Quokka" order="8" sideWeight="0.49920383" weight="0.32743362" />
       <window_info id="Structure" order="1" sideWeight="0.509009" side_tool="true" weight="0.15843949" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.44585988" visible="true" weight="0.34513274" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.44585988" weight="0.34513274" />
       <window_info id="Favorites" order="2" sideWeight="0.5070994" side_tool="true" weight="0.22133759" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4994726" weight="0.3988036" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.5772293" visible="true" weight="0.39823008" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -880,20 +898,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="86">
-          <caret line="145" column="7" selection-start-line="145" selection-start-column="7" selection-end-line="145" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1127">
-          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-418">
@@ -940,16 +944,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="129">
-          <caret line="24" column="33" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#39#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/actions/user.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="227">
@@ -957,6 +951,30 @@
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="372">
+          <caret line="22" column="26" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="75" column="45" selection-start-line="75" selection-start-column="45" selection-end-line="75" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="145" column="36" lean-forward="true" selection-start-line="145" selection-start-column="36" selection-end-line="145" selection-end-column="36" />
         </state>
       </provider>
     </entry>

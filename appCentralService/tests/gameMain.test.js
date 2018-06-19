@@ -151,7 +151,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
             console.log(`sent game : ${JSON.stringify(socket_sent_game)}`);
             assert.equal(socket_sent_game.creator, newgame.creator);
             assert.equal(socket_sent_game.name, newgame.name);
-            assert.deepEqual(socket_sent_game.players, [newgame.creator]);
+            assert.equal(socket_sent_game.players.length,0);
         });
         // TEST our create game endpoint here.
         request.post({

@@ -74,7 +74,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
             console.log(`attempt join emitted. in callback.`);
             this.socket.emit(EVENTS.UTILS.CHECK_ROOM,null,(joinedrooms)=>{
                 console.log(`this game's uuid (room name) : ${this.newgameuuid}`);
-                assert.equal(result,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
+                assert.equal(result.msg,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
                 assert.equal(this.newgameuuid,joinedrooms[this.newgameuuid]);
                 done();
             })
