@@ -58,7 +58,9 @@ const self = module.exports = {
                 text:`INSERT INTO ${fields.GAMES.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7)`,
                 values: [
                     gameObj.name,
-                    `{"${gameObj.creator}"}`, // players - the creator is now a player.
+                    `{}`, // players - 0 players.
+                    //NOTEDIFF: NO! The creator needs to connect TO!! So he is not a player yet.
+                    //NOTEDIFF: as of 19 Jun.
                     table_uuid, // uuid
                     dbconstants.GAMES.STATUS.LOBBY, // status
                     "{}", // result
@@ -72,7 +74,8 @@ const self = module.exports = {
                 if(err)
                     reject(err);
                 gameObj.uuid= table_uuid;
-                gameObj.players= [gameObj.creator];
+                gameObj.players= [];//[gameObj.creator]; // NOTEDIFF: HERE IT IS.
+                // NOTEDIFF: the above is now []l not [gameObj.creator]
                 gameObj.status = dbconstants.GAMES.STATUS.LOBBY;
                 gameObj.result={};
                 

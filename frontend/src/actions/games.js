@@ -1,5 +1,6 @@
 import request from 'request';
 import moment from 'moment';
+import mysocket from '../socket/socketclient';
 import {GETOPENGAMES,CREATEGAME,DELETEGAME} from "../serverroutes/AppCSRoutes";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
@@ -9,7 +10,7 @@ export const addGame = ( game )=> ({
   type: 'ADD_GAME',
     game:{
         ...game,
-        players: game.players? game.players: [game.creator]
+        players: game.players? game.players: []
     }
 });
 export const startGetOpenGames = ()=>{
@@ -35,7 +36,6 @@ export const startGetOpenGames = ()=>{
 // (ADD_GAME)
 export const startCreateGame = (gameObj) => {
     return (reduxDispatch, getState) =>{
-    //TODO: actual creating a  game:
         return new Promise((resolve,reject)=>{
         gameObj.createdat = moment.now();
         gameObj.creator = getState().user.username;
@@ -65,7 +65,7 @@ export const startRemoveGame = (gameid) => {
     return (reduxDispatch,getState) => {
         return new Promise((resolve,reject)=>{
             request.delete(
-                DELETEGAME(gameid,getState().user.token,getState().user.socketid)
+                DELETEGAME(gameid,getState().user.token, getState().user.socketid)
                 ,
                 (err,res,body)=>{
                     const resobj = JSON.parse(body);
@@ -80,29 +80,52 @@ export const startRemoveGame = (gameid) => {
 
 };
 
-export const joinGame = (uuid,username) => ({
+export const joinGame = (gameuuid,username) => ({
     type :'JOIN_GAME',
-    uuid,
+    uuid:gameuuid,
     username,
 })
 
-// used when the leader initially joins the game. just a simple local redux action
 export const startJoinGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
-        //TODO: send an axios POST to join
-        //TODO: dispatch to alter gameid redux state.
     return new Promise((resolve,reject)=>{
-        reduxDispatch(joinGame(uuid,username));
+        console.log(`games_action:: startJoinGame: trying to subscribe to lobby ${uuid}...`);
+        const onUserJoin = (other_user)=>{
+          /* onUserJoin  (when someone joins.*/
+            console.log(`${other_user} joined.`);
+                /* TODO @ 19 Jun 2018: Dispatch a redux action showing that
+                                someone Joined here. (to update our feed)
+                 */
+                //TODO @ 19 Jun 2018: is it this:
+            reduxDispatch(joinGame(uuid,other_user));
+
+        };
+          const onUserLeft=  (other_user)=>{
+                /* onUserLeft - (when someone leaves).*/
+                console.log(`${other_user} left .`);
+                /* TODO @ 19 Jun 2018: Dispatch a redux action showing that
+                                someone left here.
+                 */
+                //TODO @ 19 Jun 2018: is it this:
+                reduxDispatch(leaveGame(uuid,other_user));
+            };
+
+                mysocket.subscribeToLobby(username,uuid,
+                    onUserJoin,onUserLeft).then((playersInLobby)=>{
+                    reduxDispatch(joinGame(uuid,username));
+                    resolve(playersInLobby);
+                }).catch((e)=>{
+                    console.log(`failed to subscribe to lobby ${uuid}`);
+                    reject(e);
+                });
+
         setTimeout(()=>{
-            resolve();
-        },1000);
-
-    })
-
-
+            reject();
+        },10000);
+            });
     }
-}
+    }
 export const leaveGame = (uuid,username)=>({
     type:'LEAVE_GAME',
         uuid,
@@ -111,7 +134,7 @@ export const leaveGame = (uuid,username)=>({
 export const startLeaveGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
-        //TODO: send an axios POST to leave. DO THIS!
+        //TODO:
         console.log(`dispatching leave game... from start leave game`);
         reduxDispatch(leaveGame(uuid,username));
         return new Promise((resolve,reject)=>{

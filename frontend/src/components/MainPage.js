@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser,logoutUser,connectSocket} from "../actions/user";
-import {startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
+import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
@@ -75,14 +75,22 @@ class MainPage extends Component {
                 alert(JSON.stringify(e));
         });
     }
+    //TODO: below code same as the one below it. Redundant.
+    //REDUNDANT: Seriously consider deleting.
     onLeaderGameJoinHandler = (gameId)=>{
         this.setState({isJoiningGame:true});
         // the leader just goes straight to his/her lobby .
-        this.props.history.push(`/game/lobby/${gameId}`);
+        //fixme: shouldn't we also join as a leader?
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username )).then((/*empty resolve arg*/) => {
+            this.props.history.push(`/game/lobby/${gameId}`);
+        }).catch((e)=>alert(JSON.stringify(e)));
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username)).then((/*empty resolve arg*/) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username)).then((playersInLobby) => {
+            playersInLobby.forEach((player)=>{
+                this.props.dispatch(joinGame(gameId,player))
+            })
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
             alert("Sorry! There was a server error.");

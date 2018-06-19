@@ -40,25 +40,38 @@ class SocketClient {
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
     }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted){
-        this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
-            (ackResponse)=>{
-                if(ackResponse ===EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
-                    this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
-                        onUserJoin(username);
-                    })
-                    this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
-                        onUserLeave(username);
-                    })
-                    this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
-                       onLobbyGameDeleted();
-                    })
-                    this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
-                        //TODO: establish GMS connection here...
-                        onLobbyGameStart();
-                    })
-                }else{
-                    //No ack.
-                }
+        return new Promise((resolve,reject)=>{
+            this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
+                (ackResponse)=>{
+                    if(ackResponse.msg === EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
+
+                        console.log(`frontend::socketclient::subscribeToLobby. Registering USER_JOINED.`);
+                        this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
+                            console.log(`frontend::socketclient::subscribeToLobby. Called onUserJoin`);
+                            onUserJoin(username);
+                        })
+                        console.log(`frontend::socketclient::subscribeToLobby. Registering USER_LEFT.`);
+                        this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
+                            console.log(`frontend::socketclient::subscribeToLobby. Called onUserLeave`);
+                            onUserLeave(username);
+                        })
+                        console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_DELETED.`);
+                        this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
+                            console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameDeleted`);
+                            onLobbyGameDeleted();
+                        })
+                        console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_START.`);
+                        this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
+                            console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameStart.`);
+                            //TODO: establish GMS connection here...
+                            onLobbyGameStart();
+                        })
+                        resolve(ackResponse.players);
+                    }else{
+                        reject();
+                        //No ack.
+                    }
+                });
         });
     }
 

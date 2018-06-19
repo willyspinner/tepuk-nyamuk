@@ -95,7 +95,9 @@ describe(' db.test: create game', function(){
                                 assert.equal(dummy.newgame.name, game.name);
                                 assert.equal(dummy.newgame.creator, game.creator);
                                 assert.equal(dummy.newgame.createdat, game.createdat);
-                                assert.equal(dummy.newgame.creator,game.players[0])
+                                //NOTEDIFF: game.players should be [] since no one has connected yet.
+                                assert.deepEqual(game.players,[]);
+                                //assert.equal(dummy.newgame.creator,game.players[0])
                             }
                         });
                         if(nfound === 1)

@@ -342,9 +342,12 @@ io.use(function (socket, next) {
                     else{
                         db.joinGame(clientUsername, roomName).then( () => {
                             socket.join(roomName);
+                            
+                            console.log(`${clientUsername} joining socket room ${roomName}.`);
                             io.to(`${roomName}`)
                                 .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
-                            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK);
+                            response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
+                                players:game.players});
                         }).catch((e) => {
                             console.log(`NO ACK ERROR`);
                             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
