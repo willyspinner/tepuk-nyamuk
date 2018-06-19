@@ -6,10 +6,6 @@ import {startLeaveGame,startRemoveGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
 class GameLobbyPage extends Component {
-    //TODO TODO - 19 Jun : onUserJoin is captured, but not ON USER LEFT!
-    // The socket event is received and processed, and redux store is altered
-    // correctly, but for some reason, the state doesn't change here!
-    //TODO.
     constructor(props){
         super(props);
         this.state = {
@@ -23,12 +19,6 @@ class GameLobbyPage extends Component {
             // ws connection.
             isStartingGame:false
         };
-        setInterval(()=>{
-
-            console.log(`local state:players: ${JSON.stringify(this.state.game.players)}`);
-
-            console.log(`redux state: players: ${JSON.stringify(this.props.games)}`);
-        },1000);
     }
     componentWillUnmount(){
         if(!this.state.hasLeft)
@@ -47,10 +37,10 @@ class GameLobbyPage extends Component {
                             this.setState({hasLeft: true})
                             this.props.history.push('/')
                         })
-        }else{
-            console.log(`pushing to go back to / `);
-            this.props.history.push('/')
-        }
+                    }else{
+                        console.log(`pushing to go back to / `);
+                        this.props.history.push('/')
+                    }
     });
     }
     }

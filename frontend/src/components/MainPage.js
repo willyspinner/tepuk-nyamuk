@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
-import {startLoginUser, startRegisterUser,logoutUser,connectSocket} from "../actions/user";
+import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
 import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
@@ -39,7 +39,6 @@ class MainPage extends Component {
     }
     connectToGameUpdates= () =>{
         const connectionStr = "http://localhost:3000"//TODO: hard coding here.
-
         this.state.socketclient.connect(connectionStr, this.props.user.token).then((socketid)=>{
             this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);
@@ -143,7 +142,7 @@ class MainPage extends Component {
             repeatPassword: "",
         })
         this.props.dispatch(gamesEmptyReduxState());
-        this.props.dispatch(logoutUser());
+        this.props.dispatch(startLogoutUser());
     }
 
     onGameCreateHandler=  (valuesObj)=>{

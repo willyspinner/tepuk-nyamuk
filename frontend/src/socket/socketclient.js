@@ -35,7 +35,7 @@ class SocketClient {
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
         this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
     }
-    unsubscribeToMainPage(){
+    unsubscribeFromMainPage(){
         this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
     }

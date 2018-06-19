@@ -1,5 +1,6 @@
 import request from 'request';
 import {NEWUSER,LOGINUSER} from "../serverroutes/AppCSRoutes";
+import socketclient from '../socket/socketclient';
 
 //NOTE: I don't think we need this userRegistered action here.
 
@@ -61,6 +62,14 @@ export const startLoginUser = (username,password)=>{
 export const logoutUser = ()=>({
     type:"USER_LOG_OUT"
     });
+
+export const startLogoutUser= ()=> {
+    return (reduxDispatch) => {
+           socketclient.unsubscribeFromMainPage();
+           socketclient.close();
+           reduxDispatch(logoutUser());
+    }
+};
 // when the user gets their own socket id.
 export const connectSocket = (socketid)=>({
     type: "USER_CONNECT_SOCKET",
@@ -68,10 +77,3 @@ export const connectSocket = (socketid)=>({
 })
 
 
-export const startConnectSocket = ()=>{
-    return (reduxDispatch)=>{
-        return new Promise((resolve,reject)=>{
-            
-        });
-    }
-}
