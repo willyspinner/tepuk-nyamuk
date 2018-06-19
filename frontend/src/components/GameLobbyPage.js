@@ -70,6 +70,9 @@ class GameLobbyPage extends Component {
             console.log(`GameLobbyPage: this.state.game undefined.`);
             return (<h4> ERROR: GAME LOBBY</h4>);
         }
+        let currentgame = this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
+        )[0];
+
         return (
             <div>
 
@@ -87,8 +90,7 @@ class GameLobbyPage extends Component {
                 <List
                     size="large"
                     bordered
-                    dataSource={this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
-                    )[0].players}
+                    dataSource={currentgame? currentgame.players:[]}
                     renderItem={item => (<List.Item>{item}</List.Item>)}
                 />
                 <h5>shuffling cards...</h5>
