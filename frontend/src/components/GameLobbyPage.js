@@ -6,16 +6,29 @@ import {startLeaveGame,startRemoveGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
 class GameLobbyPage extends Component {
+    //TODO TODO - 19 Jun : onUserJoin is captured, but not ON USER LEFT!
+    // The socket event is received and processed, and redux store is altered
+    // correctly, but for some reason, the state doesn't change here!
+    //TODO.
     constructor(props){
         super(props);
         this.state = {
             hasLeft: false,
             uuid: props.match.params.uuid,
+            //NOTEDIFF: I put the same code below in the render method
+            // because we had a bug where onUserJoin would be reflected in this local state,
+            // but onUserLeave wouldn't hmm.
             game: this.props.games.filter(g=>g.uuid === props.match.params.uuid
                 )[0], // NOTE: this doesn't have to be from our props. Can just be from
             // ws connection.
             isStartingGame:false
         };
+        setInterval(()=>{
+
+            console.log(`local state:players: ${JSON.stringify(this.state.game.players)}`);
+
+            console.log(`redux state: players: ${JSON.stringify(this.props.games)}`);
+        },1000);
     }
     componentWillUnmount(){
         if(!this.state.hasLeft)
@@ -74,7 +87,8 @@ class GameLobbyPage extends Component {
                 <List
                     size="large"
                     bordered
-                    dataSource={this.state.game.players}
+                    dataSource={this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
+                    )[0].players}
                     renderItem={item => (<List.Item>{item}</List.Item>)}
                 />
                 <h5>shuffling cards...</h5>

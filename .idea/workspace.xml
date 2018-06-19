@@ -3,14 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="62ed8572-c330-458b-8c15-25461413ac22" name="Default" comment="made socket client singleton">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/db/db.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/db/db.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appCentralService/tests/db.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/appCentralService/tests/db.test.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/actions/games.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/actions/games.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/MainPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/MainPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/reducers/games.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/reducers/games.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/socket/socketclient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -32,8 +26,8 @@
           <file leaf-file-name="games.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/frontend/src/actions/games.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="503">
-                  <caret line="109" column="21" selection-start-line="109" selection-start-column="21" selection-end-line="109" selection-end-column="21" />
+                <state relative-caret-position="965">
+                  <caret line="110" column="29" lean-forward="true" selection-start-line="110" selection-start-column="29" selection-end-line="110" selection-end-column="29" />
                   <folding>
                     <element signature="e#0#30#0" expanded="true" />
                   </folding>
@@ -41,27 +35,14 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="dummydata.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/appCentralService/tests/dummydata/dummydata.js">
+          <file leaf-file-name="GameLobbyPage.js" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-305" />
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="MainPage.js" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="48">
-                  <caret line="3" column="15" selection-start-line="3" selection-start-column="15" selection-end-line="3" selection-end-column="15" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="games.js" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/frontend/src/reducers/games.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="10" column="13" lean-forward="true" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+                <state relative-caret-position="215">
+                  <caret line="22" column="24" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
+                  <folding>
+                    <element signature="e#0#39#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -82,26 +63,35 @@
           <file leaf-file-name="gameMain.test.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="126">
+                <state relative-caret-position="86">
                   <caret line="145" column="7" selection-start-line="145" selection-start-column="7" selection-end-line="145" selection-end-column="7" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="socketclient.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="46">
-                  <caret line="42" column="29" selection-start-line="42" selection-start-column="29" selection-end-line="42" selection-end-column="29" />
+                <state relative-caret-position="17">
+                  <caret line="36" selection-start-line="36" selection-end-line="36" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="gameLobby.test.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-1127">
+                  <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="227">
-                  <caret line="345" column="53" selection-start-line="345" selection-start-column="53" selection-end-line="345" selection-end-column="53" />
+                <state relative-caret-position="-418">
+                  <caret line="345" column="47" selection-start-line="345" selection-start-column="47" selection-end-line="345" selection-end-column="47" />
                 </state>
               </provider>
             </entry>
@@ -112,8 +102,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>getOpenGames</find>
-      <find>isCreatingGame</find>
       <find>export</find>
       <find>module.exports</find>
       <find>exports</find>
@@ -142,6 +130,8 @@
       <find>addGame</find>
       <find>subscribeToLobby</find>
       <find>startCreateGame</find>
+      <find>startLeaveGame</find>
+      <find>this.state.game</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -192,15 +182,15 @@
         <option value="$PROJECT_DIR$/frontend/src/serverroutes/AppCSRoutes.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/gameMain.test.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/user.js" />
-        <option value="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" />
         <option value="$PROJECT_DIR$/frontend/src/app.js" />
         <option value="$PROJECT_DIR$/frontend/src/reducers/games.js" />
         <option value="$PROJECT_DIR$/appCentralService/db/db.js" />
         <option value="$PROJECT_DIR$/appCentralService/tests/db.test.js" />
         <option value="$PROJECT_DIR$/frontend/src/socket/socketclient.js" />
         <option value="$PROJECT_DIR$/appCentralService/app.js" />
-        <option value="$PROJECT_DIR$/frontend/src/actions/games.js" />
         <option value="$PROJECT_DIR$/frontend/src/components/MainPage.js" />
+        <option value="$PROJECT_DIR$/frontend/src/actions/games.js" />
+        <option value="$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js" />
       </list>
     </option>
   </component>
@@ -225,7 +215,7 @@
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/frontend/package.json" />
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="44" />
     <option name="width" value="1280" />
     <option name="height" value="777" />
@@ -241,6 +231,30 @@
             <path>
               <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
               <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="appCentralService" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="dummydata" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
@@ -316,6 +330,11 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="styles" type="462c0819:PsiDirectoryNode" />
               <item name="components" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tepuk-nyamuk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tepuk-nyamuk" type="462c0819:PsiDirectoryNode" />
+              <item name="gameMarshallingService" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -485,7 +504,7 @@
       <workItem from="1529036831369" duration="1568000" />
       <workItem from="1529203492976" duration="1138000" />
       <workItem from="1529310935225" duration="98000" />
-      <workItem from="1529399326692" duration="6217000" />
+      <workItem from="1529399326692" duration="8002000" />
     </task>
     <servers />
   </component>
@@ -522,7 +541,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="261002000" />
+    <option name="totallyTimeSpent" value="262787000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -535,19 +554,19 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="44" width="1280" height="777" extended-state="0" />
+    <frame x="0" y="23" width="1280" height="777" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4929006" visible="true" weight="0.15843949" />
-      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49522293" weight="0.19174041" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.490991" visible="true" weight="0.15843949" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49442676" weight="0.25221238" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.3057325" side_tool="true" weight="0.31811896" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.47292992" weight="0.24631268" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.47213376" weight="0.24631268" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49840763" weight="0.3259587" />
-      <window_info anchor="bottom" x="12" y="339" width="1256" height="214" id="Run" order="2" sideWeight="0.5517516" side_tool="true" visible="true" weight="0.34513274" />
+      <window_info anchor="bottom" x="12" y="339" width="1256" height="214" id="Run" order="2" sideWeight="0.55414015" side_tool="true" visible="true" weight="0.34513274" />
       <window_info anchor="bottom" id="Quokka" order="8" sideWeight="0.49920383" weight="0.32743362" />
-      <window_info id="Structure" order="1" sideWeight="0.50718683" side_tool="true" weight="0.11066879" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.44824842" visible="true" weight="0.34513274" />
+      <window_info id="Structure" order="1" sideWeight="0.509009" side_tool="true" weight="0.15843949" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.44585988" visible="true" weight="0.34513274" />
       <window_info id="Favorites" order="2" sideWeight="0.5070994" side_tool="true" weight="0.22133759" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4994726" weight="0.3988036" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -593,11 +612,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="22" />
+      <option name="time" value="23" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/gameMarshallingService/db/constants/cardgameconstants.js" />
     <entry file="file://$PROJECT_DIR$/gameMarshallingService/tests/dummydata/dummydata.js" />
     <entry file="file://$PROJECT_DIR$/gameMarshallingService/tests/redisdb.test.js" />
     <entry file="file://$PROJECT_DIR$/gameMarshallingService/constants/socketEvents.js" />
@@ -832,25 +850,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/reducers/games.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="13" lean-forward="true" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/tests/dummydata/dummydata.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-305" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/appCentralService/db/db.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -865,48 +864,80 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
+    <entry file="file://$PROJECT_DIR$/frontend/yarn-error.log">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-877">
-          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="117">
+          <caret line="651" column="6" selection-start-line="651" selection-start-column="6" selection-end-line="651" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="17" column="25" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameMain.test.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
+        <state relative-caret-position="86">
           <caret line="145" column="7" selection-start-line="145" selection-start-column="7" selection-end-line="145" selection-end-column="7" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/tests/gameLobby.test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1127">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-418">
+          <caret line="345" column="47" selection-start-line="345" selection-start-column="47" selection-end-line="345" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/reducers/games.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="121">
+          <caret line="10" column="13" lean-forward="true" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCentralService/tests/dummydata/dummydata.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-53" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/actions/games.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="503">
-          <caret line="109" column="21" selection-start-line="109" selection-start-column="21" selection-end-line="109" selection-end-column="21" />
+        <state relative-caret-position="965">
+          <caret line="110" column="29" lean-forward="true" selection-start-line="110" selection-start-column="29" selection-end-line="110" selection-end-column="29" />
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/socket/socketclient.js">
+    <entry file="file://$PROJECT_DIR$/frontend/src/components/GameLobbyPage.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="42" column="29" selection-start-line="42" selection-start-column="29" selection-end-line="42" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appCentralService/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
-          <caret line="345" column="53" selection-start-line="345" selection-start-column="53" selection-end-line="345" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/components/MainPage.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="48">
-          <caret line="3" column="15" selection-start-line="3" selection-start-column="15" selection-end-line="3" selection-end-column="15" />
+        <state relative-caret-position="215">
+          <caret line="22" column="24" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

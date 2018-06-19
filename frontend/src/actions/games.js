@@ -134,15 +134,20 @@ export const leaveGame = (uuid,username)=>({
 export const startLeaveGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
-        //TODO:
-        console.log(`dispatching leave game... from start leave game`);
-        reduxDispatch(leaveGame(uuid,username));
         return new Promise((resolve,reject)=>{
-            setTimeout(()=>{
+            const onSuccessLeave = ()=>{
+                console.log(`frontend::action/games::startLeaveGame: dispatching leave game... from start leave game`);
+                reduxDispatch(leaveGame(uuid,username));
                 resolve();
-            },1000);
-
-        })
+            }
+            const onFailLeave = ()=>{
+                reject();
+            }
+            mysocket.unsubscribeFromLobby({username: username, gameid: uuid},
+                onSuccessLeave,
+                onFailLeave);
+        });
+        //TODO:
 
 
     }
