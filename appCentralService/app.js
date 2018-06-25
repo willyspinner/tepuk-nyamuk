@@ -396,6 +396,14 @@ io.use(function (socket, next) {
     socket.on(EVENTS.UTILS.CHECK_ROOM,(data,response)=>{
         response(socket.rooms);
     })
+
+
+    /* socket routes for chat.*/
+    socket.on(EVENTS.EMIT_CHAT_MSG,(data)=>{
+        const namespace = data.namespace;
+        io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
+    });
+
 });
 
 

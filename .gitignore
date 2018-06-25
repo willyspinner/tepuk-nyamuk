@@ -3,3 +3,4 @@ yarn.lock
 #.idea
 yarn-error.log
 *.env
+package-lock.json
