@@ -11,7 +11,7 @@ import {Input, Button} from 'antd';
 import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
-import CreateGameForm from './ui/createGameForm';
+import CreateGameForm from './ui/CreateGameForm';
 import SocketClient from '../socket/socketclient';
 class MainPage extends Component {
     state = {
