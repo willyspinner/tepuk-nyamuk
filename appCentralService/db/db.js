@@ -4,7 +4,9 @@ const users= require('./schema/users_table');
 const fields = require('./schema/fields');
 const dbconstants = require ('./schema/dbconstants');
 const uuid = require('uuid');
+const logger = require('../log/appcs_logger');
 const connectionobject = {
+
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
@@ -248,7 +250,7 @@ const self = module.exports = {
             client.query(getuserfullquery,(err,res)=>{
                 if(err)
                     reject(err);
-                console.log(`get users res.rows :  ${JSON.stringify(res.rows)}`);
+                logger.info('db.js::getUserSecrets()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
 
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
             })

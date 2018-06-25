@@ -7,6 +7,7 @@ const assert = require('assert');
 const ioclient = require('socket.io-client');
 const db = require('../db/db');
 const EVENTS = require('../constants/socketEvents');
+const logger = require('../log/appcs_logger');
 //NOTE: due to heavy DB testing we don't really need to test
 //TODO: THIS IS WRONG! we do need to test our endpoints..
 // our http endpoints..
@@ -40,7 +41,9 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
             (err, res, body) => {
                 if (err)
                     done(err);
+
                 let token =  JSON.parse(body).token;
+                logger.info("beforeAll hook",`received body value : ${body}`)
                 this.token = token;
                 this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
                     query: {

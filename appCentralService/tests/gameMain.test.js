@@ -12,6 +12,7 @@ const assert = require('assert');
 const ioclient = require('socket.io-client');
 const db = require('../db/db');
 const EVENTS = require('../constants/socketEvents');
+const logger = require('../log/appcs_logger');
 // our http endpoints..
 // theyre fine.
 // we do need to test our WS stuff initiated by the HTTP endpoints tho.
@@ -60,10 +61,12 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
                 // conn.
                 this.socket.on('connect', () => {
                     console.log(`Socket connected and authenticated.`);
+                    // WARNING: RACE CONDITION HERE!
                     db.getUserSecrets('willyboomboom').then((user) => {
-                        assert.equal(user.socketid, this.socket.id);
                         assert.equal(user.username, 'willyboomboom');
                         assert.equal(user.gameid, null);
+                        logger.info('test', `this.socket.id : ${this.socket.id}, user.socketid: ${user.socketid}`)
+                        assert.equal(user.socketid, this.socket.id);
                         done();
                     }).catch((e) => done(e));
                 });

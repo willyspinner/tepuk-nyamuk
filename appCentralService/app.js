@@ -8,6 +8,7 @@ require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
+const logger = require ('./log/appcs_logger');
 // appcs environment var.
 
 // constants
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 // server listening.
 const server = app.listen(app.get('port'));
 
-console.log(`app listening on ${app.get('port')}`);
+logger.info(null,`app listening on ${app.get('port')}`);
 io.attach(server);
 
 app.use(function(req, res, next) {
@@ -44,7 +45,7 @@ password
 app.post('/appcs/user/new', (req, res) => {
     db.getUser(req.body.username).then((user) => {
         if (!user) {
-            console.log(`password to /appcs/user/new : ${req.body.password}`);
+            logger.info("POST /appcs/user/new",`password to /appcs/user/new : ${req.body.password}`);
             const salt = bcrypt.genSaltSync(10);
             const userObj = {
                 username: req.body.username,
@@ -283,6 +284,13 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
         });
     })
 });
+
+
+// health check
+
+app.get('/health', (req,res)=>{
+    res.json({status:"ok"});
+})
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth
 io.use(function (socket, next) {
@@ -293,18 +301,25 @@ io.use(function (socket, next) {
                 return next(new Error('WS Auth Error'));
             socket.username = decoded.username;
             socket.token = socket.handshake.query.token;//TODO: is this needed?
-            next();
+            db.loginUserSocketId(socket.username, socket.id).then(() => {
+                socket.sentMydata = true;
+                next();
+            });
         })
     } else {
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
     if (!socket.sentMydata) {
-        console.log(`socket connected : ${socket.username}`);
+        logger.info('socket connect successful',`socket connected : ${socket.username}, id : ${socket.id}`);
         //NOTE: I don't know if this will work or not.
+        //NOTEDIFF: PUTTING THE BELOW IS A RACE CONDition fOR THE TEST! WE NEED TO LOG THE SOCKET ID FIRST BEFORE
+        //NOTEDIFF: IT IS ACTUALLY CONNECTED..
+        /*
         db.loginUserSocketId(socket.username, socket.id).then(() => {
             socket.sentMydata = true;
         });
+        */
     }
     /*
     /*
