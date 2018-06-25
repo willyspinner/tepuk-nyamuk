@@ -113,6 +113,148 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
 });
 
 
+describe('gameLobby.test: Lobby chat ',function (){
+    before(function (done) {
+        request.post({
+                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                form: {
+                    username: 'willyboomboom',
+                    password: 'berdoge'
+                },
+            },
+            (err, res, body) => {
+                if (err)
+                    done(err);
+                let token = JSON.parse(body).token;
+                this.token = token;
+                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: token
+                    }
+                });
+                this.socket.on('connect', () => {
+                    console.log(`Socket connected and authenticated.`);
+                    /* Socket 2 register */
+                    request.post({
+                            url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                            form: {
+                                username: 'willywonka',
+                                password: 'berdogezaza'
+                            },
+                        },
+                        (err, res, body) => {
+                            if (err)
+                                done(err);
+                            let token2 = JSON.parse(body).token;
+                            this.token2 = token2;
+                            this.socket2 = ioclient(`http://localhost:${process.env.PORT}`, {
+                                query: {
+                                    token: token2
+                                }
+                            });
+                            this.socket2.on('connect', () => {
+                                console.log(`Socket2 connected and authenticated.`);
+                                let newgame = dummydata.newgame3;
+                                newgame.creator = 'willyboomboom';
+
+                                db.createGame(dummydata.newgame3).then((newgame3) => {
+                                    this.newgameuuid = newgame3.uuid;
+                                    done();
+                                });
+                            });
+                        });
+                });
+            });
+    });
+    after(function (done) {
+        db.deleteUser('willyboomboom').then(() => {
+            if (this.socket)
+                this.socket.close();
+            db.deleteUser('willywonka').then(() => {
+                db.deleteGame(this.newgameuuid).then(()=> {
+                    done();
+                });
+            }).catch((e) => done(e));
+        }).catch((e) => done(e));
+    });
+    beforeEach(function(done){
+
+        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willyboomboom',gameid: this.newgameuuid}, (result)=>{
+            assert.equal(result.msg,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK );
+            this.socket2.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willywonka',gameid: this.newgameuuid},(result2)=>{
+                assert.equal(result2.msg,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK );
+                done();
+
+            });
+        });
+    });
+    afterEach(function(done){;
+        this.socket.emit(EVENTS.LOBBY.CLIENT_LEAVE,{username:'willyboomboom',gameid:this.newgameuuid }, (result)=>{
+            this.socket.emit(EVENTS.UTILS.CHECK_ROOM,null,(joinedrooms)=>{
+                assert.equal(result,EVENTS.LOBBY.CLIENT_LEAVE_ACK);
+                console.log(`current game : ${this.newgameuuid}`);
+                console.log(`joined rooms : ${JSON.stringify(joinedrooms)}`);
+                assert.equal(undefined,joinedrooms[this.newgameuuid]);
+                assert.equal(Object.keys(joinedrooms).length,1); // only the main room now.
+                this.socket2.emit(EVENTS.LOBBY.CLIENT_LEAVE,{username:'willywonka',gameid:this.newgameuuid }, (result)=>{
+                    this.socket.emit(EVENTS.UTILS.CHECK_ROOM,null,(joinedrooms)=>{
+                        assert.equal(result,EVENTS.LOBBY.CLIENT_LEAVE_ACK);
+                        console.log(`current game : ${this.newgameuuid}`);
+                        console.log(`joined rooms : ${JSON.stringify(joinedrooms)}`);
+                        assert.equal(undefined,joinedrooms[this.newgameuuid]);
+                        assert.equal(Object.keys(joinedrooms).length,1); // only the main room now.
+                        done();
+                    })
+                })
+            })
+        })
+
+    })
+
+    /* TODO */
+    it('should be able to hear chat from inside lobby',function(done){
+        let numrecv = 0;
+        const onRecvMsg = (data)=>{
+            assert.equal(data.sender_username  , 'willyboomboom');
+            assert.equal(data.message , 'heyy wadup')
+            logger.info('gameLobby.test',`received message. namespace: ${data.namespace}`);
+            numrecv++;
+            if (numrecv === 2)
+                done();
+        };
+
+        this.socket.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket2.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket.emit(EVENTS.EMIT_CHAT_MSG,{
+            message:'heyy wadup',
+            namespace:this.newgameuuid,
+            sender_username: 'willyboomboom'
+        });
+
+    })
+    it('inside lobby chat shouldnt be heard from outside',function(done){
+        done(new Error("NOT IMPLM"))
+    })
+    it('main lobby chat shouldnt be heard from inside lobby',function(done){
+        let numrecv = 0;
+        const onRecvMsg = (data)=>{
+            logger.error('gameLobby.test',`received message. namespace: ${data.namespace}`);
+            done(new Error("RECEIVED OUTSIDE MSG IN LOBBY"));
+        };
+
+        this.socket.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket2.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket.emit(EVENTS.EMIT_CHAT_MSG,{
+            message:'heyy wadup',
+            namespace:null,
+            sender_username: 'willyboomboom'
+        });
+        setTimeout(()=>done(),1900);
+
+    })
+
+
+    })
 /*
 - starting game
     - auth for gamestart - only creator can start game

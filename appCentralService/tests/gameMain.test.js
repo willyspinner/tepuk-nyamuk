@@ -60,7 +60,7 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
                 done(new Error("time out reached"))}, 1500); //1500ms lmit for socket to establish
                 // conn.
                 this.socket.on('connect', () => {
-                    console.log(`Socket connected and authenticated.`);
+                    logger.info('gameMain.test',`Socket connected and authenticated.`);
                     // WARNING: RACE CONDITION HERE!
                     db.getUserSecrets('willyboomboom').then((user) => {
                         assert.equal(user.username, 'willyboomboom');
@@ -200,3 +200,81 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
             })
         })
     });
+describe(' gameMain.test: global chat ',function() {
+    before(function (done) {
+        request.post({
+                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                form: {
+                    username: 'willyboomboom',
+                    password: 'berdoge'
+                },
+            },
+            (err, res, body) => {
+                if (err)
+                    done(err);
+                let token = JSON.parse(body).token;
+                this.token = token;
+                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                    query: {
+                        token: token
+                    }
+                });
+                this.socket.on('connect', () => {
+                    console.log(`Socket connected and authenticated.`);
+                    request.post({
+                            url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                            form: {
+                                username: 'willywonka',
+                                password: 'berdogezaza'
+                            },
+                        },
+                        (err, res, body) => {
+                            if (err)
+                                done(err);
+                            let token2 = JSON.parse(body).token;
+                            this.token2 = token2;
+                            this.socket2 = ioclient(`http://localhost:${process.env.PORT}`, {
+                                query: {
+                                    token: token2
+                                }
+                            });
+                            this.socket2.on('connect', () => {
+                                console.log(`Socket2 connected and authenticated.`);
+                                done();
+                            });
+                        });
+                });
+            });
+    });
+    after(function (done) {
+        db.deleteUser('willyboomboom').then(() => {
+            if (this.socket)
+                this.socket.close();
+            db.deleteUser('willywonka').then(() => {
+                done();
+            }).catch((e) => done(e));
+        }).catch((e) => done(e));
+    });
+    it('should receive main room chat updates on both', function(done){
+        let numrecv = 0;
+        const onRecvMsg = (data)=>{
+            assert.equal(data.sender_username  , 'willyboomboom');
+            assert.equal(data.message , 'heyy wadup')
+            logger.info('gameMain.test',`received message. namespace: ${data.namespace}`);
+            numrecv++;
+            if (numrecv === 2)
+                done();
+        };
+
+        this.socket.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket2.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
+        this.socket.emit(EVENTS.EMIT_CHAT_MSG,{
+            message:'heyy wadup',
+            namespace:null,
+            sender_username: 'willyboomboom'
+        });
+
+    })
+});
+
+

@@ -312,6 +312,7 @@ io.use(function (socket, next) {
 }).on('connect', (socket) => {
     if (!socket.sentMydata) {
         logger.info('socket connect successful',`socket connected : ${socket.username}, id : ${socket.id}`);
+
         //NOTE: I don't know if this will work or not.
         //NOTEDIFF: PUTTING THE BELOW IS A RACE CONDition fOR THE TEST! WE NEED TO LOG THE SOCKET ID FIRST BEFORE
         //NOTEDIFF: IT IS ACTUALLY CONNECTED..
@@ -340,31 +341,32 @@ io.use(function (socket, next) {
             return;
         }
         db.getUser(clientUsername).then((user)=>{
-            console.log(`user.gameid: ${user.gameid}`);
             if(user.gameid == null){
                 if(! uuidvalidate(data.gameid)){
-                    console.log(`got invalid uuid here.`);
+                    logger.warn('on CLIENT_ATTEMPT_JOIN',`got invalid uuid here.`);
                     response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                     return;
                 }
                     
                 db.getGame(data.gameid).then((game)=>{
                     if (game == undefined) {
-                        console.log(`the game referred to by data.gameid is not real.`);
+                        logger.warn('on CLIENT_ATTEMPT_JOIN',`the game referred to by data.gameid is not real.`);
                         response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                         return;
                     }
                     else{
                         db.joinGame(clientUsername, roomName).then( () => {
+                            socket.lastroom = Object.keys(socket.rooms)[0];
+                           logger.info('ON CLIENT_ATTEMPT_JOIN', `socket.lastroom : ${JSON.stringify(socket.lastroom)}`)
                             socket.join(roomName);
                             
-                            console.log(`${clientUsername} joining socket room ${roomName}.`);
+                            logger.info('ON CLIENT_ATTEMPT_JOIN',`${clientUsername} joining socket room ${roomName}.`);
                             io.to(`${roomName}`)
                                 .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
                             response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
                                 players:game.players});
                         }).catch((e) => {
-                            console.log(`NO ACK ERROR`);
+                            logger.error('ON CLIENT_ATTEMPT_JOIN',`ACK ERROR for ${clientUsername}`)
                             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                         });
                     }
@@ -416,7 +418,12 @@ io.use(function (socket, next) {
     /* socket routes for chat.*/
     socket.on(EVENTS.EMIT_CHAT_MSG,(data)=>{
         const namespace = data.namespace;
-        io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
+        if (namespace ===null ){
+            io.emit(EVENTS.RECV_CHAT_MSG, data);
+        }else {
+
+            io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
+        }
     });
 
 });
