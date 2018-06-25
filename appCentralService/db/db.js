@@ -10,7 +10,7 @@ const connectionobject = {
     database: process.env.PG_DATABASE,
     password:process.env.PG_PASSWORD,
     port : process.env.PG_PORT
-}
+};
 //NOTE: the db here is dumb. There should be NO VALIDATION LOGIC AT ALL
 // HERE.
 console.log(`DB connecting to postgres with : ${JSON.stringify(connectionobject)}`);
@@ -53,7 +53,7 @@ const self = module.exports = {
       }
          */
         return new Promise ((resolve,reject)=>{
-            const table_uuid = uuid()
+            const table_uuid = uuid();
             const queryObj = {
                 text:`INSERT INTO ${fields.GAMES.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7)`,
                 values: [
@@ -67,7 +67,7 @@ const self = module.exports = {
                     gameObj.createdat, //createdat
                     gameObj.creator // creator
                 ]
-            }
+            };
             console.log(`PG text: ${queryObj.text}`);
             console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
@@ -94,7 +94,7 @@ const self = module.exports = {
                 WHERE 
                     ${fields.GAMES.STATUS} = '${dbconstants.GAMES.STATUS.LOBBY}'
                     ;`
-            }
+            };
             console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
                 if (err){
@@ -114,7 +114,7 @@ const self = module.exports = {
                 SELECT *
                 FROM ${fields.GAMES.TABLENAME}
                     ;`
-            }
+            };
             console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
                 if (err)
@@ -129,7 +129,7 @@ const self = module.exports = {
                 text: `DELETE FROM ${fields.GAMES.TABLENAME} `+
                     `WHERE ${fields.GAMES.UUID} = $1`,
                 values:[gameId]
-            }
+            };
             client.query(deletequery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -146,7 +146,7 @@ const self = module.exports = {
                 reject(new Error("ERROR: Tried to truncate games database. NOT ON TEST ENVIRON"));
             
             console.log(`truncating entire games database... i hope you know what you're doing...`);
-            const deletequery = `TRUNCATE TABLE ${fields.GAMES.TABLENAME};`
+            const deletequery = `TRUNCATE TABLE ${fields.GAMES.TABLENAME};`;
             client.query(deletequery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -171,7 +171,7 @@ const self = module.exports = {
                             ${fields.GAMES.UUID} = $1        
                         ;`,
                 values: [gameId]
-            }
+            };
             client.query(query,(err,res)=>{
                 if (err)
                     reject(err);
@@ -193,7 +193,7 @@ const self = module.exports = {
             const newuserquery = {
                 text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3,$4);`,
                 values: [userObj.username,null,null,userObj.password]
-            }
+            };
             
             console.log(`trying to regitser user ${JSON.stringify(userObj)}`);
             client.query(newuserquery,(err,res)=>{
@@ -211,7 +211,7 @@ const self = module.exports = {
                     `FROM ${fields.USERS.TABLENAME} `+
                     ` WHERE ${fields.USERS.USERNAME} = $1 ;`,
                 values: [username]
-            }
+            };
             client.query(getuserquery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -244,7 +244,7 @@ const self = module.exports = {
             const getuserfullquery = {
                 text: `SELECT * FROM ${fields.USERS.TABLENAME} WHERE ${fields.USERS.USERNAME} = $1 ;`,
                 values: [username]
-            }
+            };
             client.query(getuserfullquery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -276,7 +276,7 @@ const self = module.exports = {
         return new Promise ((resolve,reject)=>{
             const shouldAbort = (err) => {
                 if (err) {
-                    console.error('Error in transaction', err.stack)
+                    console.error('Error in transaction', err.stack);
                     client.query('ROLLBACK', (err) => {
                         if (err) {
                             console.error('Error rolling back client', err.stack)
@@ -285,7 +285,7 @@ const self = module.exports = {
                     })
                 }
                 return !!err;
-            }
+            };
             client.query('BEGIN', (err) => {
                 if (shouldAbort(err)){
                     reject(err);
@@ -307,7 +307,7 @@ const self = module.exports = {
                         `SET ${fields.USERS.GAMEID} = $1 `+
                         `WHERE ${fields.USERS.USERNAME} = $2`,
                         values: [gameId,username]
-                    }
+                    };
                     client.query(updateUsersTableQuery, (err, res) => {
                         if (shouldAbort(err)){
                             reject(err);
@@ -316,7 +316,7 @@ const self = module.exports = {
 
                         client.query('COMMIT', (err) => {
                             if (err) {
-                                console.error('Error committing transaction', err.stack)
+                                console.error('Error committing transaction', err.stack);
                                 reject(err);
                                 return;
                             }
@@ -332,7 +332,7 @@ const self = module.exports = {
         return new Promise ((resolve,reject)=>{
             const shouldAbort = (err) => {
                 if (err) {
-                    console.error('Error in transaction', err.stack)
+                    console.error('Error in transaction', err.stack);
                     client.query('ROLLBACK', (err) => {
                         if (err) {
                             console.error('Error rolling back client', err.stack)
@@ -342,7 +342,7 @@ const self = module.exports = {
                     })
                 }
                 return !!err;
-            }
+            };
             client.query('BEGIN', (err) => {
                 if (shouldAbort(err)){
                     reject(err);
@@ -364,7 +364,7 @@ const self = module.exports = {
                         `SET ${fields.USERS.GAMEID} = $1 `+
                         `WHERE ${fields.USERS.USERNAME} = $2`,
                         values: [null,userObj.username]
-                    }
+                    };
                     client.query(updateUsersTableQuery, (err, res) => {
                         if (shouldAbort(err)){
                             reject(err);
@@ -372,7 +372,7 @@ const self = module.exports = {
                         }
                         client.query('COMMIT', (err) => {
                             if (err) {
-                                console.error('Error committing transaction', err.stack)
+                                console.error('Error committing transaction', err.stack);
                                 reject(err);
                                 return;
                             }
@@ -402,4 +402,4 @@ const self = module.exports = {
            })
         });
     }
-}
+};

@@ -5,7 +5,7 @@ class GamePlayPage extends Component{
     state={
         currentCardNum: 1,
         suit:"S"
-    }
+    };
 
     constructor(props){
         super(props);
@@ -31,7 +31,7 @@ class GamePlayPage extends Component{
 
         );
     }
-};
+}
 
 const mapStateToProps = (state)=>(
     {
@@ -40,7 +40,7 @@ const mapStateToProps = (state)=>(
             state.games
     }
 
-)
+);
 
 
 export default connect(mapStateToProps)(GamePlayPage);

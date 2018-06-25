@@ -9,7 +9,7 @@ const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
 const events = require('./constants/socketEvents');
 app.set('port', process.env.PORT || 3000);
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
@@ -46,7 +46,7 @@ app.post('/gms/game/create', (req, res) => {
         res.json({
             success: false,
             error: "too few players."
-        })
+        });
     let cardsperplayer = 10; // this can be made a post body option (req.body) later if needed.
     let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
         .update(req.body.gameid, 'utf8').digest('hex');

@@ -10,4 +10,4 @@ module.exports = {
     `${CONSTANTS.CREATOR} text`+
     `);`
 
-}
+};

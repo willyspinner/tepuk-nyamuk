@@ -24,7 +24,7 @@ timeArray.forEach(function(timeData){
                   tempNode.rightChild = timeData;
             else tempNode.leftChild = timeData;
             }
-        else (if )
+        else (;if )
         }
     });
 

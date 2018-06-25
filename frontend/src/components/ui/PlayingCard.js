@@ -26,8 +26,8 @@ const PlayingCard = (props) => {
             rank = "K";
             break;
         default:
-            let num = props.number
-            rank = num.toString()
+            let num = props.number;
+            rank = num.toString();
             break
     }
     return (

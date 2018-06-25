@@ -106,7 +106,7 @@ fs.writeFile(app.get('dataURI'), '[]', 'utf8', function(err) {
 
                     socket.on('iSlap',function(data){
                               console.log(`${data['username']} slapped.`);
-                              var idxDict={}
+                              var idxDict={};
                               if (!app.get('slappedUsers').includes(data['username'])){
                                         idxDict[data['username']] = data['playerIdx'];
                                         app.get('slappedUsers').push(data['username']);

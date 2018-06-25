@@ -33,4 +33,4 @@ module.exports = {
         gameid: null,
         password:'12r0haosnalkwdlawir'
     }
-}
+};

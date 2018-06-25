@@ -13,7 +13,7 @@ const userReducer = (state = {}, action) => {
           return {
               ...state,
               socketid: action.socketid
-          }
+          };
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;

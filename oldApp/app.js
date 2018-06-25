@@ -5,7 +5,7 @@ var fs = require('fs');
 
 
 app.set('port', process.env.PORT || 3000 );
-app.set('host',"localhost")
+app.set('host',"localhost");
 app.set('view engine', 'ejs');
 app.set('views', 'oldApp/views');
 app.set('dataURI','oldApp/tempData/playersData.json');
@@ -114,7 +114,7 @@ fs.writeFile(app.get('dataURI'), '[]', 'utf8', function(err) {
 
                     socket.on('iSlap',function(data){
                               console.log(`${data['username']} slapped.`);
-                              var idxDict={}
+                              var idxDict={};
                               if (!app.get('slappedUsers').includes(data['username'])){
                                         idxDict[data['username']] = data['playerIdx'];
                                         app.get('slappedUsers').push(data['username']);

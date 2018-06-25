@@ -5,7 +5,7 @@ import GameListItem from './GameListItem';
 
      onJoinHandler = (gameId)=> {
          this.props.onJoin(gameId);
-     }
+     };
     render(){
         return (
     <div className="gameList__container">

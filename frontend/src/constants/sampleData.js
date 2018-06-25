@@ -18,4 +18,4 @@ export const sampleChatRoomFeed = [
         timestamp: 1526023500,
     },
 
-]
+];

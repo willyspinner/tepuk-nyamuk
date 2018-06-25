@@ -5,7 +5,7 @@ const gameplayReducer = (state= {},action)=>{
         case 'FINISH_GAME':
             return {};
         case 'INIT_GAME':
-            console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`)
+            console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
             return {
                 counter:0,
                 playerinturn : action.game.playerinturn,
@@ -58,7 +58,7 @@ const gameplayReducer = (state= {},action)=>{
                     else
                         return player;
                 })
-            }
+            };
         case 'RECEIVE_MATCH_RESULT':
             return {
                 ...state,
@@ -86,12 +86,12 @@ const gameplayReducer = (state= {},action)=>{
                         }
                     }
                 })
-            }
+            };
         default:
             return state;
 
     }
 
 
-}
+};
 export default gameplayReducer;

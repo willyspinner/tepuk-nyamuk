@@ -199,7 +199,7 @@ const self = module.exports = {
                 .get(`${gamesessionid}/nplayers`)
                 .get(`${gamesessionid}/turnoffset`)
                 .lrange(`${gamesessionid}/players`,0,-1)
-                .llen(`${gamesessionid}/players`)
+                .llen(`${gamesessionid}/players`);
             chain.execAsync().then((data)=>{
                 const newcounter = parseInt(data[0]);
                 const nplayers = parseInt(data[1]);
@@ -359,7 +359,7 @@ const self = module.exports = {
             return redisclient.rpushAsync(`${gamesessionid}/player/${player}/hand`,card);
         },
     }
-   }
+   };
 
 //helper stuff
 // returns promises for scan just incase non 0
@@ -378,5 +378,5 @@ function scanAsync(cursor, pattern,callback,returnArr=[]) {
             }
 
         });
-};
+}
 

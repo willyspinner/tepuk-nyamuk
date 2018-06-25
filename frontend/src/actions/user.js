@@ -31,7 +31,7 @@ export const startRegisterUser = (username,password)=> {
                 });
         });
     }
-}
+};
 export const startLoginUser = (username,password)=>{
     return (reduxDispatch) => {
         return new Promise((resolve, reject) => {
@@ -58,7 +58,7 @@ export const startLoginUser = (username,password)=>{
                 });
         });
     }
-}
+};
 export const logoutUser = ()=>({
     type:"USER_LOG_OUT"
     });
@@ -74,6 +74,6 @@ export const startLogoutUser= ()=> {
 export const connectSocket = (socketid)=>({
     type: "USER_CONNECT_SOCKET",
     socketid
-})
+});
 
 

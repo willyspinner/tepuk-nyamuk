@@ -30,4 +30,4 @@ module.exports = {
         CREATOR: 'CREATOR' // username of who created the game. - foreign key for USERS
     }
 
-}
+};

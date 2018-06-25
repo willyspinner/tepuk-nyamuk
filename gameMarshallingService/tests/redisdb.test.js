@@ -54,7 +54,7 @@ describe('redisdb.test: test popHandToPile', function () {
         redisdb.deleteGame(dummydata.game1.gamesessionid).then(()=>{
             done();
         }).catch((e)=>done(e));
-    })
+    });
     it('should pop hand to pile correctly', function (done) {
         redisdb.getSnapshot(dummydata.game1.gamesessionid).then((snapshot) => {
             redisdb.popHandToPile(dummydata.game1.gamesessionid,

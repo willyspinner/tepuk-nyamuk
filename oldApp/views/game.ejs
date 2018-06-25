@@ -70,9 +70,9 @@ var nCardsInPile=0;
 var nMatches=0;
 var totalThrows=0;
 var socket='nothingyet';
-var username = "<%=player%>"
+var username = "<%=player%>";
 var myPlayerObject =null;
-var myIdx=-1
+var myIdx=-1;
 var playersData=<%-JSON.stringify(playersdata) %>;
 playersData.forEach((player,idx)=>{
           //playersData.push(player);
@@ -169,7 +169,7 @@ $(document).on('keypress',function (evt){
           if (evt.charCode==116 && playerInTurn == username && ! ONMATCH){//space:32.  't' : 116. 't' for throw card
                    let cardPopped = myPlayerObject.hand.pop();
                     console.log('emitting iThrew');
-                    console.log('popped:'+cardPopped)
+                    console.log('popped:'+cardPopped);
                     socket.emit('iThrew', {'username':username,
                                                             'playerIdx':myIdx,
                                                             'card':cardPopped,

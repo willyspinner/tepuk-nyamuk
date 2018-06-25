@@ -6,4 +6,4 @@ module.exports=  {
     NEXT_TICK: 'nextTick',
     MATCH_RESULT: "matchResult",
     ADD_TO_HAND: "addToHand" // for loser
-}
+};

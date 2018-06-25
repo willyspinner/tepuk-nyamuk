@@ -7,4 +7,4 @@ module.exports = {
         `${CONSTANTS.PASSWORD} text`+
     `);`
 
-}
+};

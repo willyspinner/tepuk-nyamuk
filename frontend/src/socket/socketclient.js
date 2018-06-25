@@ -1,6 +1,6 @@
-//import io from 'socket.io-client/dist/socket.io';
+/* Singleton class for our socket client HOC. This singleton is made so that
+ * the socket code is abstracted away from us. */
 import EVENTS from '../../../appCentralService/constants/socketEvents';
-//import ioclient from 'socket.io-client';
 const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
@@ -8,7 +8,7 @@ class SocketClient {
         let thatsocket = this.mysocket;
         return new Promise((resolve,reject)=>{
             console.log(`in connect method of SocketClient... trying to connect socket ;..`);
-            console.log(`connectionSTr: ${connectionStr}`);
+            console.log(`connectionStr: ${connectionStr}`);
             console.log(`socket connecting with token : ${token}`);
 
             thatsocket =  ioclient(`${connectionStr}`,{
@@ -49,23 +49,23 @@ class SocketClient {
                         this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
                             console.log(`frontend::socketclient::subscribeToLobby. Called onUserJoin`);
                             onUserJoin(username);
-                        })
+                        });
                         console.log(`frontend::socketclient::subscribeToLobby. Registering USER_LEFT.`);
                         this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
                             console.log(`frontend::socketclient::subscribeToLobby. Called onUserLeave`);
                             onUserLeave(username);
-                        })
+                        });
                         console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_DELETED.`);
                         this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
                             console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameDeleted`);
                             onLobbyGameDeleted();
-                        })
+                        });
                         console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_START.`);
                         this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
                             console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameStart.`);
                             //TODO: establish GMS connection here...
                             onLobbyGameStart();
-                        })
+                        });
                         resolve(ackResponse.players);
                     }else{
                         reject();

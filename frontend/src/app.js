@@ -15,13 +15,13 @@ let game_1 = {
     createdAt: moment.now(),
     creator:"willyspinner",
     uuid:"123" // this will be the id generated as response from app backend.
-}
+};
 let game_2 = {
     name: "berdogs game",
     createdAt: moment.now(),
     creator:"berdog",
     uuid:"1223"
-}
+};
 //store.dispatch(addGame(game_1));
 //store.dispatch(addGame(game_2));
 
@@ -34,5 +34,5 @@ const app = (
 <Provider store = {store}>   
   <AppRouter/>
 </Provider>
-)
+);
 ReactDOM.render(app,document.getElementById('app'));

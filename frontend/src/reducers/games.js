@@ -17,18 +17,18 @@ const gamesReducer = (state = [], action) => {
             }
             return game;
             }
-        )
+        );
       case 'LEAVE_GAME':
           return state.map((game)=>{
                   if (game.uuid === action.uuid)
                       return {
                           ...game,
                             players: game.players.filter((player_username)=>player_username !== action.username)
-                  }
+                  };
                   return game;
               });
       case "EMPTY_GAME_STATE":
-          return [] // no more games.
+          return []; // no more games.
     default:
       console.log(`GAME REDUCER DEFAULTING STATE for action ${action.type}`);
       return state;

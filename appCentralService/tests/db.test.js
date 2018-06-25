@@ -25,7 +25,7 @@ describe(' db.test: initialise table',function(){
             done(e);
         })
     })
-})
+});
 
 describe(' db.test: create game', function(){
     // to ensure proper garbage clearing.
@@ -47,7 +47,7 @@ describe(' db.test: create game', function(){
             if(this.createdgameid2 )
                 db.deleteGame(this.createdgameid2).then((res)=>{
                     done();
-                }).catch((e)=>done(e))
+                }).catch((e)=>done(e));
             else
                 done();
         }).catch((e)=>done(e))
@@ -150,7 +150,7 @@ describe(' db.test: user management',function(){
         db.deleteUser(dummy.user1.username).then((result)=>{
             done();
         }).catch((e)=>done(e));
-    })
+    });
 
     it('should register a user, and we should be able to get from db - without serets' +
         ' exposed',function(done){
@@ -172,7 +172,7 @@ describe(' db.test: user management',function(){
             }).catch((e)=>done(new Error("e")));
         }).catch((e)=>done(new Error("e")));
     })
-})
+});
 
 describe(' db.test: joining/leaving game', function() {
     // NOTE: we are using dummy.user2
@@ -185,7 +185,7 @@ describe(' db.test: joining/leaving game', function() {
                     )).catch((e)=>done(e));
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
-    })
+    });
     afterEach(function(done){
         db.deleteGame(this.createdgameid).then((result)=>{
 
@@ -193,7 +193,7 @@ describe(' db.test: joining/leaving game', function() {
             done();
             }).catch((e)=>done(e))
         }).catch((e)=>done(e))
-    })
+    });
 
     it('user should join a game and this change reflected in user and game tables',function(done){
         db.joinGame(dummy.user2.username,this.createdgameid).then((result)=>{
@@ -251,7 +251,7 @@ describe(' db.test: startGame',function(){
         db.deleteGame(this.createdgameid).then(()=>{
             done()
         }).catch(e=>done(e));
-    })
+    });
     it('status label should be changed.',function(done){
         db.startGame(this.createdgameid).then(()=>{
             db.getGame(this.createdgameid).then((game)=>{

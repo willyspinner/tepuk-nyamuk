@@ -56,7 +56,7 @@ describe('gmsapp.test: initial connection to game', function () {
         redisdb.deleteGame(this.gamesessionid).then(() => {
             done();
         }).catch(e => done(e));
-    })
+    });
     it('should deny invalid tokens or gamesecrets', function (done) {
         this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
             query: {
@@ -128,7 +128,7 @@ describe('gmsapp.test: initial connection to game', function () {
                 });
             }).catch(e => done(e));
         })
-    })
+    });
 
     it('should only start when all sockets connect (receive game start event)', function (done) {
         let allConnected = false;
@@ -143,7 +143,7 @@ describe('gmsapp.test: initial connection to game', function () {
             if (!allConnected) {
                 done(new Error("player 1 received game start even though not started yet."))
             }
-        })
+        });
         this.player1socket.on('connect', () => {
             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers3) => {
                 assert.equal(connectedPlayers3.length, 1);
@@ -158,7 +158,7 @@ describe('gmsapp.test: initial connection to game', function () {
                     if (!allConnected) {
                         done(new Error("player 2 received game start even though not started yet."))
                     }
-                })
+                });
                 this.player2socket.on('connect', () => {
                     redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers4) => {
                         assert.equal(connectedPlayers4.length, 2);
@@ -175,7 +175,7 @@ describe('gmsapp.test: initial connection to game', function () {
                                 if (!allConnected) {
                                     done(new Error("player 3 received game start even though not started yet."))
                                 }
-                            })
+                            });
                             redisdb.getConnectedPlayers(this.gamesessionid).then(connectedPlayers5 => {
                                 assert.equal(connectedPlayers5.length, 3);
                                 dummydata.gameGMStest.players.forEach((player) => {
@@ -247,7 +247,7 @@ describe('gmsapp.test: registering throw', function () {
         redisdb.deleteGame(this.gamesessionid).then(() => {
             done();
         }).catch(e => done(e));
-    })
+    });
     it('should only register throws for player in turn, and should be in pile', function (done) {
         redisdb.getCurrentTurn(this.gamesessionid).then((turn) => {
             // should be player 1 who is in turn
@@ -364,7 +364,7 @@ describe('gmsapp.test: match', function () {
         redisdb.deleteGame(this.gamesessionid).then(() => {
             done();
         }).catch(e => done(e));
-    })
+    });
 
 
     //note. we're going to have to edit (illegally) the pile so that they here. this is where redisdb comes into play.
@@ -525,7 +525,7 @@ describe('gmsapp.test: slaps', function () {
         redisdb.deleteGame(this.gamesessionid).then(() => {
             done();
         }).catch(e => done(e));
-    })
+    });
     it('should register and punish false alarm slaps', function (done) {
         // when there is 3 on the pile, player 1 will falsely slap (slap on non-match
         // event). player 1 should be the one punished.
@@ -599,7 +599,7 @@ describe('gmsapp.test: slaps', function () {
                     done(new Error(`tick ${tick.counter} doesn't match with card num ${matchcard}`))
                 }
             }
-        })
+        });
 
         this.player2socket.on(events.MATCH_RESULT, (result)=>{
             console.log(`player 2 got match result: ${JSON.stringify(result)}`);
@@ -622,7 +622,7 @@ describe('gmsapp.test: slaps', function () {
                     done(new Error(`tick ${tick.counter} doesn't match with card num ${matchcard}`))
                 }
             }
-        })
+        });
 
         this.player3socket.on(events.MATCH_RESULT, (result)=> {
             console.log(`player 3 got match result: ${JSON.stringify(result)}`);

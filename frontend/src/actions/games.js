@@ -4,7 +4,7 @@ import mysocket from '../socket/socketclient';
 import {GETOPENGAMES,CREATEGAME,DELETEGAME} from "../serverroutes/AppCSRoutes";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
-})
+});
 
 export const addGame = ( game )=> ({
   type: 'ADD_GAME',
@@ -23,7 +23,7 @@ export const startGetOpenGames = ()=>{
                 console.log(`actions/games::startGetOpenGames: body obj is : ${body}`);
                     const resobj = JSON.parse(body);
                     if(!resobj.success){
-                        reject(`couldn't get open games. resobj err: ${resobj.error}`)
+                        reject(`couldn't get open games. resobj err: ${resobj.error}`);
                         return;
                     }
                     resobj.games.forEach((game)=>reduxDispatch(addGame(game)));
@@ -31,7 +31,7 @@ export const startGetOpenGames = ()=>{
                 })
         });
     }
-}
+};
 //NOTE: creating and adding a game(from server) uses the same local redux action.
 // (ADD_GAME)
 export const startCreateGame = (gameObj) => {
@@ -42,7 +42,7 @@ export const startCreateGame = (gameObj) => {
             request.post(CREATEGAME(gameObj ,getState().user.token),
                 (err,res,body)=>{
                     if(err){
-                        reject({error:"couldn't connect to server"})
+                        reject({error:"couldn't connect to server"});
                         return;
                     }
                     resolve(JSON.parse(body));
@@ -50,7 +50,7 @@ export const startCreateGame = (gameObj) => {
         });
     }
     ;
-}
+};
 
 
 export const removeGame = (uuid) => { // ID MUST BE FILLED. NO DEFAULTS
@@ -59,7 +59,7 @@ export const removeGame = (uuid) => { // ID MUST BE FILLED. NO DEFAULTS
         uuid
     }
 
-}
+};
 
 export const startRemoveGame = (gameid) => {
     return (reduxDispatch,getState) => {
@@ -84,7 +84,7 @@ export const joinGame = (gameuuid,username) => ({
     type :'JOIN_GAME',
     uuid:gameuuid,
     username,
-})
+});
 
 export const startJoinGame = (uuid,username) => {
     //returns a JS promise when game join is approved by server.
@@ -125,7 +125,7 @@ export const startJoinGame = (uuid,username) => {
         },10000);
             });
     }
-    }
+    };
 export const leaveGame = (uuid,username)=>({
     type:'LEAVE_GAME',
         uuid,
@@ -139,10 +139,10 @@ export const startLeaveGame = (uuid,username) => {
                 console.log(`frontend::action/games::startLeaveGame: dispatching leave game... from start leave game`);
                 reduxDispatch(leaveGame(uuid,username));
                 resolve();
-            }
+            };
             const onFailLeave = ()=>{
                 reject();
-            }
+            };
             mysocket.unsubscribeFromLobby({username: username, gameid: uuid},
                 onSuccessLeave,
                 onFailLeave);
@@ -151,4 +151,4 @@ export const startLeaveGame = (uuid,username) => {
 
 
     }
-}
+};

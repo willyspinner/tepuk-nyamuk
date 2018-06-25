@@ -72,7 +72,7 @@
 var names =[];
 var counter= <%= playersdata.length %>
 playerCounter(counter);
-var username=''
+var username='';
 let isGoingToGame = false;
 var socket = io.connect("<%= url %>");
 //************Everyone joins for the sake of real-time updates of whos leaving and joining.(via socket.io communication).
@@ -103,7 +103,7 @@ socket.on('gamestart',function(/*no data needed as will be provided by express s
           isGoingToGame=true;
           window.location.replace('/game/username='+username);
 
-})
+});
 
 $("input#textField").on("keypress",(evt)=>{
           console.log("I pressed:"+evt.charCode);
@@ -126,7 +126,7 @@ function submit(evt){
 
           //console.log('client submission of name. namesList:');
           console.log(names);
-          console.log('includes?'+names.includes(username))
+          console.log('includes?'+names.includes(username));
           if (username =='' || names.includes(username))
                     {alert("enter a good username please!");}
           else{

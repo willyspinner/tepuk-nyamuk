@@ -142,7 +142,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                 this.socket.close();
             done();
         }).catch((e)=>done(e));
-    })
+    });
     it('should receive game create updates',function(done) {
         let newgame = dummydata.newgame3;
         newgame.creator = 'willyboomboom';
@@ -178,7 +178,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
             done();
         });
         if(this.newgameuuid === undefined)
-            done(new Error("this.newgameuuid is undefined. Please run the whole gameMain.test.js, not just this on 'it'!"))
+            done(new Error("this.newgameuuid is undefined. Please run the whole gameMain.test.js, not just this on 'it'!"));
         // TEST our delete game endpoint here.
         request.delete({
                 url: `http://localhost:${process.env.PORT}/appcs/game/delete/${this.newgameuuid}`,
@@ -196,4 +196,4 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                     done(new Error("not deleted!"));
             })
         })
-    })
+    });

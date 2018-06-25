@@ -67,7 +67,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
                 done();
             }).catch((e)=>done(e));
         }).catch((e)=>done(e));
-    })
+    });
 
     it('should be able to join a lobby and socket "rooms" should be changed.',function(done){
         this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'willyboomboom',gameid:this.newgameuuid }, (result)=>{

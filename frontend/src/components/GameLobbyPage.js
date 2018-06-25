@@ -34,16 +34,16 @@ class GameLobbyPage extends Component {
                         console.log(`dispatching startRemoveGame...`);
                         this.props.dispatch(startRemoveGame(this.state.uuid)).then(()=>{
                             console.log(`pushing to go back to / `);
-                            this.setState({hasLeft: true})
+                            this.setState({hasLeft: true});
                             this.props.history.push('/')
                         })
                     }else{
                         console.log(`pushing to go back to / `);
                         this.props.history.push('/')
                     }
-    });
+            });
     }
-    }
+    };
     onGameStartHandler= () => {
         //TODO: this needs to be run by some redux update caused by ws.
         //TEST
@@ -51,7 +51,7 @@ class GameLobbyPage extends Component {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
             this.props.history.push(`/game/play/${this.state.uuid}`);
         });
-    }
+    };
     render(){
         if(!this.props.user.username)
             return (<h4>ERROR: GAME LOBBY</h4>);
@@ -107,6 +107,6 @@ class GameLobbyPage extends Component {
 const mapStateToProps = (state)=>({
         games: state.games,
     user: state.user
-    })
+    });
 
 export default connect (mapStateToProps)(GameLobbyPage);

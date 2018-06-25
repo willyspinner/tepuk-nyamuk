@@ -4,7 +4,7 @@ let fullcarddeck = [];
     fullcarddeck.push(num);
     fullcarddeck.push(num);
     fullcarddeck.push(num);
-})
+});
 module.exports = {
    fullcarddeck : fullcarddeck
-}
+};

@@ -35,10 +35,10 @@ class GamePlayTutorial extends Component{
         let nextplayer = this.state.allplayers[(this.state.allplayers.map((player)=>player.username).indexOf(username) + 1) % this.state.allplayers.length].username;
         this.props.dispatch(playerThrow(username,poppedcard, nextplayer));
 
-    }
+    };
     slap = (username,reactiontime)=>{
         this.props.dispatch(playerSlap(username, reactiontime))
-    }
+    };
     constructor(props){
         super(props);
         //state
@@ -53,7 +53,7 @@ class GamePlayTutorial extends Component{
                     hand: Array.from(Array(nhands)).map( (c) => cards[Math.floor(Math.random()*cards.length)])
                 }
             })
-        }
+        };
 
         // key bindings
         key('t',()=>{
@@ -66,7 +66,7 @@ class GamePlayTutorial extends Component{
         key('space',()=>{
             if(!this.props.gameplay.match){
                 this.slap(this.props.myusername,123091); // you just slapped mistakenly.
-                alert(`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`)
+                alert(`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`);
                 this.determineLoser();
             }
             this.slap(this.props.myusername, performance.now() - this.state.myreactiontime);
@@ -91,7 +91,7 @@ class GamePlayTutorial extends Component{
         //TODO: this is a sketchy way to alleviate the problem. seriosuly. ew
         // eh. whatever. This isn't the REAL game implementation anyway.
         setTimeout(()=>this.updateThrowHandler,1000);
-    }
+    };
     // used for the other bot players to check whether they should throw.
     updateThrowHandler = () => {
         console.log(`GPT: updateThrowHandler called.`);
@@ -114,7 +114,7 @@ class GamePlayTutorial extends Component{
                 }, (1/ reactiontime) * 2700);
             }
         });
-    }
+    };
 componentDidUpdate(prevProps,prevState){
         if(this.props.gameplay.players.filter((player)=>player.hasslapped === false).length ===0){
             // MATCH RESULT
@@ -173,7 +173,7 @@ componentDidUpdate(prevProps,prevState){
             </div>
         );
     }
-};
+}
 
 const mapStateToProps =(state)=>({
   gameplay: state.gameplay,

@@ -12,7 +12,7 @@ export const NEWUSER= (username,password)=>{
           password
       },
       timeout: 16000, // 16 sec timeout
-  }
+  };
   
   return obj;
 };
@@ -21,7 +21,7 @@ export const GETOPENGAMES= ()=>{
         url : `${ROOTURL}/appcs/game`,
         timeout: 16000, // 16 sec timeout
     }
-}
+};
 export const LOGINUSER = (username,password)=>{
     return   {
         url : `${ROOTURL}/appcs/user/auth`,
@@ -42,7 +42,7 @@ export const CREATEGAME=(game,token)=>{
         },
         timeout: 16000, // 16 sec timeout
     }
-}
+};
 export const DELETEGAME= (gameid,token,socketid)=>{
     return {
         url: `http://localhost:${APPCS_PORT}/appcs/game/delete/${gameid}`,
@@ -51,4 +51,4 @@ export const DELETEGAME= (gameid,token,socketid)=>{
             token: token,
         },
     };
-}
+};
