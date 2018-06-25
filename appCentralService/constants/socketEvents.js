@@ -17,6 +17,9 @@ module.exports=  {
     // these are just some helper tings that will query the socket's room information.
     UTILS:{
         CHECK_ROOM:'checkRoom'
-    }
+    },
+    // below are used for the chatbot
+    EMIT_CHAT_MSG: "emitChatMsg",
+    RECV_CHAT_MSG: "receiveChatMsg"
 
 }

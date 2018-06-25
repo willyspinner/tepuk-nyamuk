@@ -75,12 +75,11 @@ class MainPage extends Component {
                 alert(JSON.stringify(e));
         });
     }
-    //TODO: below code same as the one below it. Redundant.
-    //REDUNDANT: Seriously consider deleting.
     onLeaderGameJoinHandler = (gameId)=>{
         this.setState({isJoiningGame:true});
         // the leader just goes straight to his/her lobby .
-        //fixme: shouldn't we also join as a leader?
+        //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
+        // onGameJoinHandler needs to populate the game with the players .
         this.props.dispatch(startJoinGame(gameId, this.props.user.username )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e)=>alert(JSON.stringify(e)));
@@ -90,6 +89,8 @@ class MainPage extends Component {
         this.props.dispatch(startJoinGame(gameId, this.props.user.username)).then((playersInLobby) => {
             playersInLobby.forEach((player)=>{
                 this.props.dispatch(joinGame(gameId,player))
+                //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence
+                // in the reducer already.
             })
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
