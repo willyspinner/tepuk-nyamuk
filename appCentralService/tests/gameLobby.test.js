@@ -188,7 +188,7 @@ describe('gameLobby.test: Lobby chat ',function (){
             });
         });
     });
-    afterEach(function(done){;
+    afterEach(function(done){
         this.socket.emit(EVENTS.LOBBY.CLIENT_LEAVE,{username:'willyboomboom',gameid:this.newgameuuid }, (result)=>{
             this.socket.emit(EVENTS.UTILS.CHECK_ROOM,null,(joinedrooms)=>{
                 assert.equal(result,EVENTS.LOBBY.CLIENT_LEAVE_ACK);
@@ -203,6 +203,9 @@ describe('gameLobby.test: Lobby chat ',function (){
                         console.log(`joined rooms : ${JSON.stringify(joinedrooms)}`);
                         assert.equal(undefined,joinedrooms[this.newgameuuid]);
                         assert.equal(Object.keys(joinedrooms).length,1); // only the main room now.
+
+                        this.socket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
+                        this.socket2.removeAllListeners(EVENTS.RECV_CHAT_MSG);
                         done();
                     })
                 })
@@ -211,7 +214,6 @@ describe('gameLobby.test: Lobby chat ',function (){
 
     })
 
-    /* TODO */
     it('should be able to hear chat from inside lobby',function(done){
         let numrecv = 0;
         const onRecvMsg = (data)=>{
@@ -233,15 +235,32 @@ describe('gameLobby.test: Lobby chat ',function (){
 
     })
     it('inside lobby chat shouldnt be heard from outside',function(done){
-        done(new Error("NOT IMPLM"))
-    })
+        //done(new Error("NOT IMPLM"))
+        const onRecvMsg = (data)=>{
+            done(new Error("OUTSIDE recv'ed inside message!"))
+        }
+        this.socket.emit(EVENTS.LOBBY.CLIENT_LEAVE,{username: 'willyboomboom',gameid:this.newgameuuid},(responseAck)=> {
+            assert.equal(responseAck, EVENTS.LOBBY.CLIENT_LEAVE_ACK);
+            this.socket.on(EVENTS.RECV_CHAT_MSG, onRecvMsg);
+
+            this.socket2.emit(EVENTS.EMIT_CHAT_MSG, {
+                message:'heyy wadup',
+                namespace:this.newgameuuid,
+                sender_username: 'willywonka'
+            });
+            setTimeout(()=>{
+                done();
+            },1800)
+        });
+    });
+
+
     it('main lobby chat shouldnt be heard from inside lobby',function(done){
         let numrecv = 0;
         const onRecvMsg = (data)=>{
             logger.error('gameLobby.test',`received message. namespace: ${data.namespace}`);
             done(new Error("RECEIVED OUTSIDE MSG IN LOBBY"));
         };
-
         this.socket.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
         this.socket2.on(EVENTS.RECV_CHAT_MSG,onRecvMsg);
         this.socket.emit(EVENTS.EMIT_CHAT_MSG,{
