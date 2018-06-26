@@ -260,6 +260,7 @@ describe(' gameMain.test: global chat ',function() {
         const onRecvMsg = (data)=>{
             assert.equal(data.sender_username  , 'willyboomboom');
             assert.equal(data.message , 'heyy wadup')
+            assert.equal(data.namespace,null);
             logger.info('gameMain.test',`received message. namespace: ${data.namespace}`);
             numrecv++;
             if (numrecv === 2)

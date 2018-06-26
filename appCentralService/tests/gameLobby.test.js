@@ -256,7 +256,6 @@ describe('gameLobby.test: Lobby chat ',function (){
 
 
     it('main lobby chat shouldnt be heard from inside lobby',function(done){
-        let numrecv = 0;
         const onRecvMsg = (data)=>{
             logger.error('gameLobby.test',`received message. namespace: ${data.namespace}`);
             done(new Error("RECEIVED OUTSIDE MSG IN LOBBY"));

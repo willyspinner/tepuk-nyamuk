@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
+import {receiveMessage} from "../actions/chatroom";
 import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
@@ -44,10 +45,13 @@ class MainPage extends Component {
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(()=>{
                 console.log(`connected here 2 `);
+                //TODO: This needs to be abstracted away. We shouldn't need to call
+                //TODO: socketclient anywhere... Socketclient should reside inside the redux actions.
                 this.state.socketclient.subscribeToMainPage((newGame) =>
                         this.props.dispatch(addGame(newGame))
                     , (deletedGameuuid)=>
-                        this.props.dispatch(removeGame( deletedGameuuid))
+                        this.props.dispatch(removeGame( deletedGameuuid)),
+                    (newMessageObj)=>this.props.dispatch(receiveMessage(newMessageObj))
                 );
             }).catch((e)=>{
                 alert(`MainPage::connectToGameUpdates: couldnt get open games. error: ${e}`);

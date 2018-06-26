@@ -31,13 +31,21 @@ class SocketClient {
         });
     }
 
-    subscribeToMainPage(onGameCreate,onGameDelete){
+    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat){
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
         this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
+        this.mysocket.on(EVENTS.RECV_CHAT_MSG,(data)=>onRecvChat(data) )
+    }
+    sendChatMessage(msgObj){
+        //NOTE: this isn't promise based, since we'll be waiting for the broadcast
+        // from the ws server for our chat sent.
+            this.mysocket.emit(EVENTS.EMIT_CHAT_MSG,msgObj);
     }
     unsubscribeFromMainPage(){
         this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
+        this.mysocket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
+
     }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted){
         return new Promise((resolve,reject)=>{

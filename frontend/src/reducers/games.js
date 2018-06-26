@@ -12,7 +12,7 @@ const gamesReducer = (state = [], action) => {
                 //NOTEDIFF: we add this so that we don't add the same person twice.
                 // This happens due to a confusion in local redux code and listening
                 // and reacting to socket events.
-                if( game.players.indexOf(action.username) == -1)
+                if( game.players.indexOf(action.username) === -1)
                     game.players.push(action.username);
             }
             return game;

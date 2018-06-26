@@ -2,6 +2,8 @@ const express = require('express');
 const reload = require('reload');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
+const moment = require('moment');
 const app = express();
 const io = require('socket.io')();
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
@@ -28,7 +30,9 @@ logger.info(null,`app listening on ${app.get('port')}`);
 io.attach(server);
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
+    //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
+    //TODO: load these configs in runtime in consul.
+    res.header("Access-Control-Allow-Origin", process.env.TEPKENV === 'production' ? process.env.DOMAINNAME: '*');
     res.header("Access-Control-Allow-Methods","POST, GET, OPTIONS, DELETE, ")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
@@ -416,12 +420,26 @@ io.use(function (socket, next) {
 
 
     /* socket routes for chat.*/
+    /* Data is  something like:
+
+            {
+            sender_username : 'USERNAME',
+            namespace: null,
+            message: "Whats up dawgs",
+        }
+     */
     socket.on(EVENTS.EMIT_CHAT_MSG,(data)=>{
+        /* add things to the message */
+        // assign a UUID to the message:
+        data.msg_id = uuid();
+
+        // assign a timestamp to the message;
+        data.timestamp = moment.now();
+
         const namespace = data.namespace;
         if (namespace ===null ){
             io.emit(EVENTS.RECV_CHAT_MSG, data);
         }else {
-
             io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
         }
     });
