@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {List,Avatar} from 'antd'
+import {List,Avatar,Input,Button} from 'antd'
 import {DATE_FORMAT} from "../../constants/dates";
 import moment from 'moment';
 /*
@@ -19,19 +19,30 @@ This is updated through props.
  */
 class ChatRoom extends Component {
 
+    state = this.props.messageFeed;
+    onPressEnterHandler = (e) =>{
+        if (e.target.value !== ""){
+            // SEND STUFF HERE
+            this.props.onMessageSend(e.target.value);
+        }
+
+    }
     render (){
         return(
             <div style={{width: "50%"}}>
+                <p>
+                    messageFeed: {JSON.stringify(this.state)}
+                </p>
                 <List
                     itemLayout="horizontal"
-                    dataSource={this.props.messageFeed}
+                    dataSource={this.state.main}
                     renderItem={item => (
                         <List.Item>
                             <List.Item.Meta
                                 avatar={ <Avatar style={{ backgroundColor: '#87d068' }} icon="user" />}
                                 title={
                                     <div>
-                                        <h4>{item.sender}</h4>
+                                        <h4>{item.sender_username}</h4>
                                         <h5>
                                         {moment(item.timestamp).format(DATE_FORMAT)}
                                         </h5>
@@ -43,9 +54,15 @@ class ChatRoom extends Component {
                         </List.Item>
                     )}
                 />
+
+                <div >
+                   <Input placeholder={"type your message here"} onPressEnter={this.onPressEnterHandler}>
+                   </Input>
+
+
+                </div>
             </div>
         );
     }
 }
-
 export default ChatRoom;

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startJoinGame} from "../actions/games";
 import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
-import {receiveMessage} from "../actions/chatroom";
+import {receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
@@ -157,6 +157,10 @@ class MainPage extends Component {
             this.onLeaderGameJoinHandler(obj.game.uuid);
         });
     }
+
+    onChatMessageSendHandler = (msg)=>{
+        this.props.dispatch(startSendMessage(msg));
+    }
     render() {
         const createGameModal = (
             <Modal
@@ -298,7 +302,8 @@ class MainPage extends Component {
                 </Button>
                 <h2>Chatroom</h2>
                 <ChatRoom
-                    messageFeed={sampleChatRoomFeed}
+                    messageFeed={this.props.chat}
+                    onMessageSend={this.onChatMessageSendHandler}
                 />
                 Don't know how to play? Do a tutorial below.
                 <Button onClick={this.onTutorialStartHandler}>
@@ -311,6 +316,7 @@ class MainPage extends Component {
 
 const mapStateToProps = (state) => ({
     games: state.games,
-    user: state.user
+    user: state.user,
+    chat: state.chat
 });
 export default connect(mapStateToProps)(MainPage);

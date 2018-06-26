@@ -1,4 +1,4 @@
-const chatReducer = (state= {},action)=>{
+const chatReducer = (state= {main: [], room: []},action)=>{
     switch(action.type) {
         case 'RECV_MSG':
             if(action.message_obj.namespace === null){

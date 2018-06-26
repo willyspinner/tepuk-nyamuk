@@ -25,7 +25,7 @@ export const receiveMessage = (message_object)  => {
             message: message_object.message,
             namespace: message_object.namespace,
             timestamp: message_object.timestamp,
-            msg_id
+            msg_id: message_object.msg_id
         }
 
     }
