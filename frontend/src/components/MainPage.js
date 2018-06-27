@@ -11,7 +11,6 @@ import {connect} from 'react-redux';
 import {Input, Button} from 'antd';
 import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
-import {sampleChatRoomFeed} from "../constants/sampleData";
 import CreateGameForm from './ui/CreateGameForm';
 import SocketClient from '../socket/socketclient';
 class MainPage extends Component {
@@ -302,7 +301,7 @@ class MainPage extends Component {
                 </Button>
                 <h2>Chatroom</h2>
                 <ChatRoom
-                    messageFeed={this.props.chat}
+                    messageFeed={this.props.mainchat}
                     onMessageSend={this.onChatMessageSendHandler}
                 />
                 Don't know how to play? Do a tutorial below.
@@ -317,6 +316,6 @@ class MainPage extends Component {
 const mapStateToProps = (state) => ({
     games: state.games,
     user: state.user,
-    chat: state.chat
+    mainchat: state.chat.main
 });
 export default connect(mapStateToProps)(MainPage);

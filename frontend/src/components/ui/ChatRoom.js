@@ -2,16 +2,18 @@ import React, {Component} from 'react'
 import {List,Avatar,Input,Button} from 'antd'
 import {DATE_FORMAT} from "../../constants/dates";
 import moment from 'moment';
+import ReactList from 'react-list';
 /*
 PROPS:
 messageFeed : array of timestamped messages
 where each timestamped message is:
 
 {
-    sender: ___,    // username of sender
+    sender_username: ___,    // username of sender
     message: ___, // message (string)
-    tag:[___ , ____] // tagging other people - other people's usernames.
+    possible feature -> tag:[___ , ____] // tagging other people - other people's usernames.
     timestamp : ___ // unix time
+    namespace: ___ // namespace to which it is sent.
 
 }
 
@@ -19,47 +21,53 @@ This is updated through props.
  */
 class ChatRoom extends Component {
 
-    state = this.props.messageFeed;
+    state = {inputval : ''};
     onPressEnterHandler = (e) =>{
         if (e.target.value !== ""){
             // SEND STUFF HERE
+            console.log('pressed enter for chat.');
             this.props.onMessageSend(e.target.value);
+            this.setState({inputval: ''});
         }
-
     }
-    render (){
-        return(
-            <div style={{width: "50%"}}>
-                <p>
-                    messageFeed: {JSON.stringify(this.state)}
-                </p>
-                <List
-                    itemLayout="horizontal"
-                    dataSource={this.state.main}
-                    renderItem={item => (
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={ <Avatar style={{ backgroundColor: '#87d068' }} icon="user" />}
-                                title={
-                                    <div>
-                                        <h4>{item.sender_username}</h4>
-                                        <h5>
-                                        {moment(item.timestamp).format(DATE_FORMAT)}
-                                        </h5>
-                                    </div>
-                                        }
-                                description={item.message}
-                            />
-                        <br/>
-                        </List.Item>
-                    )}
-                />
+    renderItem = (index, key) =>{
+        const item = this.props.messageFeed[index];
+        return (
+        <List.Item key={key}>
+            <List.Item.Meta
+                avatar={ <Avatar style={{ backgroundColor: '#87d068' }} icon="user" />}
+                title={
+                    <div>
+                        <h4>{item.sender_username}</h4>
+                        <h5>
+                            {moment(item.timestamp).format(DATE_FORMAT)}
+                        </h5>
+                    </div>
+                }
+                description={item.message}
+            />
+            <br/>
 
-                <div >
-                   <Input placeholder={"type your message here"} onPressEnter={this.onPressEnterHandler}>
-                   </Input>
+        </List.Item>)
+    }
 
-
+    render() {
+        return (
+            <div>
+                <h1>Chat</h1>
+                <div style={{overflow: 'auto', maxHeight: 400}}>
+                    <ReactList
+                        itemRenderer={this.renderItem}
+                        length={this.props.messageFeed.length}
+                        type='uniform'
+                    />
+                    <Input
+                        onChange={(e)=>this.setState({inputval:e.target.value})}
+                        value={this.state.inputval}
+                        placeholder={"type your message here"}
+                        onPressEnter={this.onPressEnterHandler}
+                    >
+                    </Input>
                 </div>
             </div>
         );

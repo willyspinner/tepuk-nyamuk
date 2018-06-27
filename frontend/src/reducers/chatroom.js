@@ -2,11 +2,23 @@ const chatReducer = (state= {main: [], room: []},action)=>{
     switch(action.type) {
         case 'RECV_MSG':
             if(action.message_obj.namespace === null){
+                /*
                 state.main.push(action.message_obj);
                 return state;
+                */
+                return {
+                    ...state,
+                    main: [...state.main,action.message_obj]
+                }
             }else {
+                /*
                 state.room.push(action.message_obj);
                 return state;
+                */
+                return {
+                    ...state,
+                    room: [...state.main,action.message_obj]
+                }
             }
         default:
             return state;

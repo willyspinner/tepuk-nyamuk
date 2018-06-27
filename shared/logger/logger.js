@@ -21,7 +21,7 @@ class WillyLogger {
             timestamp({
                 format: 'YYYY-MM-DD HH:mm:ss'
             }),
-            myFormat,
+            myFormat
         ),
         transports: [new transports.Console()]// NOTE: you can edit this should you want to output to a log file.
         });
