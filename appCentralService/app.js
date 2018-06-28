@@ -237,8 +237,8 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
             res.status(401).json({success: false, error: 'unauthorized.'});
             return;
         }
-        logger.info(`AppCS::app.js::delete game route`,` jwt signature verified`);
 
+        logger.info(`AppCS::app.js::delete game route`,` jwt signature verified`);
         console.log(`get game user id: ${req.params.gameid}`);
         db.getGame(req.params.gameid).then((game) => {
             if (!game){
@@ -249,9 +249,16 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                 return;
             }
             db.getUserSecrets(game.creator).then((creator) => {
-                if (creator.socketid === req.body.socketid &&
-                    creator.username === decoded.username) {
-                    logger.info(`AppCS::app.js::delete game route,`` credentials verified for deletion.`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`got user secrets : ${JSON.stringify(creator)}`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`trying to authenticate deleter...`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`creator.socketid : ${creator.socketid}`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`req.body.socketid : ${req.body.socketid}`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`creator.username: ${creator.username}`);
+                logger.info("DELETE /appcs/game/delete/:gameid",`decoded.username : ${decoded.username}`);
+                if(1 ==1 )
+                    logger.info("DELETE /appcs/game/delete/:gameid","indeed..");
+                if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
+                    logger.info(`AppCS::app.js::delete game route`,` credentials verified for deletion.`);
                     db.deleteGame(req.params.gameid).then(() => {
                         console.log(`AppCS::app.js::delete game route: emitting to main lobby...`);
                         io.emit(EVENTS.GAME_DELETED, {
@@ -266,17 +273,26 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                     }).catch((e) => {
                         res.status(500).json({
                             success: false,
+                            error:"here1"
                         })
+                    });
+                }else {
+                    res.status(401).json({
+                        success:false,
+                        error:"unauthorized."
                     });
                 }
             }).catch((e) => {
+                    logger.error("DELETE /appcs/game/delete/:gameid",`${JSON.stringify(e)}`)
                     res.status(500).json({
                         success: false,
+                        error:"here2 berdog"
                     })
                 });
         }).catch((e) => {
-                res.json({
+                res.status(500).json({
                     success: false,
+                    error:"here3"
                 })
             });
     });
@@ -360,7 +376,7 @@ app.get('/health', (req,res)=>{
 // we use our middleware to deal with JWT auth
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
-        console.log(`SOCKET verifying token ${socket.handshake.query.token}`);
+        logger.info(`socket.io authentication middleware`,`verifying token ${socket.handshake.query.token}`);
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err)
                 return next(new Error('WS Auth Error'));
@@ -368,7 +384,9 @@ io.use(function (socket, next) {
             socket.token = socket.handshake.query.token;//TODO: is this needed?
             db.loginUserSocketId(socket.username, socket.id).then(() => {
                 socket.sentMydata = true;
-                next();
+                 return next();
+            }).catch((e)=>{
+                return next(new Error("WS auth: Appcs internal DB error"));
             });
         })
     } else {

@@ -252,11 +252,17 @@ const self = module.exports = {
                 values: [username]
             };
             client.query(getuserfullquery,(err,res)=>{
-                if(err)
+                if(err){
+                    logger.error("db::getUserSecrets",`rejecting getUserSecrets..... reject error :${JSON.stringify(err)}`)
                     reject(err);
+                    return;
+                }
                 logger.info('db.js::getUserSecrets()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
 
-                resolve(res.rows.length === 0? undefined: res.rows[0]);
+                const toberes = !res.rows || res.rows.length ===0 ? undefined: res.rows[0];
+                logger.info("db.js::getUserSecrets()",`resolving with : ${JSON.stringify(toberes)}`)
+                resolve(toberes);
+               // resolve(!res.rows || res.rows.length === 0? undefined: res.rows[0]);
             })
         })
     },
