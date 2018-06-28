@@ -38,7 +38,7 @@ class MainPage extends Component {
         return {success: true}
     }
     connectToGameUpdates= () =>{
-        const connectionStr = "http://localhost:3000"//TODO: hard coding here.
+        const connectionStr =`http://${process.env.APPCS_HOST}:${process.env.APPCS_PORT}`;
         this.state.socketclient.connect(connectionStr, this.props.user.token).then((socketid)=>{
             this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);

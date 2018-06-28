@@ -1,8 +1,8 @@
 // this creates the request object.
 const APPCS_PORT =3000;
-const ROOTURL = `http://localhost:${APPCS_PORT}`;
+//NOTE: process.env below works because we have defined it as a webpack DefinePlugin in webpack.config.js.
+const ROOTURL = process.env.APPCS_HOST ? `http://${process.env.APPCS_HOST}:${APPCS_PORT}`:`http://localhost:${APPCS_PORT}`//`http://localhost:${APPCS_PORT}`;
 export const NEWUSER= (username,password)=>{
-//TODO: for now this is ok, but later,
 // TODO process.env bindings so that we can do   "process.env.APPCS_PORT" etc.
     //TODO: OR, implement some sort of service discovery feature.
   const obj =  {
@@ -23,6 +23,8 @@ export const GETOPENGAMES= ()=>{
     }
 };
 export const LOGINUSER = (username,password)=>{
+    console.log(`process env :${JSON.stringify(process.env)} `)
+    console.log(`going to ${ROOTURL}/appcs/user/auth`);
     return   {
         url : `${ROOTURL}/appcs/user/auth`,
         form: {
@@ -45,7 +47,7 @@ export const CREATEGAME=(game,token)=>{
 };
 export const DELETEGAME= (gameid,token,socketid)=>{
     return {
-        url: `http://localhost:${APPCS_PORT}/appcs/game/delete/${gameid}`,
+        url: `${ROOTURL}/appcs/game/delete/${gameid}`,
         form: {
             socketid: socketid,
             token: token,

@@ -49,7 +49,17 @@ password
 app.post('/appcs/user/new', (req, res) => {
     db.getUser(req.body.username).then((user) => {
         if (!user) {
-            logger.info("POST /appcs/user/new",`password to /appcs/user/new : ${req.body.password}`);
+            logger.info("POST /appcs/user/new",`username & pw to /appcs/user/new :${req.body.username}, ${req.body.password}`);
+            //NOTEDIFF: ADded some safeguarding stuff here.
+            if (req.body.username === undefined || req.body.password === undefined){
+                res.status(404);
+                res.json({
+                    success: false,
+                    error: 'invalid details'
+                });
+                return ;
+            }
+            logger.warn("POST /appcs/user/new", "WENT HERE OH NO")
             const salt = bcrypt.genSaltSync(10);
             const userObj = {
                 username: req.body.username,
@@ -68,6 +78,7 @@ app.post('/appcs/user/new', (req, res) => {
                 res.json({
                     success: false
                 });
+                return;
             })
         } else
         // a user is already defined with that name
@@ -75,6 +86,7 @@ app.post('/appcs/user/new', (req, res) => {
                 success: false,
                 error: 'User already exists.'
             });
+            return;
     })
 });
 
@@ -89,6 +101,13 @@ POST BODY:
  */
 app.post('/appcs/user/auth', (req, res) => {
     console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
+    if(!req.body.username){
+        res.json({
+            success: false,
+            error: ` no such user ${req.body.username}`
+        });
+        return;
+    }
     db.getUserSecrets(req.body.username).then((user) => {
         if (!user){
             res.json({
@@ -203,12 +222,16 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
     console.log(`----- DELETE /appcs/game/delete/:gameid -----`);
     console.log(`AppCS::app.js::delete game route: deletion attempt of ${req.params.gameid}`);
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err)
+        if (err){
             res.json({success: false, error: 'unauthorized.'});
-        if(! uuidvalidate(req.params.gameid))
+            return;
+        }
+        if(! uuidvalidate(req.params.gameid)){
             res.json({
-               success:false,error: 'not vailid game id.'
+                success:false,error: 'not vailid game id.'
             });
+            return;
+        }
 
         console.log(`AppCS::app.js::delete game route: jwt signature verified`);
 
@@ -235,6 +258,7 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                         res.json({
                             success: true,
                         })
+                        return;
                     }).catch((e) => {
                         res.json({
                             success: false,

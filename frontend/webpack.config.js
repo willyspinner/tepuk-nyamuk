@@ -16,7 +16,13 @@ if (process.env.NODE_ENV ==='test' ){
 }
 */
 module.exports = (env) => {
-  console.log('env',env);
+  console.log('environment variables :',JSON.stringify(env));
+   if(!env)
+       throw new Error("env not defined.")
+    if(!env.APPCS_HOST)
+        throw new Error("env.APPCS_HOST not defined.")
+    if(!env.APPCS_PORT)
+        throw new Error("env.APPCS_PORT not defined.")
   const isProduction = env === 'production';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
@@ -86,6 +92,13 @@ return {
             'process.env.FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
             'process.env.FIREBASE_MESSAGING_SENDER_ID':JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID)
         })*/
+
+
+        // For appcs.
+        new webpack.DefinePlugin({
+            'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
+            'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
+        })
     ],
   devtool: isProduction? 'source-map':'inline-source-map',
   // source-map is good for production, but is slow to build.

@@ -68,6 +68,7 @@ export const startRemoveGame = (gameid) => {
                 DELETEGAME(gameid,getState().user.token, getState().user.socketid)
                 ,
                 (err,res,body)=>{
+                    console.log(`body : ${body}`);
                     const resobj = JSON.parse(body);
                     if(resobj.success)
                         resolve("ok");
