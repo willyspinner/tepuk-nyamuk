@@ -135,7 +135,8 @@ const self = module.exports = {
             client.query(deletequery,(err,res)=>{
                 if(err)
                     reject(err);
-               resolve(res);
+                else
+                   resolve(res);
             })
         });
     },
@@ -175,17 +176,20 @@ const self = module.exports = {
                 values: [gameId]
             };
             client.query(query,(err,res)=>{
-                if (err)
+                if (err){
+                    logger.warn("db::getGame(gameId)","rejecting promise...")
                     reject(err);
+                    return;
+                }
                 if(!res) {
                     console.log(`ERR RES UNDEFINED`);
                     
                     console.log(`query: ${JSON.stringify(query)}`);
-                    resolve(undefined);
+                    reject(undefined);
+                    return;
                 }
-               
-               console.log(`appCS::db::getGame: returning res.rows of length:  ${res.rows.length}`); 
-                resolve(res.rows.length ===0? undefined: res.rows[0]);
+               // Minor fix here to prevent crashes.
+                resolve(!res.rows || res.rows.length ===0? undefined: res.rows[0]);
             })
         });
     },

@@ -47,19 +47,16 @@ password
  */
 // there should be some client side validation on NON NULL name.
 app.post('/appcs/user/new', (req, res) => {
+    if (!req.body.username|| !req.body.password) {
+        res.status(404);
+        res.json({
+            success: false,
+            error: 'invalid details'
+        });
+        return;
+    }
     db.getUser(req.body.username).then((user) => {
-        if (!user) {
-            logger.info("POST /appcs/user/new",`username & pw to /appcs/user/new :${req.body.username}, ${req.body.password}`);
-            //NOTEDIFF: ADded some safeguarding stuff here.
-            if (req.body.username === undefined || req.body.password === undefined){
-                res.status(404);
-                res.json({
-                    success: false,
-                    error: 'invalid details'
-                });
-                return ;
-            }
-            logger.warn("POST /appcs/user/new", "WENT HERE OH NO")
+        if(!user){
             const salt = bcrypt.genSaltSync(10);
             const userObj = {
                 username: req.body.username,
@@ -78,7 +75,6 @@ app.post('/appcs/user/new', (req, res) => {
                 res.json({
                     success: false
                 });
-                return;
             })
         } else
         // a user is already defined with that name
@@ -86,8 +82,7 @@ app.post('/appcs/user/new', (req, res) => {
                 success: false,
                 error: 'User already exists.'
             });
-            return;
-    })
+    });
 });
 
 /*
@@ -131,7 +126,10 @@ app.post('/appcs/user/auth', (req, res) => {
                 token: null
             })
         }
+    }).catch((e)=>{
+        res.json({success:false});
     })
+
 })
 
 
@@ -158,7 +156,7 @@ app.get('/appcs/game', (req, res) => {
     }).catch((e) => {
         res.json({
             success: false,
-            error:e
+            error:JSON.stringify(e)
         })
     });
 });
@@ -218,18 +216,19 @@ POST body:
 TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
-    console.log(``);
-    console.log(`----- DELETE /appcs/game/delete/:gameid -----`);
-    console.log(`AppCS::app.js::delete game route: deletion attempt of ${req.params.gameid}`);
+    if(!req.body.token || !req.body.socketid ){
+        res.json({success:false});
+        return;
+    }
+    if(! uuidvalidate(req.params.gameid)){
+        res.json({
+            success:false,error: 'invalid game id.'
+        });
+        return;
+    }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err){
             res.json({success: false, error: 'unauthorized.'});
-            return;
-        }
-        if(! uuidvalidate(req.params.gameid)){
-            res.json({
-                success:false,error: 'not vailid game id.'
-            });
             return;
         }
 
@@ -251,22 +250,28 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: req.params.gameid
                         });
-
                         io
                             .to(req.params.gameid)
                             .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
                         res.json({
                             success: true,
                         })
-                        return;
                     }).catch((e) => {
                         res.json({
                             success: false,
                         })
                     });
                 }
-            })
-        });
+            }).catch((e) => {
+                    res.json({
+                        success: false,
+                    })
+                });
+        }).catch((e) => {
+                res.json({
+                    success: false,
+                })
+            });
     });
 });
 
@@ -285,15 +290,25 @@ POST body:
  */
 
 app.post('/appcs/game/start/:gameid', (req, res) => {
+    if(!req.body.token ||!req.body.socketid){
+        res.json({
+            success:false,
+            error:"invalid details."
+        })
+        return;
+    }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err)
+        if (err){
             res.json({
                 success: false,
                 error: 'Unauthorized.'
             });
+            return;
+        }
+        logger.info('POST /appcs/game/start/:gameid', `decoded jwt token: ${JSON.stringify(decoded)}`);
         db.getGame(req.params.gameid).then((game) => {
             db.getUserSecrets(game.creator).then((creator) => {
-                if (creator.socketid === req.body.socketid) {
+                if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
                     //TODO: communicate with GMS.
                     //TODO send all the sockets the JWT to access our GMS game room.
                     //TODO
@@ -308,7 +323,15 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                     res.json({
                         success: false
                     });
+            }).catch((e)=>{
+                res.json({
+                    success:false
+                })
             });
+        }).catch((e)=>{
+            res.json({
+                success:false
+            })
         });
     })
 });
