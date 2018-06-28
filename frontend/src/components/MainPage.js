@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {startCreateGame, startJoinGame} from "../actions/games";
+import {startCreateGame, startJoinGame, startLeaveGame} from "../actions/games";
 import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
 import {receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
@@ -82,13 +82,22 @@ class MainPage extends Component {
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username )).then((/*empty resolve arg*/) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,()=>{},()=>{} )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e)=>alert(JSON.stringify(e)));
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username)).then((playersInLobby) => {
+        const onGameStart =()=>{
+
+        }
+        const onGameDeleted= (gameuuid)=>{
+            this.props.dispatch(startLeaveGame(gameuuid,this.props.user.username))
+                .then(() => {
+                    this.props.history.push('/');
+                })
+        }
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,onGameStart,onGameDeleted)).then((playersInLobby) => {
             playersInLobby.forEach((player)=>{
                 this.props.dispatch(joinGame(gameId,player))
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence

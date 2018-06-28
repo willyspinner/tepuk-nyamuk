@@ -66,7 +66,7 @@ class SocketClient {
                         console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_DELETED.`);
                         this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
                             console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameDeleted`);
-                            onLobbyGameDeleted();
+                            onLobbyGameDeleted(gameid);
                         });
                         console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_START.`);
                         this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
