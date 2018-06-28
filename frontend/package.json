@@ -56,6 +56,7 @@
     "build:prod": "webpack -p  --env production",
     "serve": "node server/server.js",
     "dev-server": "webpack-dev-server --mode development",
+    "dev-server-local": "if [[ $(uname -s) == \"Darwin\" ]]; then ipaddr=\"$(ipconfig getifaddr en0)\"; else ipaddr=\"$(hostname -I | awk '{print $1}')\"; fi; echo \"serving dev server on $ipaddr...\"; webpack-dev-server --mode development --host \"$ipaddr\"",
     "jest": "cross-env NODE_ENV=test jest --config=jest.config.json",
     "jest-clean": "jest --config=jest.config.json -u",
     "start": "node server/server.js",
