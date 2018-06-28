@@ -48,8 +48,7 @@ password
 // there should be some client side validation on NON NULL name.
 app.post('/appcs/user/new', (req, res) => {
     if (!req.body.username|| !req.body.password) {
-        res.status(404);
-        res.json({
+        res.status(400).json({
             success: false,
             error: 'invalid details'
         });
@@ -67,18 +66,18 @@ app.post('/appcs/user/new', (req, res) => {
                     process.env.AUTH_TOKEN_SECRET, {
                         expiresIn: 43200 // secs, so 12 hours.
                     });
-                res.status(200).json({
+                res.status(201).json({
                     success: true,
                     token: token
                 })
             }).catch((e) => {
-                res.json({
+                res.status(500).json({
                     success: false
                 });
             })
         } else
         // a user is already defined with that name
-            res.json({
+            res.status(403).json({
                 success: false,
                 error: 'User already exists.'
             });
@@ -97,17 +96,17 @@ POST BODY:
 app.post('/appcs/user/auth', (req, res) => {
     console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
     if(!req.body.username){
-        res.json({
+        res.status(400).json({
             success: false,
-            error: ` no such user ${req.body.username}`
+            error: `invalid request.`
         });
         return;
     }
     db.getUserSecrets(req.body.username).then((user) => {
         if (!user){
-            res.json({
+            res.status(403).json({
                 success: false,
-                error: ` no such user ${req.body.username}`
+                error: ` no such user: ${req.body.username}.`
             });
             return;
         }
@@ -127,7 +126,7 @@ app.post('/appcs/user/auth', (req, res) => {
             })
         }
     }).catch((e)=>{
-        res.json({success:false});
+        res.status(500).json({success:false});
     })
 
 })
@@ -145,16 +144,15 @@ TESTED . OK.
  */
 
 app.get('/appcs/game', (req, res) => {
-    
     console.log(` appCS::app.js: querying open games...`);
     db.queryOpenGames().then((games) => {
         console.log(`responding with games: ${JSON.stringify(games)}`);
-        res.json({
+        res.status(200).json({
             success: true,
             games
         });
     }).catch((e) => {
-        res.json({
+        res.status(500).json({
             success: false,
             error:JSON.stringify(e)
         })
@@ -175,9 +173,16 @@ POST body:
  */
 app.post('/appcs/game/create', (req, res) => {
     // the creator information is here already. (inside req.body.game object).
+    if(!req.body.token || !req.body.game){
+        res.status(400).json({
+            success:false,
+            error:"Bad request."
+        });
+        return;
+    }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err){
-            res.json({
+            res.status(401).json({
                 success: false,
                 error: 'NOT AUTHENTICATED.'
             });
@@ -190,13 +195,13 @@ app.post('/appcs/game/create', (req, res) => {
             io.emit(EVENTS.GAME_CREATED, {
                 game: newgame
             });
-            res.json({
+            res.status(200).json({
                 success: true,
                 game: newgame
             })
         }).catch((e) => {
-            res.json({
-                success: false,
+            res.status(500).json({
+                success: false
             })
         });
     })
@@ -217,35 +222,37 @@ TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
     if(!req.body.token || !req.body.socketid ){
-        res.json({success:false});
+        res.status(400).json({success:false});
         return;
     }
     if(! uuidvalidate(req.params.gameid)){
-        res.json({
-            success:false,error: 'invalid game id.'
+        res.status(400).json({
+            success:false,
+            error: 'invalid game id.'
         });
         return;
     }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err){
-            res.json({success: false, error: 'unauthorized.'});
+            res.status(401).json({success: false, error: 'unauthorized.'});
             return;
         }
-
-        console.log(`AppCS::app.js::delete game route: jwt signature verified`);
+        logger.info(`AppCS::app.js::delete game route`,` jwt signature verified`);
 
         console.log(`get game user id: ${req.params.gameid}`);
         db.getGame(req.params.gameid).then((game) => {
-
-            console.log(`AppCS::app.js::delete game route: got game secrets: ${JSON.stringify(game)}`);
-            console.log(`AppCS::app.js::delete game route: determining socketid...`);
+            if (!game){
+                res.status(404).json({
+                    success:false,
+                    error:"no such game."
+                });
+                return;
+            }
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid &&
                     creator.username === decoded.username) {
-                    
-                    console.log(`AppCS::app.js::delete game route: credentials verified. `);
+                    logger.info(`AppCS::app.js::delete game route,`` credentials verified for deletion.`);
                     db.deleteGame(req.params.gameid).then(() => {
-                        
                         console.log(`AppCS::app.js::delete game route: emitting to main lobby...`);
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: req.params.gameid
@@ -253,17 +260,17 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                         io
                             .to(req.params.gameid)
                             .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
-                        res.json({
+                        res.status(200).json({
                             success: true,
                         })
                     }).catch((e) => {
-                        res.json({
+                        res.status(500).json({
                             success: false,
                         })
                     });
                 }
             }).catch((e) => {
-                    res.json({
+                    res.status(500).json({
                         success: false,
                     })
                 });
@@ -291,7 +298,7 @@ POST body:
 
 app.post('/appcs/game/start/:gameid', (req, res) => {
     if(!req.body.token ||!req.body.socketid){
-        res.json({
+        res.status(400).json({
             success:false,
             error:"invalid details."
         })
@@ -299,14 +306,21 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
     }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
         if (err){
-            res.json({
+            res.status(401).json({
                 success: false,
-                error: 'Unauthorized.'
+                error: 'Invalid token.'
             });
             return;
         }
         logger.info('POST /appcs/game/start/:gameid', `decoded jwt token: ${JSON.stringify(decoded)}`);
         db.getGame(req.params.gameid).then((game) => {
+            if(!game){
+                res.status(404).json({
+                    success:false,
+                    error:"no such game."
+                });
+                return;
+            }
             db.getUserSecrets(game.creator).then((creator) => {
                 if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
                     //TODO: communicate with GMS.
@@ -315,21 +329,21 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                     io
                         .to(req.params.gameid)
                         .emit(EVENTS.LOBBY.GAME_START);
-                    res.json({
+                    res.status(200).json({
                         success: true
                     });
                 }
                 else
-                    res.json({
+                    res.status(401).json({
                         success: false
                     });
             }).catch((e)=>{
-                res.json({
+                res.status(500).json({
                     success:false
                 })
             });
         }).catch((e)=>{
-            res.json({
+            res.status(500).json({
                 success:false
             })
         });
@@ -340,7 +354,7 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 // health check
 
 app.get('/health', (req,res)=>{
-    res.json({status:"ok"});
+    res.status(200).json({status:"ok"});
 })
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth
