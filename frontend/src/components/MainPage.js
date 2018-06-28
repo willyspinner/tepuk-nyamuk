@@ -27,7 +27,9 @@ class MainPage extends Component {
     constructor(props){
         super(props);
     }
-
+    componentDidMount(){
+        Modal.setAppElement('#app');
+    }
     validateInput = () => {
         if (this.state.inputusername === '')
             return {success: false, error: "name can't be empty"};
@@ -176,7 +178,7 @@ class MainPage extends Component {
                 isOpen={this.state.isCreatingGame}
                 onRequestClose={()=>this.setState({isCreatingGame:false})}
                 className="mainPage__createGameModal"
-                ariaHideApp={true}
+                ariaHideApp={false}
             >
                 <CreateGameForm
                     onGameFormSubmit={this.onGameCreateHandler}
@@ -188,7 +190,7 @@ class MainPage extends Component {
                 contentLabel="Welcome"
                 isOpen={!this.props.user.username}
                 className="mainPage__registerModal"
-                ariaHideApp={true}
+                ariaHideApp={false}
             >
                 <h2
                     style={{marginTop: "20px"}}
@@ -270,6 +272,7 @@ class MainPage extends Component {
         const tutorialModal = (
             <Modal
                 isOpen={true}
+                ariaHideApp={false}
             >
                 <GamePlayTutorial
                     tutorialLevel={3}
