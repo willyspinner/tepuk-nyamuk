@@ -45,8 +45,6 @@ class GameLobbyPage extends Component {
     }
     };
     onGameStartHandler= () => {
-        //TODO: this needs to be run by some redux update caused by ws.
-        //TEST
         this.setState({isStartingGame:true}, ()=> {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
             this.props.history.push(`/game/play/${this.state.uuid}`);

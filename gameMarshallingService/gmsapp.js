@@ -221,7 +221,7 @@ io.use(function (socket, next) {
                                             match: false,
                                             piletop: poppedcard, // next top of pile.
                                             nextplayer: nextcounter.nextplayer,
-                                            counter: nextcounter.nextcounter
+                                            counter: nextcounter.nextcounter,
                                             playerthrew : username
                                         });
                                         response({

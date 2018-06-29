@@ -95,20 +95,12 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted) => {
         const onUserJoin = (other_user)=>{
           /* onUserJoin  (when someone joins.*/
             console.log(`${other_user} joined.`);
-                /* TODO @ 19 Jun 2018: Dispatch a redux action showing that
-                                someone Joined here. (to update our feed)
-                 */
-                //TODO @ 19 Jun 2018: is it this:
             reduxDispatch(joinGame(uuid,other_user));
 
         };
           const onUserLeft=  (other_user)=>{
                 /* onUserLeft - (when someone leaves).*/
                 console.log(`${other_user} left .`);
-                /* TODO @ 19 Jun 2018: Dispatch a redux action showing that
-                                someone left here.
-                 */
-                //TODO @ 19 Jun 2018: is it this:
                 reduxDispatch(leaveGame(uuid,other_user));
             };
 
@@ -145,11 +137,12 @@ export const startLeaveGame = (uuid,username) => {
             const onFailLeave = ()=>{
                 reject();
             };
+
+
             mysocket.unsubscribeFromLobby({username: username, gameid: uuid},
                 onSuccessLeave,
                 onFailLeave);
         });
-        //TODO:
 
 
     }

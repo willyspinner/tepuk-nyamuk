@@ -5,8 +5,7 @@ const { createLogger, format, transports ,addColors} = require('winston');
 const { combine, timestamp,printf } = format;
 
 const myFormat = printf(info => {
-    //return `${JSON.stringify(info)}`
-    return `${info.timestamp} @ ${info.service} @ [${info.location}] ${info.level}: ${info.message}`;
+    return `${info.timestamp} ${info.service} [${info.level}] @ <${info.location}> : ${info.message}`;
 });
 
 

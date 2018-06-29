@@ -1,5 +1,4 @@
 const express = require('express');
-const reload = require('reload');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
@@ -8,7 +7,6 @@ const app = express();
 const io = require('socket.io')();
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
-
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
 const logger = require('./log/appcs_logger');
@@ -374,7 +372,7 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 
 // health check
 app.get('/health', (req,res)=>{
-    logger.info("GET /health","Consul health checkup...");
+    logger.info("app.js: GET /health","Consul health checkup...");
     res.status(200).json({status:"ok"});
 })
 // WS routes: authenticated
@@ -530,5 +528,3 @@ io.use(function (socket, next) {
 
 });
 
-
-reload(app);

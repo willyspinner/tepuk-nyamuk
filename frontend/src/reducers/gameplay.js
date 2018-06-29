@@ -1,4 +1,3 @@
-//TODO: make reducer for gameplay (interaction with GMS)
 
 const gameplayReducer = (state= {},action)=>{
     switch(action.type){
