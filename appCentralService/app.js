@@ -373,7 +373,7 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 // health check
 app.get('/health', (req,res)=>{
     logger.info("app.js: GET /health","Consul health checkup...");
-    res.status(200).json({status:"ok"});
+    res.sendStatus(200);
 })
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth

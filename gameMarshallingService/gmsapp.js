@@ -3,6 +3,7 @@ const redisdb = require('./db/redisdb');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const logger = require('./log/gms_logger');
 const app = express();
 const io = require('socket.io')();
 const uuidvalidate = require('uuid-validate');
@@ -15,10 +16,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 const server = app.listen(app.get('port'));
-
-console.log(`GMS listening on ${app.get('port')}`);
 io.attach(server);
 
+logger.info('app.js initialize',`GMS listening on ${app.get('port')}`);
 
 /*
 POST /gms/game/create: posted to GMS from appcs to create game
@@ -35,6 +35,11 @@ returns the following as json response (To appcs):
     gamesecret: "109rh2pqiwnaklwdmaw" // secret used to join room
 }
  */
+
+app.get('/health',(req,res)=>{
+    logger.info('app.js: GET /health','consul health check.');
+    res.sendStatus(200);
+})
 app.post('/gms/game/create', (req, res) => {
     if (!uuidvalidate(req.body.gameid))
         res.json({
