@@ -6,7 +6,6 @@ const dbconstants = require ('./schema/dbconstants');
 const uuid = require('uuid');
 const logger = require('../log/appcs_logger');
 const connectionobject = {
-
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
@@ -15,12 +14,14 @@ const connectionobject = {
 };
 //NOTE: the db here is dumb. There should be NO VALIDATION LOGIC AT ALL
 // HERE.
-console.log(`DB connecting to postgres with : ${JSON.stringify(connectionobject)}`);
+logger.info('db.js: initial connection',`DB connecting to postgres with : ${JSON.stringify(connectionobject)}`);
 const client = new Client(
     connectionobject
 );
 client.connect();
- // self = <- this is for singleton.
+
+logger.info('db.js: initial connection',`connection successful`);
+
 const self = module.exports = {
     // POSTGRES implementation
     initTables: ()=>{
@@ -70,8 +71,8 @@ const self = module.exports = {
                     gameObj.creator // creator
                 ]
             };
-            console.log(`PG text: ${queryObj.text}`);
-            console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
+            //console.log(`PG text: ${queryObj.text}`);
+            //console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
                 if(err)
                     reject(err);
@@ -221,7 +222,7 @@ const self = module.exports = {
             client.query(getuserquery,(err,res)=>{
                 if(err)
                     reject(err);
-                console.log(`get users res.rows :  ${JSON.stringify(res.rows)}`);
+                logger.info('db.js::getUser()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
                 
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
             })
@@ -273,7 +274,7 @@ const self = module.exports = {
               +`${fields.USERS.USERNAME} = $1;`,
                 values: [username]
             };
-            console.log(`trying to deleting user ${JSON.stringify(deleteuserquery)}`);
+            logger.info(`db.js::deleteUser()`,`trying to deleting user ${JSON.stringify(deleteuserquery)}`);
             client.query(deleteuserquery,(err,res)=>{
                 if(err){
                     reject(err);
@@ -308,7 +309,7 @@ const self = module.exports = {
                     `SET ${fields.GAMES.PLAYERS} = array_append(${fields.GAMES.PLAYERS}, $1) `+
                     `WHERE ${fields.GAMES.UUID} = $2;`,
                     values: [username, gameId]
-                } ;
+                };
                 client.query(updateGamesTableQuery, (err, res) => {
                     if (shouldAbort(err)){
                         reject(err);

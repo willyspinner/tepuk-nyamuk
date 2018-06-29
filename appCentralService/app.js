@@ -8,14 +8,19 @@ const app = express();
 const io = require('socket.io')();
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
+
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
-const logger = require ('./log/appcs_logger');
+const logger = require('./log/appcs_logger');
 // appcs environment var.
 
 // constants
-app.set('port', process.env.PORT || 3000);
 
+if (process.env.APPCS_PORT){
+    app.set('port',process.env.APPCS_PORT);
+}else{
+    app.set('port', process.env.PORT || 3000);
+}
 // body parser
 const bodyParser = require('body-parser')
 app.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -26,8 +31,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 // server listening.
 const server = app.listen(app.get('port'));
 
-logger.info(null,`app listening on ${app.get('port')}`);
 io.attach(server);
+logger.info('app.js',`app listening on ${app.get('port')}`);
 
 app.use(function(req, res, next) {
     //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
@@ -368,8 +373,8 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 
 
 // health check
-
 app.get('/health', (req,res)=>{
+    logger.info("GET /health","Consul health checkup...");
     res.status(200).json({status:"ok"});
 })
 // WS routes: authenticated
