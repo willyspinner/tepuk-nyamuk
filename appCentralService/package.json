@@ -4,7 +4,7 @@
   "description": "central service for tepuk nyamuk app",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-coverage":"nyc mocha tests/*.test.js"
   },
   "author": "willyspinner (wilson jusuf)",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "jsonwebtoken": "^8.2.1",
     "mocha": "^5.1.1",
     "moment": "^2.22.2",
+    "nyc": "^12.0.2",
     "pg": "^7.4.2",
     "request": "^2.85.0",
     "socket.io": "^2.1.0",
