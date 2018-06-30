@@ -5,6 +5,7 @@ import ReactLoading from 'react-loading';
 import {startLeaveGame,startRemoveGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
 import {sampleChatRoomFeed} from "../constants/sampleData";
+import {startSendMessage} from "../actions/chatroom";
 class GameLobbyPage extends Component {
     constructor(props){
         super(props);
@@ -86,7 +87,8 @@ class GameLobbyPage extends Component {
                 <h3>Waiting for {this.state.game.creator} to start the game...</h3>
 
                 <ChatRoom
-                    messageFeed={sampleChatRoomFeed}
+                    messageFeed={this.props.roomchat}
+                    onMessageSend={ (msg)=>this.props.dispatch(startSendMessage(msg,this.state.game.uuid))}
                 />
                 {
                     //TEMPDIS
@@ -104,7 +106,8 @@ class GameLobbyPage extends Component {
 }
 const mapStateToProps = (state)=>({
         games: state.games,
-    user: state.user
+    user: state.user,
+    roomchat: state.chat.room
     });
 
 export default connect (mapStateToProps)(GameLobbyPage);

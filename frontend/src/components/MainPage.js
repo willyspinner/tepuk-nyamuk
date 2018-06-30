@@ -169,7 +169,7 @@ class MainPage extends Component {
     }
 
     onChatMessageSendHandler = (msg)=>{
-        this.props.dispatch(startSendMessage(msg));
+        this.props.dispatch(startSendMessage(msg,null));
     }
     render() {
         const createGameModal = (

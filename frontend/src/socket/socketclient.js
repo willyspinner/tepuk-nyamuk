@@ -5,6 +5,7 @@ const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
     connect(connectionStr, token){
+        this.token = token;
         let thatsocket = this.mysocket;
         return new Promise((resolve,reject)=>{
             console.log(`in connect method of SocketClient... trying to connect socket ;..`);
@@ -49,7 +50,7 @@ class SocketClient {
     }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted){
         return new Promise((resolve,reject)=>{
-            this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid},
+            this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid, token : this.token},
                 (ackResponse)=>{
                     if(ackResponse.msg === EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
 

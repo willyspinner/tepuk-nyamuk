@@ -1,6 +1,6 @@
 import mysocket from '../socket/socketclient';
 
-export const startSendMessage = (msg) => {
+export const startSendMessage = (msg,namespace) => {
     //NOTE: any variables that isn't changed directly by us (i.e. in redux state)
     // should NOT be put as an argument. we should instead put it here instead.
     //NOTE: this one calls receiveGlobalMessage as to update who sent it.
@@ -10,7 +10,7 @@ export const startSendMessage = (msg) => {
               sender_username: getState().user.username,
                 //TODO: HOW TO DO NAMESPACE?
                 //TEMPDIS: Put main namespace for now.
-              namespace: null//getState().user.gameid,
+              namespace //getState().user.gameid,
             };
            mysocket.sendChatMessage(messageObj);
     }
