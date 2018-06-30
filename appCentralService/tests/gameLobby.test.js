@@ -73,7 +73,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
     });
 
     it('should be able to join a lobby and socket "rooms" should be changed.',function(done){
-        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'willyboomboom',gameid:this.newgameuuid }, (result)=>{
+        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'willyboomboom',gameid:this.newgameuuid, token  : this.token}, (result)=>{
             console.log(`attempt join emitted. in callback.`);
             this.socket.emit(EVENTS.UTILS.CHECK_ROOM,null,(joinedrooms)=>{
                 console.log(`this game's uuid (room name) : ${this.newgameuuid}`);
@@ -85,7 +85,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
     });
     it('shouldnt be able to join again when already joined a room, or if ' +
         'mal-formed request.',function(done){
-        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'willyboomboom',gameid:this.newgameuuid }, (result)=>{
+        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'willyboomboom',gameid:this.newgameuuid, token : this.token }, (result)=>{
             // willyboomboom already in.
             assert.equal(result,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
             this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username:'mallory',gameid:"a15ca4cd-df43-4928-zz33-525c75fae103"},(result2)=>{
@@ -179,9 +179,9 @@ describe('gameLobby.test: Lobby chat ',function (){
     });
     beforeEach(function(done){
 
-        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willyboomboom',gameid: this.newgameuuid}, (result)=>{
+        this.socket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willyboomboom',gameid: this.newgameuuid, token :this.token }, (result)=>{
             assert.equal(result.msg,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK );
-            this.socket2.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willywonka',gameid: this.newgameuuid},(result2)=>{
+            this.socket2.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username: 'willywonka',gameid: this.newgameuuid,token : this.token2},(result2)=>{
                 assert.equal(result2.msg,EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK );
                 done();
 

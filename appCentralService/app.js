@@ -415,14 +415,16 @@ io.use(function (socket, next) {
     WS player Join game lobby (room)
     TODO: this socket route here is very costly (expensive).
     TODO: should be a way to make this more efficient.
-
-    TODO: also, there is a way of impersonation here. Be careful.
-    TODO: FIX THIS ^^
      */
     socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data,response) => {
+        jwt.verify(data.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+            if (err){
+                response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                return;
+            }
         const clientUsername = data.username;
         const roomName = data.gameid;
-        if(socket.username !== clientUsername){
+        if(socket.username !== clientUsername || clientUsername !== decoded.username){
             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
             return;
         }
@@ -467,6 +469,7 @@ io.use(function (socket, next) {
             }
         }).catch((e)=>{
             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+        });
         });
     });
 
