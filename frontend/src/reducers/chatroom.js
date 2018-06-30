@@ -17,7 +17,7 @@ const chatReducer = (state= {main: [], room: []},action)=>{
                 */
                 return {
                     ...state,
-                    room: [...state.main,action.message_obj]
+                    room: [...state.room,action.message_obj]
                 }
             }
         default:

@@ -88,7 +88,8 @@ class GameLobbyPage extends Component {
 
                 <ChatRoom
                     messageFeed={this.props.roomchat}
-                    onMessageSend={ (msg)=>this.props.dispatch(startSendMessage(msg,this.state.game.uuid))}
+                    namespace={this.props.match.params.uuid}
+                    onMessageSend={ (msg)=>this.props.dispatch(startSendMessage(msg,this.props.match.params.uuid))}
                 />
                 {
                     //TEMPDIS

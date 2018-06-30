@@ -314,6 +314,7 @@ class MainPage extends Component {
                 <h2>Chatroom</h2>
                 <ChatRoom
                     messageFeed={this.props.mainchat}
+                    namespace={null}
                     onMessageSend={this.onChatMessageSendHandler}
                 />
                 Don't know how to play? Do a tutorial below.

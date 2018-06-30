@@ -36,6 +36,9 @@ class ChatRoom extends Component {
     }
     renderItem = (index, key) =>{
         const item = this.props.messageFeed[index];
+        if (item.namespace !== this.props.namespace){
+            return null;
+        }
         return (
             <div key={key}>
                 <h3>
