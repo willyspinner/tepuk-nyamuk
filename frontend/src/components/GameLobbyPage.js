@@ -87,7 +87,7 @@ class GameLobbyPage extends Component {
                     <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
                     <h3>Waiting for {this.state.game.creator} to start the game...</h3>
                 </div>
-                <div style={{width:'30%'}}>
+                <div style={{width:'35%',paddingRight:'10px'}}>
                     <h2>Game Lobby Chat</h2>
                 <ChatRoom
                     messageFeed={this.props.roomchat}

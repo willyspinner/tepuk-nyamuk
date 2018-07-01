@@ -49,16 +49,17 @@ class ChatRoom extends Component {
         if (item.namespace !== this.props.namespace){
             return null;
         }
+        const isMe = item.sender_username === this.props.username;
         return (
             <div key={key} style={{marginTop:'3px',marginBottom:'3px'}}>
-                <div style={{background:item.sender_username === this.props.username?'#a4d12a':'#49adff', borderRadius: '18px'}}>
-                <div style={{paddingTop:'8px',display:'flex',flexDirection:'row',lineHeight:'0px'}}>
+                <div style={{background:isMe?'#a4d12a':'#49adff', borderRadius: '18px'}}>
+                <div style={{paddingTop:'8px',display:'flex',flexDirection: isMe? 'row-reverse':'row',lineHeight:'0px'}}>
                     <div>
-                        <p style={{marginLeft:'10px',color:'white'}}>
+                        <p style={{...isMe?{marginRight: '10px'}:{marginLeft:'10px'},color:'white'}}>
                             {item.sender_username}
                         </p>
                     </div>
-                    <div style={{marginLeft:'5px',wordWrap:'normal',display:'block',  wordBreak: 'break-all', whiteSpace:'normal'}}>
+                    <div style={{...isMe? {marginRight:'5px'}:{marginLeft:'5px'},wordWrap:'normal',display:'block',  wordBreak: 'break-all', whiteSpace:'normal'}}>
                             {item.message}
                     </div>
                 </div>
