@@ -4,7 +4,7 @@ import EVENTS from '../../../appCentralService/constants/socketEvents';
 const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
-    connect(connectionStr, token){
+    connect(connectionStr, token,extraquery){
         this.token = token;
         let thatsocket = this.mysocket;
         return new Promise((resolve,reject)=>{
@@ -14,7 +14,8 @@ class SocketClient {
 
             thatsocket =  ioclient(`${connectionStr}`,{
                     query: {
-                        token:token
+                        token:token,
+                        ...extraquery
                     }
                 }
             );
@@ -53,27 +54,22 @@ class SocketClient {
             this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid, token : this.token},
                 (ackResponse)=>{
                     if(ackResponse.msg === EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
-
-                        console.log(`frontend::socketclient::subscribeToLobby. Registering USER_JOINED.`);
                         this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
-                            console.log(`frontend::socketclient::subscribeToLobby. Called onUserJoin`);
                             onUserJoin(username);
                         });
-                        console.log(`frontend::socketclient::subscribeToLobby. Registering USER_LEFT.`);
                         this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
-                            console.log(`frontend::socketclient::subscribeToLobby. Called onUserLeave`);
                             onUserLeave(username);
                         });
-                        console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_DELETED.`);
                         this.mysocket.on(EVENTS.LOBBY.LOBBY_GAME_DELETED,()=>{
-                            console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameDeleted`);
                             onLobbyGameDeleted(gameid);
                         });
-                        console.log(`frontend::socketclient::subscribeToLobby. Registering GAME_START.`);
                         this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
-                            console.log(`frontend::socketclient::subscribeToLobby. Called onLobbyGameStart.`);
-                            //TODO: establish GMS connection here...
-                            onLobbyGameStart();
+                            this.mysocket.close();
+                            this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
+                                {gamesecret: gameStartObj.gamesecret, username: username}
+                                ).then(()=>{
+                                onLobbyGameStart(gameStartObj);
+                            });
                         });
                         resolve(ackResponse.players);
                     }else{

@@ -24,9 +24,6 @@ class MainPage extends Component {
         isCreatingGame: false,
         socketclient: SocketClient
     }
-    constructor(props){
-        super(props);
-    }
     componentDidMount(){
         Modal.setAppElement('#app');
     }
@@ -84,7 +81,12 @@ class MainPage extends Component {
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username,()=>{},()=>{} )).then((/*empty resolve arg*/) => {
+
+        const onGameStart=(gameStartObj) => {
+            // go to gameplay site.
+            this.props.history.push('TODO TODO')
+        }
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,onGameStart,()=>{} )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e)=>{
             alert(JSON.stringify(e))

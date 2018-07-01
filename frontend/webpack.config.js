@@ -23,6 +23,10 @@ module.exports = (env) => {
         throw new Error("env.APPCS_HOST not defined.")
     if(!env.APPCS_PORT)
         throw new Error("env.APPCS_PORT not defined.")
+    if(!env.GMS_HOST)
+        throw new Error("env.GMS_HOST not defined.")
+    if(!env.GMS_PORT)
+        throw new Error("env.GMS_PORT not defined.")
   const isProduction = env === 'production';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
@@ -98,6 +102,8 @@ return {
         new webpack.DefinePlugin({
             'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
             'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
+            'process.env.GMS_HOST':JSON.stringify(env.GMS_HOST),
+            'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT)
         })
     ],
   devtool: isProduction? 'source-map':'inline-source-map',
