@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
-import {List,Avatar,Input,Button} from 'antd'
+import {Input} from 'antd'
 import {DATE_FORMAT} from "../../constants/dates";
 import moment from 'moment';
-import ReactList from 'react-list';
 /*
 PROPS:
 messageFeed : array of timestamped messages
@@ -24,7 +23,18 @@ class ChatRoom extends Component {
     constructor(props){
         super(props);
     }
+    scrollToBottom = () => {
+        if(this.messageEnd)
+        this.messageEnd.scrollIntoView({ behavior: "smooth" });
+    }
 
+    componentDidMount() {
+        this.scrollToBottom();
+    }
+
+    componentDidUpdate() {
+        this.scrollToBottom();
+    }
     state = {inputval : ''};
     onPressEnterHandler = (e) => {
         if (e.target.value !== "") {
@@ -39,11 +49,9 @@ class ChatRoom extends Component {
         if (item.namespace !== this.props.namespace){
             return null;
         }
-        //TODO: style other people's messages vs MY messages differently!
-        // TODO: makes for a nice visual effect. Maybe lighter blue shade for other ppl?
         return (
             <div key={key} style={{marginTop:'3px',marginBottom:'3px'}}>
-                <div style={{background:'#49adff', borderRadius: '18px'}}>
+                <div style={{background:item.sender_username === this.props.username?'#a4d12a':'#49adff', borderRadius: '18px'}}>
                 <div style={{paddingTop:'8px',display:'flex',flexDirection:'row',lineHeight:'0px'}}>
                     <div>
                         <p style={{marginLeft:'10px',color:'white'}}>
@@ -63,19 +71,23 @@ class ChatRoom extends Component {
     }
 
     render() {
-        if(this.reffy)
-            this.reffy.scrollTo(this.reffy.getVisibleRange()[1] );
         return (
             <div>
             <div style={{height : 250, display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                {this.props.messageFeed.length ===0 ?
+                    (<p style={{color:'grey'}}> Chat with {this.props.namespace === null? 'everyone': 'people in the lobby'} here!</p>
+              ):
                 <div style={{overflow: 'auto'}}>
-                    <ReactList
-                        itemRenderer={this.renderItem}
-                        length={this.props.messageFeed.length}
-                        type='uniform'
-                        ref={ref=>{this.reffy = ref;}}
-                    />
+                    {this.props.messageFeed.map((msg,index)=>{
+                        return this.renderItem(index,index);
+                    })}
+
+                    <div
+                        ref={el => { this.messageEnd = el; }}
+                    >
+                    </div>
                 </div>
+            }
             </div>
 
                 <Input

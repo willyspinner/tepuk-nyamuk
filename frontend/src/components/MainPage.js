@@ -86,7 +86,10 @@ class MainPage extends Component {
         // onGameJoinHandler needs to populate the game with the players .
         this.props.dispatch(startJoinGame(gameId, this.props.user.username,()=>{},()=>{} )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
-        }).catch((e)=>alert(JSON.stringify(e)));
+        }).catch((e)=>{
+            alert(JSON.stringify(e))
+            this.setState({isJoiningGame:false});
+        });
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
@@ -108,6 +111,7 @@ class MainPage extends Component {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
             alert("Sorry! There was a server error.");
+            this.setState({isJoiningGame: false});
         })
         // we render a modal for loading until the promise is returned.
         // for now, the promise is just a stub to simulate server response time.
@@ -308,12 +312,13 @@ class MainPage extends Component {
                     Create a game
                 </Button>
                 <div style={{display:'flex',flexDirection:'row'}}>
-                    <div style={{width:'25%'}}>
+                    <div style={{width:'35%'}}>
                         <h2>Chatroom</h2>
                         <ChatRoom
                             messageFeed={this.props.mainchat}
                             namespace={null}
                             onMessageSend={this.onChatMessageSendHandler}
+                            username={this.props.user.username}
                         />
                     </div>
                     <div>

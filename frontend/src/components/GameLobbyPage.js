@@ -69,28 +69,34 @@ class GameLobbyPage extends Component {
                         >
                     {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
                 </Button>
-
                 <h1 className="mainPageHeader"> Game Lobby Page </h1>
                 lobby page here.
                 You should be able to :
                 -> See the list of users
                 -> initiate the game when you are the gamemaster.
-                <h2>players</h2>
-                <List
-                    size="large"
-                    bordered
-                    dataSource={currentgame? currentgame.players:[]}
-                    renderItem={item => (<List.Item>{item}</List.Item>)}
-                />
-                <h5>shuffling cards...</h5>
-                <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
-                <h3>Waiting for {this.state.game.creator} to start the game...</h3>
-
+                <div style={{display:'flex',flexDirection:'row'}}>
+                <div style={{width:'70%', marginRight:'10px'}}>
+                    <h2>players</h2>
+                    <List
+                        size="large"
+                        bordered
+                        dataSource={currentgame? currentgame.players:[]}
+                        renderItem={item => (<List.Item>{item}</List.Item>)}
+                    />
+                    <h5>shuffling cards...</h5>
+                    <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
+                    <h3>Waiting for {this.state.game.creator} to start the game...</h3>
+                </div>
+                <div style={{width:'30%'}}>
+                    <h2>Game Lobby Chat</h2>
                 <ChatRoom
                     messageFeed={this.props.roomchat}
                     namespace={this.props.match.params.uuid}
                     onMessageSend={ (msg)=>this.props.dispatch(startSendMessage(msg,this.props.match.params.uuid))}
+                    username={this.props.user.username}
                 />
+                </div>
+                </div>
                 {
                     //TEMPDIS
                     this.state.game.creator === this.props.user.username?
