@@ -1,6 +1,7 @@
 /* Singleton class for our socket client HOC. This singleton is made so that
  * the socket code is abstracted away from us. */
 import EVENTS from '../../../appCentralService/constants/socketEvents';
+import GMSEVENTS from '../../../gameMarshallingService/constants/socketEvents';
 const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
@@ -75,16 +76,19 @@ class SocketClient {
                 });
         });
     }
-    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick){
+    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult){
         return new Promise((resolve,reject)=>{
             this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
                 {gamesecret: gameStartObj.gamesecret, username: username}
             ).then(()=> {
-                this.mysocket.on(EVENTS.PLAYER_SLAP_REGISTERED, (data) => {
+                this.mysocket.on(GMSEVENTS.PLAYER_SLAP_REGISTERED, (data) => {
                     onPlayerSlapRegistered(data);
                 })
-                this.mysocket.on(EVENTS.NEXT_TICK, (data) => {
+                this.mysocket.on(GMSEVENTS.NEXT_TICK, (data) => {
                     onNextTick(data);
+                });
+                this.mysocket.on(GMSEVENTS.MATCH_RESULT,(data)=>{
+                    onMatchResult(data);
                 })
                 resolve();
             }).catch((e)=>reject(e));

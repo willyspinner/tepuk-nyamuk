@@ -9,7 +9,7 @@ import GamePlayTutorial from './GamePlayTutorial';
 import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
 import {Input, Button} from 'antd';
-import {initializeGame} from "../actions/gameplay";
+import {initializeGame,playerThrow,playerSlap,receiveMatchResult} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import SocketClient from '../socket/socketclient';
@@ -77,14 +77,29 @@ class MainPage extends Component {
         });
     }
     onGameStart = (gamestartobj)=>{
-        const onPlayerSlapRegistered = ()=>{};
-        const onNextTick= ()=>{};
+        const onPlayerSlapRegistered = (data)=>{
+            this.props.dispatch(playerSlap(data.username,data.reactiontime));
+        };
+        const onNextTick= (nextTick)=>{
+            this.props.dispatch(playerThrow(
+                nextTick.playerthrew,
+                nextTick.piletop,
+                nextTick.nextplayer
+                ));
+        };
+        const onMatchResult= (result)=>{
+            this.props.dispatch(receiveMatchResult(
+                result.loser,
+                result.loserAddToPile,
+                result.nextplayer));
+        }
         //TODO TODO: again, socket logic shouldnt be here.
         //TODO: also, this is game logic. Shouldn't this be later?
         this.state.socketclient.subscribeToGameplay(gamestartobj,
             this.props.user.username,
             onPlayerSlapRegistered,
-            onNextTick).then(()=>{
+            onNextTick,
+            onMatchResult).then(()=>{
                 //TODO route for gameplay.
             this.props.history.push('TODO TODO')
         })

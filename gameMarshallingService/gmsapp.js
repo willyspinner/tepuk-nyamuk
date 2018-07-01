@@ -287,7 +287,7 @@ io.use(function (socket, next) {
                                 })
                             }
                             redisdb.slap(gamesessionid, username, data.reactiontime).then((slappedplayers) => {
-                                io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username});
+                                io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username,reactiontime:data.reactiontime});
                                 
                                 console.log(`gmsapp::events: PLAYER_SLAPPED for ${username} registered.`);
                                 redisdb.getNplayers(gamesessionid).then((nplayers) => {
