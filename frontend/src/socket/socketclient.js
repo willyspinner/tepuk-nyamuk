@@ -65,11 +65,7 @@ class SocketClient {
                         });
                         this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
                             this.mysocket.close();
-                            this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
-                                {gamesecret: gameStartObj.gamesecret, username: username}
-                                ).then(()=>{
-                                onLobbyGameStart(gameStartObj);
-                            });
+                            onLobbyGameStart(gameStartObj);
                         });
                         resolve(ackResponse.players);
                     }else{
@@ -79,7 +75,22 @@ class SocketClient {
                 });
         });
     }
+    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick){
+        return new Promise((resolve,reject)=>{
+            this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
+                {gamesecret: gameStartObj.gamesecret, username: username}
+            ).then(()=> {
+                this.mysocket.on(EVENTS.PLAYER_SLAP_REGISTERED, (data) => {
+                    onPlayerSlapRegistered(data);
+                })
+                this.mysocket.on(EVENTS.NEXT_TICK, (data) => {
+                    onNextTick(data);
+                })
+                resolve();
+            }).catch((e)=>reject(e));
+        });
 
+    }
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
         this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
             if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){

@@ -70,10 +70,6 @@ class GameLobbyPage extends Component {
                     {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
                 </Button>
                 <h1 className="mainPageHeader"> Game Lobby Page </h1>
-                lobby page here.
-                You should be able to :
-                -> See the list of users
-                -> initiate the game when you are the gamemaster.
                 <div style={{display:'flex',flexDirection:'row'}}>
                 <div style={{width:'70%', marginRight:'10px'}}>
                     <h2>players</h2>

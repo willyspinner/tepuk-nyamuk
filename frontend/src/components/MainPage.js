@@ -76,17 +76,26 @@ class MainPage extends Component {
                 alert(JSON.stringify(e));
         });
     }
+    onGameStart = (gamestartobj)=>{
+        const onPlayerSlapRegistered = ()=>{};
+        const onNextTick= ()=>{};
+        //TODO TODO: again, socket logic shouldnt be here.
+        //TODO: also, this is game logic. Shouldn't this be later?
+        this.state.socketclient.subscribeToGameplay(gamestartobj,
+            this.props.user.username,
+            onPlayerSlapRegistered,
+            onNextTick).then(()=>{
+                //TODO route for gameplay.
+            this.props.history.push('TODO TODO')
+        })
+    }
     onLeaderGameJoinHandler = (gameId)=>{
         this.setState({isJoiningGame:true});
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
 
-        const onGameStart=(gameStartObj) => {
-            // go to gameplay site.
-            this.props.history.push('TODO TODO')
-        }
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username,onGameStart,()=>{} )).then((/*empty resolve arg*/) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameStart(),()=>{} )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e)=>{
             alert(JSON.stringify(e))
@@ -95,16 +104,13 @@ class MainPage extends Component {
     }
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
-        const onGameStart =()=>{
-
-        }
         const onGameDeleted= (gameuuid)=>{
             this.props.dispatch(startLeaveGame(gameuuid,this.props.user.username))
                 .then(() => {
                     this.props.history.push('/');
                 })
         }
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username,onGameStart,onGameDeleted)).then((playersInLobby) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameStart,onGameDeleted)).then((playersInLobby) => {
             playersInLobby.forEach((player)=>{
                 this.props.dispatch(joinGame(gameId,player))
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence
@@ -299,11 +305,6 @@ class MainPage extends Component {
                         >Logout</Button>
                     ):null}
                 <h1 className="mainPageHeader"> Tepuk Nyamuk </h1>
-                Main page here.
-                You should be able to :
-                -> See the list of open games (not in progress yet)
-                -> join open games
-                -> create own game
                 {/* modals here */}
                 {createGameModal}
                 {registerModal}
