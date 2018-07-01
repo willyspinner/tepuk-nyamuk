@@ -39,14 +39,25 @@ class ChatRoom extends Component {
         if (item.namespace !== this.props.namespace){
             return null;
         }
+        //TODO: style other people's messages vs MY messages differently!
+        // TODO: makes for a nice visual effect. Maybe lighter blue shade for other ppl?
         return (
-            <div key={key}>
-                <h3>
-                    {item.sender_username}: {item.message}
-                </h3>
-                <h5 style ={{color:'grey'}}>
+            <div key={key} style={{marginTop:'3px',marginBottom:'3px'}}>
+                <div style={{background:'#49adff', borderRadius: '18px'}}>
+                <div style={{paddingTop:'8px',display:'flex',flexDirection:'row',lineHeight:'0px'}}>
+                    <div>
+                        <p style={{marginLeft:'10px',color:'white'}}>
+                            {item.sender_username}
+                        </p>
+                    </div>
+                    <div style={{marginLeft:'5px',wordWrap:'normal',display:'block',  wordBreak: 'break-all', whiteSpace:'normal'}}>
+                            {item.message}
+                    </div>
+                </div>
+                <h6 style ={{marginLeft:'10px',color:'white'}}>
                     {moment(item.timestamp).format(DATE_FORMAT)}
-                </h5>
+                </h6>
+                </div>
             </div> )
 
     }
@@ -55,8 +66,9 @@ class ChatRoom extends Component {
         if(this.reffy)
             this.reffy.scrollTo(this.reffy.getVisibleRange()[1] );
         return (
-            <div style={{height : 350}}>
-                <div style={{overflow: 'auto', maxHeight: 300}}>
+            <div>
+            <div style={{height : 250, display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                <div style={{overflow: 'auto'}}>
                     <ReactList
                         itemRenderer={this.renderItem}
                         length={this.props.messageFeed.length}
@@ -64,6 +76,8 @@ class ChatRoom extends Component {
                         ref={ref=>{this.reffy = ref;}}
                     />
                 </div>
+            </div>
+
                 <Input
                     onChange={(e)=>this.setState({inputval:e.target.value})}
                     value={this.state.inputval}

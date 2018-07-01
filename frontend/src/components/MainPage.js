@@ -303,20 +303,27 @@ class MainPage extends Component {
                 {registerModal}
                 {joinGameModal}
                 {this.state.showTutorial ? tutorialModal : null}
-                <GameList
-                    onJoin={this.onGameJoinHandler}
-                    games={this.props.games}
-                />
                 <Button
                 onClick={()=>this.setState({isCreatingGame:true})}>
                     Create a game
                 </Button>
-                <h2>Chatroom</h2>
-                <ChatRoom
-                    messageFeed={this.props.mainchat}
-                    namespace={null}
-                    onMessageSend={this.onChatMessageSendHandler}
-                />
+                <div style={{display:'flex',flexDirection:'row'}}>
+                    <div style={{width:'25%'}}>
+                        <h2>Chatroom</h2>
+                        <ChatRoom
+                            messageFeed={this.props.mainchat}
+                            namespace={null}
+                            onMessageSend={this.onChatMessageSendHandler}
+                        />
+                    </div>
+                    <div>
+                        <h2>Games</h2>
+                    <GameList
+                        onJoin={this.onGameJoinHandler}
+                        games={this.props.games}
+                    />
+                    </div>
+                </div>
                 Don't know how to play? Do a tutorial below.
                 <Button onClick={this.onTutorialStartHandler}>
                     Tutorial
