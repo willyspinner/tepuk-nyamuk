@@ -44,6 +44,7 @@ class ChatRoom extends Component {
             this.setState({inputval: ''});
         }
     }
+    //TODO: do Overflow wrapping for chat message.
     renderItem = (index, key) =>{
         const item = this.props.messageFeed[index];
         if (item.namespace !== this.props.namespace){
@@ -52,7 +53,10 @@ class ChatRoom extends Component {
         const isMe = item.sender_username === this.props.username;
         return (
             <div key={key} style={{marginTop:'3px',marginBottom:'3px'}}>
-                <div style={{background:isMe?'#a4d12a':'#49adff', borderRadius: '18px'}}>
+                <div style={{
+                    background:isMe?'#a4d12a':'#49adff',
+                    borderRadius: '18px',
+                    borderBottom:'4px solid grey'}}>
                 <div style={{paddingTop:'8px',display:'flex',flexDirection: isMe? 'row-reverse':'row',lineHeight:'0px'}}>
                     <div>
                         <p style={{...isMe?{marginRight: '10px'}:{marginLeft:'10px'},color:'white'}}>

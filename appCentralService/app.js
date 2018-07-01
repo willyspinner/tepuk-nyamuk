@@ -10,6 +10,7 @@ const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
 const logger = require('./log/appcs_logger');
+const request = require('request');
 // appcs environment var.
 
 // constants
@@ -344,13 +345,46 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                 if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
                     //TODO: communicate with GMS.
                     //TODO send all the sockets the JWT to access our GMS game room.
-                    //TODO
-                    io
-                        .to(req.params.gameid)
-                        .emit(EVENTS.LOBBY.GAME_START);
-                    res.status(200).json({
-                        success: true
-                    });
+                    //TODO TODO
+                    request.post({
+                        //TODO: get actual url.
+                            url:"TODO: GMS URL/gms/game/create",
+                            form: {
+                                gameid: req.params.gameid,
+                                gamename: "zz game", // NOTE:  we don't actually need the game name i think.
+                                players: game.players// an array of the usernames.
+                            },
+                        },
+                        (err, res, body) => {
+                            if (err)
+                            {
+                                res.status(500).json({
+                                    success:false,
+                                    error:"server request error."
+                                })
+                                return;
+                            }
+                            const response = JSON.parsen(body);
+
+                            if(!response.success){
+                                res.status(400).json({
+                                    success:false,
+                                    error:"bad request"
+                                });
+                                return;
+                            }
+
+                            io
+                                .to(req.params.gameid)
+                                .emit(EVENTS.LOBBY.GAME_START,{
+                                    gametoken: response.gametoken,
+                                    gamesecret: response.gamesecret,
+                                    gamesessionid: response.gamesessionid
+                                });
+                            res.status(200).json({
+                                success: true
+                            });
+                        });
                 }
                 else
                     res.status(401).json({

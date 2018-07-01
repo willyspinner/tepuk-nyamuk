@@ -5,6 +5,7 @@ const assert = require('assert');
 const ioclient = require('socket.io-client');
 const redisdb = require('../db/redisdb');
 const events = require('../constants/socketEvents');
+const logger = require('../log/gms_logger')
 /*
 notes:
 
@@ -280,8 +281,9 @@ describe('gmsapp.test: registering throw', function () {
                                             console.log(`early match for counter: ${top}`);
                                             done(); // matches.
                                         }
-                                    }).catch(e => done(e));
+                                    }).catch(e => done(new Error(JSON.stringify(e))));
                                     this.player3socket.emit(events.PLAYER_THREW, {}, (response) => {
+                                        logger.info("gmsapp.test ",`got response obj : ${JSON.stringify(response)}`)
                                         assert.equal(response.success, true);
                                         redisdb.getCurrentTurn(this.gamesessionid).then((turn) => {
                                             assert.equal(turn.playerinturn, dummydata.gameGMStest.players[0]);
