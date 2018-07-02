@@ -41,17 +41,24 @@ app.get('/health',(req,res)=>{
     res.sendStatus(200);
 })
 app.post('/gms/game/create', (req, res) => {
-    if (!uuidvalidate(req.body.gameid))
+    if (!uuidvalidate(req.body.gameid)){
         res.json({
             success: false,
             error: "gameid invalid"
         });
+        return;
+    }
+
     // first we generate the game session.
-    if (JSON.parse(req.body.players).length < 2)
+    
+    logger.info("POST /gms/game/create",`got req.body: ${JSON.stringify(req.body)}`)
+    if (req.body.players.length < 2){
         res.json({
             success: false,
             error: "too few players."
         });
+        return;
+    }
     let cardsperplayer = 10; // this can be made a post body option (req.body) later if needed.
     let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
         .update(req.body.gameid, 'utf8').digest('hex');
@@ -62,7 +69,7 @@ app.post('/gms/game/create', (req, res) => {
     const salt = bcrypt.genSaltSync(10);
     const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
     redisdb.initializeGame(gamesessionid, encryptedgamesecret,
-        JSON.parse(req.body.players), cardsperplayer)
+        req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
         .then((result) => {
             // then with the created game, we generate JWT gametoken.
             const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});

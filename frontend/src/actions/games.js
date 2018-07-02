@@ -1,7 +1,7 @@
 import request from 'request';
 import moment from 'moment';
 import mysocket from '../socket/socketclient';
-import {GETOPENGAMES,CREATEGAME,DELETEGAME} from "../serverroutes/AppCSRoutes";
+import {GETOPENGAMES,CREATEGAME,DELETEGAME,STARTGAMEFROMLOBBY} from "../serverroutes/AppCSRoutes";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
 });
@@ -147,3 +147,22 @@ export const startLeaveGame = (uuid,username) => {
 
     }
 };
+
+
+export const startStartGame = (gameid) => {
+    return (ReduxDispatch,getState)=>{
+        return new Promise((resolve,reject)=>{
+           request.post(
+               STARTGAMEFROMLOBBY(gameid,getState().user.token,getState().user.socketid,
+                   (err,res,body)=>{
+                        const response = JSON.stringify(body);
+                       alert(`start game from lobby result : ${response}`);
+                        if(response.success)
+                            resolve(response);
+                        else
+                            reject(response);
+                   })
+           )
+        });
+    }
+}

@@ -1,5 +1,6 @@
 let redis = require('redis');
 // using bluebird for multi and exec transactions.
+let logger = require('../log/gms_logger');
 const bluebird = require('bluebird');
 const cards = require('./constants/cardgameconstants');
 const redisconnectionobject = {
@@ -8,7 +9,7 @@ const redisconnectionobject = {
 };
 let redisclient = redis.createClient(redisconnectionobject);
 
-
+logger.info("redisdb",`redis connection established @ ${redisconnectionobject.host}:${redisconnectionobject.port}`)
 //  <<<<< promisifying our redis commands >>>>>:
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);

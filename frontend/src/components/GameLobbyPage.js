@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {List,Button} from 'antd';
 import ReactLoading from 'react-loading';
-import {startLeaveGame,startRemoveGame} from "../actions/games";
+import {startLeaveGame,startRemoveGame,startStartGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
 import Beforeunload from 'react-beforeunload';
 import {startSendMessage} from "../actions/chatroom";
@@ -45,10 +45,17 @@ class GameLobbyPage extends Component {
             });
     }
     };
-    onGameStartHandler= () => {
+    gameStartHandler= () => {
         this.setState({isStartingGame:true}, ()=> {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
-            this.props.history.push(`/game/play/${this.state.uuid}`);
+            this.props.dispatch(startStartGame(this.props.match.params.uuid)).then(()=>{
+                // NOTE: we should receive the socket's GAME_START, from which we go to /game/play/:uuid.
+                // no need to push here.
+                // this.props.history.push(`/game/play/${this.state.uuid}`);
+            }).catch((e)=>{
+                this.setState({isStartingGame: false});
+                alert(`${JSON.stringify(e)}`);
+            })
         });
     };
     render(){
@@ -98,7 +105,7 @@ class GameLobbyPage extends Component {
                     this.state.game.creator === this.props.user.username?
                     //1===1?
                     (
-                        <Button onClick={this.onGameStartHandler}>
+                        <Button onClick={this.gameStartHandler}>
                             Start game
                         </Button>)
                 : null

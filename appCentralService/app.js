@@ -341,21 +341,25 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                 });
                 return;
             }
+            logger.info("POST /appcs/game/start/:gameid",`got game ${JSON.stringify(game)}`);
             db.getUserSecrets(game.creator).then((creator) => {
+                logger.info("creator vs req socketids:", `${creator.socketid} vs ${req.body.socketid}`)
+                logger.info("creator vs req usernames:", `${creator.username} vs ${decoded.username}`)
                 if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
                     //TODO: communicate with GMS.
                     //TODO send all the sockets the JWT to access our GMS game room.
                     //TODO TODO
+                    const GMS_HOST = process.env.GMS_HOST || 'localhost';
+                    const GMS_PORT = process.env.GMS_PORT || 4000;
                     request.post({
-                        //TODO: get actual url.
-                            url:"TODO: GMS URL/gms/game/create",
+                            url:`http://${GMS_HOST}:${GMS_PORT}/gms/game/create`,
                             form: {
                                 gameid: req.params.gameid,
                                 gamename: "zz game", // NOTE:  we don't actually need the game name i think.
                                 players: game.players// an array of the usernames.
                             },
                         },
-                        (err, res, body) => {
+                        (err, resp, body) => {
                             if (err)
                             {
                                 res.status(500).json({
@@ -364,12 +368,13 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                                 })
                                 return;
                             }
-                            const response = JSON.parsen(body);
+                            const response = JSON.parse(body);
 
                             if(!response.success){
                                 res.status(400).json({
                                     success:false,
-                                    error:"bad request"
+                                    error:"bad request",
+                                    err2: `${JSON.stringify(response.error)}`
                                 });
                                 return;
                             }
@@ -388,16 +393,21 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                 }
                 else
                     res.status(401).json({
-                        success: false
+                        success: false,
+                        error: 'unauthorized.'
                     });
             }).catch((e)=>{
                 res.status(500).json({
-                    success:false
+                    success:false,
+                    error:'server error 1',
+                    e: JSON.stringify(e)
                 })
             });
         }).catch((e)=>{
             res.status(500).json({
-                success:false
+                success:false,
+                error:'server error 2',
+                e :JSON.stringify(e)
             })
         });
     })

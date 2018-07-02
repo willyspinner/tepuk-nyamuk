@@ -30,7 +30,7 @@ describe('gmsapp.test: initial connection to game', function () {
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
-                    players: JSON.stringify(dummydata.gameGMStest.players)
+                    players: (dummydata.gameGMStest.players)
                 }
             },
             (err, res, body) => {
@@ -199,7 +199,7 @@ describe('gmsapp.test: registering throw', function () {
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
-                    players: JSON.stringify(dummydata.gameGMStest.players)
+                    players: (dummydata.gameGMStest.players)
                 }
             },
             (err, res, body) => {
@@ -318,7 +318,7 @@ describe('gmsapp.test: match', function () {
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
-                    players: JSON.stringify(dummydata.gameGMStest.players)
+                    players: (dummydata.gameGMStest.players)
                 }
             },
             (err, res, body) => {
@@ -479,7 +479,7 @@ describe('gmsapp.test: slaps', function () {
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
-                    players: JSON.stringify(dummydata.gameGMStest.players)
+                    players: (dummydata.gameGMStest.players)
                 }
             },
             (err, res, body) => {

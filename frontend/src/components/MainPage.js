@@ -76,7 +76,9 @@ class MainPage extends Component {
                 alert(JSON.stringify(e));
         });
     }
-    onGameStart = (gamestartobj)=>{
+    onGameLobbyStart = (gamestartobj)=>{
+        //NOTE: for now, make this here, and see what happens.
+        // refactor as needed later.
         const onPlayerSlapRegistered = (data)=>{
             this.props.dispatch(playerSlap(data.username,data.reactiontime));
         };
@@ -100,8 +102,7 @@ class MainPage extends Component {
             onPlayerSlapRegistered,
             onNextTick,
             onMatchResult).then(()=>{
-                //TODO route for gameplay.
-            this.props.history.push('TODO TODO')
+            this.props.history.push(`/game/play/${gamestartobj.gamesessionid}`);
         })
     }
     onLeaderGameJoinHandler = (gameId)=>{
@@ -110,7 +111,7 @@ class MainPage extends Component {
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
 
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameStart(),()=>{} )).then((/*empty resolve arg*/) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameLobbyStart,()=>{} )).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e)=>{
             alert(JSON.stringify(e))
@@ -125,7 +126,7 @@ class MainPage extends Component {
                     this.props.history.push('/');
                 })
         }
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameStart,onGameDeleted)).then((playersInLobby) => {
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username,this.onGameLobbyStart,onGameDeleted)).then((playersInLobby) => {
             playersInLobby.forEach((player)=>{
                 this.props.dispatch(joinGame(gameId,player))
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence
