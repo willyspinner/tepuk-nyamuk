@@ -52,24 +52,28 @@ class ChatRoom extends Component {
         }
         const isMe = item.sender_username === this.props.username;
         return (
-            <div key={key} style={{marginTop:'3px',marginBottom:'3px'}}>
+            <div key={key} style={{marginTop:'4px',marginBottom:'4px', display: 'flex', flexDirection : isMe? 'row-reverse':'row'}}>
                 <div style={{
                     background:isMe?'#a4d12a':'#49adff',
                     borderRadius: '18px',
-                    borderBottom:'4px solid grey'}}>
-                <div style={{paddingTop:'8px',display:'flex',flexDirection: isMe? 'row-reverse':'row',lineHeight:'0px'}}>
-                    <div>
-                        <p style={{...isMe?{marginRight: '10px'}:{marginLeft:'10px'},color:'white'}}>
-                            {item.sender_username}
-                        </p>
+                    borderBottom:'4px solid grey',
+                    display:'inline-block'
+                }}>
+                    <div style={{paddingTop:'8px',display:'flex',flexDirection: isMe? 'row-reverse':'row',lineHeight:'0px'}}>
+                        <div>
+                            <p style={{...isMe?{marginRight: '10px'}:{marginLeft:'10px'},color:'white'}}>
+                                {item.sender_username}
+                            </p>
+                        </div>
+                        <div style={{marginRight:'7px',marginLeft:'7px',wordWrap:'normal',display:'block',  wordBreak: 'break-all', whiteSpace:'normal'}}>
+                                {item.message}
+                        </div>
                     </div>
-                    <div style={{...isMe? {marginRight:'5px'}:{marginLeft:'5px'},wordWrap:'normal',display:'block',  wordBreak: 'break-all', whiteSpace:'normal'}}>
-                            {item.message}
+                    <div style={{display:'flex',flexDirection: isMe? 'row-reverse':'row'}}>
+                    <h6 style ={{marginRight:'8px', marginLeft: '8px',color:'white'}}>
+                        {moment(item.timestamp).format(DATE_FORMAT)}
+                    </h6>
                     </div>
-                </div>
-                <h6 style ={{marginLeft:'10px',color:'white'}}>
-                    {moment(item.timestamp).format(DATE_FORMAT)}
-                </h6>
                 </div>
             </div> )
 
@@ -78,9 +82,16 @@ class ChatRoom extends Component {
     render() {
         return (
             <div>
-            <div style={{height : 250, display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+            <div style={{height : 250,
+                background: '#2E3032',
+                paddingLeft: '4px',
+                paddingRight: '4px',
+                borderRadius: '15px',
+                display:'flex',
+                flexDirection:'column',
+                justifyContent:'space-between'}}>
                 {this.props.messageFeed.length ===0 ?
-                    (<p style={{color:'grey'}}> Chat with {this.props.namespace === null? 'everyone': 'people in the lobby'} here!</p>
+                    (<p style={{color:'grey',marginLeft: '10px'}}> Chat with {this.props.namespace === null? 'everyone': 'people in the lobby'} here!</p>
               ):
                 <div style={{overflow: 'auto'}}>
                     {this.props.messageFeed.map((msg,index)=>{
@@ -96,6 +107,7 @@ class ChatRoom extends Component {
             </div>
 
                 <Input
+                    style={{marginTop: '4px'}}
                     onChange={(e)=>this.setState({inputval:e.target.value})}
                     value={this.state.inputval}
                     placeholder={"type your message here"}
