@@ -14,7 +14,6 @@ class GamePlayPage extends Component{
    // method for me throwing.
     throw= ()=>{
         this.props.dispatch(startPlayerThrow());
-
     };
     // method for me slapping.
     slap = (reactiontime)=>{
@@ -54,9 +53,6 @@ class GamePlayPage extends Component{
 
         console.log(`got loser ${loser.username} out of ${JSON.stringify(this.props.gameplay.players.map((player)=>player.username))}`);
         alert(`after slap event: loser: ${JSON.stringify(loser)}`);
-        //TODO: not sure if putting the below works.
-        //TODO: this is a sketchy way to alleviate the problem. seriosuly. ew
-        // eh. whatever. This isn't the REAL game implementation anyway.
     };
     componentDidUpdate(prevProps,prevState){
         if(this.props.gameplay.players.filter((player)=>player.hasslapped === false).length ===0){

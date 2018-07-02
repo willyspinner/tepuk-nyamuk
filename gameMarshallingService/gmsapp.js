@@ -154,8 +154,9 @@ io.use(function (socket, next) {
                 redisdb.getNplayers(socket.gamesessionid),
                 redisdb.getConnectedPlayers(socket.gamesessionid)
             ]).then((data)=>{
-                const totalplayers = data[0];
+                const totalplayers = parseInt(data[0]);
                 const connectedplayers = data[1];
+                logger.info("Socket on 'connect",`total players : ${totalplayers}, typeof: ${typeof totalplayers} total connected players : ${connectedplayers.length}`)
                 //NOTEDIFF: changed bottom to .length, since it is an array reply.
                 if(totalplayers === connectedplayers.length) {
                     Promise.all([
@@ -164,10 +165,12 @@ io.use(function (socket, next) {
 
                     ]).then((data)=>{
                         const gamestartObj = {
-                            playerinturn:data[0],
+                            playerinturn:data[0].playerinturn,
+                            counter: data[0].currentcounter,
                             players:connectedplayers,
                             nhand: data[1]
                         }
+                        logger.info("Socket on 'connect'", `game start emitting with ${JSON.stringify(gamestartObj)}`)
                         io.to(socket.gamesessionid).emit(events.GAME_START,
                             gamestartObj
                         );

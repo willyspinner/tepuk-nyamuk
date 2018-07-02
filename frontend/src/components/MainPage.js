@@ -98,9 +98,14 @@ class MainPage extends Component {
                 result.loserAddToPile,
                 result.nextplayer));
         }
-        const onGameStart = ({playerinturn,players,nhand})=>{
-            this.props.dispatch(initializeGame(playerinturn,players,nhand));
-
+        const onGameStart = (onrealgamestartobj)=>{
+            console.log(`onGameStart TING : ${JSON.stringify(onrealgamestartobj)}`)
+            this.props.dispatch(initializeGame(onrealgamestartobj.playerinturn,
+                onrealgamestartobj.players,
+                onrealgamestartobj.nhand));
+            //NOTEDIFF: this pushing happens when we get GAME_START signal.
+            //this makes things easier as we have our redux state ready already.
+            this.props.history.push(`/game/play/${gamestartobj.gamesessionid}`);
         }
         //TODO TODO: again, socket logic shouldnt be here.
         //TODO: also, this is game logic. Shouldn't this be later?
@@ -109,7 +114,6 @@ class MainPage extends Component {
             onPlayerSlapRegistered,
             onNextTick,
             onMatchResult,onGameStart).then(()=>{
-            this.props.history.push(`/game/play/${gamestartobj.gamesessionid}`);
         })
     }
     onLeaderGameJoinHandler = (gameId)=>{
