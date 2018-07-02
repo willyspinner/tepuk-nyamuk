@@ -18,9 +18,13 @@ logger.info('db.js: initial connection',`DB connecting to postgres with : ${JSON
 const client = new Client(
     connectionobject
 );
-client.connect();
+client.connect().then(()=>{
+    logger.info('db.js: initial connection',`connection successful`);
+}).catch((e)=>{
+    logger.error('db.js: initial connection', 'connection ERROR.')
+});
 
-logger.info('db.js: initial connection',`connection successful`);
+
 
 const self = module.exports = {
     // POSTGRES implementation
