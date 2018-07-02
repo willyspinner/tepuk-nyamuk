@@ -6,18 +6,26 @@ const GameListItem = (props)=> (
     <div className="gameList__item">
         <Card
             title={props.game.name?props.game.name:"untitled"}
+
             extra={
-                <div onClick={props.onJoin}>
-                    <Icon
-                        type="rocket"
-                        />
-                    <h6>
-                        Join
-                    </h6>
+                <div onClick={props.game.isStarted? null:props.onJoin}>
+                    {
+                        props.game.isStarted? null:(
+                            <div>
+                            <Icon
+                                type="rocket"
+                            />
+                            <h6>
+                            Join
+                            </h6>
+                            </div>
+                        )
+                    }
                 </div>
             }
-            style={{ width: 300 }}>
+            style={{ width: 300 ,...props.game.isStarted?{background:'grey'}:null}}>
             <div>
+                <h2>{props.game.isStarted? "STARTED":null}</h2>
                 <h5>
                     Created at: {moment(props.game.createdAt).format(DATE_FORMAT)}
                 </h5>

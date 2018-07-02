@@ -1,6 +1,7 @@
 module.exports=  {
     GAME_CREATED: 'gameCreated',
     GAME_DELETED:'gameDeleted',
+    GAME_STARTED: 'gameStarted',
     CONN_DETAILS: 'connDetails',
     LOBBY:{
         USER_JOINED: 'userJoined',

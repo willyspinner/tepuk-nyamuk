@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {startCreateGame, startJoinGame, startLeaveGame} from "../actions/games";
+import {startCreateGame, startedGame, startJoinGame, startLeaveGame} from "../actions/games";
 import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
 import {receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame,startGetOpenGames,addGame,removeGame,gamesEmptyReduxState} from "../actions/games";
@@ -49,7 +49,10 @@ class MainPage extends Component {
                         this.props.dispatch(addGame(newGame))
                     , (deletedGameuuid)=>
                         this.props.dispatch(removeGame( deletedGameuuid)),
-                    (newMessageObj)=>this.props.dispatch(receiveMessage(newMessageObj))
+                    (newMessageObj)=>this.props.dispatch(receiveMessage(newMessageObj)),
+                    (onGameStarted)=>{
+                        this.props.dispatch(startedGame(onGameStarted.gameuuid));
+                    }
                 );
             }).catch((e)=>{
                 alert(`MainPage::connectToGameUpdates: couldnt get open games. error: ${e}`);

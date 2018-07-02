@@ -34,10 +34,11 @@ class SocketClient {
         });
     }
 
-    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat){
+    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat,onGameStarted){
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
         this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
         this.mysocket.on(EVENTS.RECV_CHAT_MSG,(data)=>onRecvChat(data) )
+        this.mysocket.on(EVENTS.GAME_STARTED,(data)=>onGameStarted(data) )
     }
     sendChatMessage(msgObj){
         //NOTE: this isn't promise based, since we'll be waiting for the broadcast

@@ -378,17 +378,24 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                                 });
                                 return;
                             }
+                            //oops. forgot to add this chunk below:
+                            db.startGame(req.params.gameid).then(()=>{
+                                // emit to main lobby that this game is starting..
 
-                            io
-                                .to(req.params.gameid)
-                                .emit(EVENTS.LOBBY.GAME_START,{
-                                    gametoken: response.gametoken,
-                                    gamesecret: response.gamesecret,
-                                    gamesessionid: response.gamesessionid
+                                //TODO: should this be  a game_deleted thing... race condition?
+                                //IDEA: make EVENTS.GAME_STARTED event?
+                                io.emit(EVENTS.GAME_STARTED,{gameuuid: req.params.gameid} );
+                                io
+                                    .to(req.params.gameid)
+                                    .emit(EVENTS.LOBBY.GAME_START,{
+                                        gametoken: response.gametoken,
+                                        gamesecret: response.gamesecret,
+                                        gamesessionid: response.gamesessionid
+                                    });
+                                res.status(200).json({
+                                    success: true
                                 });
-                            res.status(200).json({
-                                success: true
-                            });
+                            })
                         });
                 }
                 else

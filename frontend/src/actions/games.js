@@ -147,7 +147,14 @@ export const startLeaveGame = (uuid,username) => {
 
     }
 };
-
+//NOTEDIFF: this is used to signal to main lobby people that a game has started
+// and is unavailable to be joined.
+export const startedGame = (uuid)=>{
+    return {
+        type: 'STARTED_GAME',
+        uuid
+    }
+}
 
 export const startStartGame = (gameid) => {
     return (ReduxDispatch,getState)=>{

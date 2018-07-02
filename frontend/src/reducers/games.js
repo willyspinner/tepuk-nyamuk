@@ -3,6 +3,14 @@ const gamesReducer = (state = [], action) => {
   switch (action.type) {
     case 'ADD_GAME':
       return [...state, action.game];
+      case 'STARTED_GAME':
+          return state.map((game)=>{
+              if(game.uuid === action.uuid){
+                  game.isStarted = true;
+
+              }
+              return game;
+          });
     case 'REMOVE_GAME':
       return state.filter(({uuid}) => uuid !==  action.uuid);
       case 'JOIN_GAME':
