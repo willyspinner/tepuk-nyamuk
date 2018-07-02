@@ -322,8 +322,10 @@ io.use(function (socket, next) {
                                         Promise.all([
                                             redisdb.popAllPileToLoser(gamesessionid,loser),
                                                 redisdb.resetSlaps(gamesessionid),
-                                                redisdb.setCurrentCounter(gamesessionid, loser)
+                                                redisdb.setCurrentCounter(gamesessionid, loser),
+                                            redisdb.setMatch(gamesessionid, false) //NOTEDIFF: put setMAtch false here.
                                         ]).then((data)=>{
+
                                             let poppedpile = data[0];
                                             console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
                                             io.to(gamesessionid).emit(events.MATCH_RESULT, {

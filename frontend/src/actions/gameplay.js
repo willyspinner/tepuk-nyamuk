@@ -27,11 +27,12 @@ export const finishGame = ()=>({
     type: 'FINISH_GAME'
 });
 // playerThrow is basically next tick.
-export const playerThrow = (username, card,nextplayer)=>({
+export const playerThrow = (username, card,nextplayer,isMatch)=>({
     type: "PLAYER_THREW",
    username,
    card,
-    nextplayer
+    nextplayer,
+    isMatch
 });
 
 export const startPlayerThrow = ()=>{

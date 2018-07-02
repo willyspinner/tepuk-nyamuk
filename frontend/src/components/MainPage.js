@@ -89,14 +89,16 @@ class MainPage extends Component {
             this.props.dispatch(playerThrow(
                 nextTick.playerthrew,
                 nextTick.piletop,
-                nextTick.nextplayer
+                nextTick.nextplayer,
+                nextTick.match
                 ));
         };
         const onMatchResult= (result)=>{
             this.props.dispatch(receiveMatchResult(
                 result.loser,
                 result.loserAddToPile,
-                result.nextplayer));
+                result.nextplayer,
+                ));
         }
         const onGameStart = (onrealgamestartobj)=>{
             console.log(`onGameStart TING : ${JSON.stringify(onrealgamestartobj)}`)

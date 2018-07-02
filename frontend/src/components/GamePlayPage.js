@@ -71,7 +71,11 @@ class GamePlayPage extends Component{
         return (
             <div>
                 <h1> gameplay: prototype </h1>
-                player turn : {this.props.gameplay.playerinturn}
+                <h4>player turn : {this.props.gameplay.playerinturn}</h4>
+
+                <h4>
+                    whoami : {this.props.myusername}
+                </h4>
                 <Row type="flex" justify="center" align="top">
                     <Col span={8}>
                         <div style={{flex: 1, flexDirection:"row"}}>

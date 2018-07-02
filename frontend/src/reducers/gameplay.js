@@ -27,7 +27,7 @@ const gameplayReducer = (state= {},action)=>{
             return {
                 ...state,
                 counter: state.counter + 1,
-                match: ((state.counter ) % 13 )+ 1=== action.card,
+                match: action.isMatch || ((state.counter ) % 13 )+ 1=== action.card,
                 playerinturn:action.nextplayer,
                 players : state.players.map((player)=>{
                     if(player.username === action.username && state.playerinturn === player.username) {
