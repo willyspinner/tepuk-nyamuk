@@ -77,7 +77,7 @@ class SocketClient {
                 });
         });
     }
-    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult){
+    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart){
         return new Promise((resolve,reject)=>{
             this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
                 {gamesecret: gameStartObj.gamesecret, username: username}
@@ -90,6 +90,9 @@ class SocketClient {
                 });
                 this.mysocket.on(GMSEVENTS.MATCH_RESULT,(data)=>{
                     onMatchResult(data);
+                })
+                this.mysocket.on(GMSEVENTS.GAME_START,(data)=>{
+                    onGameStart(data);
                 })
                 resolve();
             }).catch((e)=>reject(e));

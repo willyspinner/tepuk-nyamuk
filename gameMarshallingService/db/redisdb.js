@@ -110,6 +110,7 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/match`,0);
             chain = chain.set(`${gamesessionid}/playerinturn`,players[0]);
             chain= chain.set(`${gamesessionid}/turnoffset`,0); // player[0] has index 0.
+            chain = chain.set(`${gamesessionid}/cardsperplayer`,`${cardsperplayer}`);
             // execute transaction.
             chain.execAsync().then((result)=>{
                 console.log(`redisdb::initializeGame: playerinturn now : ${players[0]}`);
@@ -123,6 +124,13 @@ const self = module.exports = {
     });
     },
 
+    getCardsPerPlayer : (gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.getAsync(`${gamesessionid}/cardsperplayer`).then((i)=>{
+                resolve(parseInt(i));
+            }).catch((e)=>reject(e));
+        });
+    },
     deleteGame: (gamesessionid)=>{
          return new Promise((resolve,reject)=>{
              //note: returnArr is here because this is used for the scan.

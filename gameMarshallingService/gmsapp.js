@@ -156,8 +156,22 @@ io.use(function (socket, next) {
             ]).then((data)=>{
                 const totalplayers = data[0];
                 const connectedplayers = data[1];
-                if(totalplayers === connectedplayers) {
-                    io.to(socket.gamesessionid).emit(events.GAME_START);
+                //NOTEDIFF: changed bottom to .length, since it is an array reply.
+                if(totalplayers === connectedplayers.length) {
+                    Promise.all([
+                        redisdb.getCurrentTurn(socket.gamesessionid),
+                        redisdb.getCardsPerPlayer(socket.gamesessionid)
+
+                    ]).then((data)=>{
+                        const gamestartObj = {
+                            playerinturn:data[0],
+                            players:connectedplayers,
+                            nhand: data[1]
+                        }
+                        io.to(socket.gamesessionid).emit(events.GAME_START,
+                            gamestartObj
+                        );
+                    })
                 }
             })
         });

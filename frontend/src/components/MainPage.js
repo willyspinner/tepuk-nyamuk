@@ -98,13 +98,17 @@ class MainPage extends Component {
                 result.loserAddToPile,
                 result.nextplayer));
         }
+        const onGameStart = ({playerinturn,players,nhand})=>{
+            this.props.dispatch(initializeGame(playerinturn,players,nhand));
+
+        }
         //TODO TODO: again, socket logic shouldnt be here.
         //TODO: also, this is game logic. Shouldn't this be later?
         this.state.socketclient.subscribeToGameplay(gamestartobj,
             this.props.user.username,
             onPlayerSlapRegistered,
             onNextTick,
-            onMatchResult).then(()=>{
+            onMatchResult,onGameStart).then(()=>{
             this.props.history.push(`/game/play/${gamestartobj.gamesessionid}`);
         })
     }
