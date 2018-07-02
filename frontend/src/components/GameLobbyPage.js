@@ -4,7 +4,7 @@ import {List,Button} from 'antd';
 import ReactLoading from 'react-loading';
 import {startLeaveGame,startRemoveGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
-import {sampleChatRoomFeed} from "../constants/sampleData";
+import Beforeunload from 'react-beforeunload';
 import {startSendMessage} from "../actions/chatroom";
 class GameLobbyPage extends Component {
     constructor(props){
@@ -64,7 +64,7 @@ class GameLobbyPage extends Component {
 
         return (
             <div>
-
+                <Beforeunload onBeforeunload={e => this.onLeaveHandler()} />
                 <Button onClick={this.onLeaveHandler}
                         >
                     {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
