@@ -7,7 +7,13 @@ const redisconnectionobject = {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT
 };
-let redisclient = redis.createClient(redisconnectionobject);
+let redisclient = null;
+    redisclient = redis.createClient(redisconnectionobject);
+
+redisclient.on('error',(err)=>{
+    logger.error("redisdb",`redis connection error. ${JSON.stringify(err)}`);
+    process.exit(1);
+})
 
 logger.info("redisdb",`redis connection established @ ${redisconnectionobject.host}:${redisconnectionobject.port}`)
 //  <<<<< promisifying our redis commands >>>>>:

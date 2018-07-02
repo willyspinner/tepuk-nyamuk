@@ -22,6 +22,7 @@ client.connect().then(()=>{
     logger.info('db.js: initial connection',`connection successful`);
 }).catch((e)=>{
     logger.error('db.js: initial connection', 'connection ERROR.')
+    process.exit(1);
 });
 
 
