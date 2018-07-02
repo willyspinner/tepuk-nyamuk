@@ -99,6 +99,28 @@ class SocketClient {
         });
 
     }
+    throwCard(){
+        return new Promise((resolve,reject)=>{
+            this.mysocket.emit(GMSEVENTS.PLAYER_THREW,{},(response)=>{
+                if(response.success)
+                resolve(response);
+                else
+                    reject(response);
+
+            });
+        });
+    }
+    slap(reactiontime){
+        return new Promise((resolve,reject)=>{
+            this.mysocket.emit(GMSEVENTS.PLAYER_SLAPPED,{reactiontime:reactiontime},(res)=>{
+                if(res.success)
+                    resolve(res);
+                else
+                    reject(res);
+            });
+        });
+    }
+
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
         this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
             if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){

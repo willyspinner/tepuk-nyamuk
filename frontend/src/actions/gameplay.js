@@ -1,6 +1,6 @@
 // TODO: to link up with gms.
 
-
+import mysocket from '../socket/socketclient';
 /*
 
 We only have 4 actions to use in the whole game.
@@ -34,6 +34,17 @@ export const playerThrow = (username, card,nextplayer)=>({
     nextplayer
 });
 
+export const startPlayerThrow = ()=>{
+    return (reduxDispatch,getState)=> {
+        return mysocket.throwCard(); // this is a promise.
+    };
+}
+export const startPlayerSlap = (reactiontime)=>{
+
+    return (reduxDispatch,getState)=>{
+            return mysocket.slap(reactiontime) // this is also a promise.
+    }
+}
 export const playerSlap = (username,slapreactiontime) => ({
     type: "PLAYER_SLAP",
     username,
