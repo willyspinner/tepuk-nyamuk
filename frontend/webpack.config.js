@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 /*
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -44,6 +45,13 @@ return {
     filename: 'bundle.js' // output file name
   },
 
+    optimization: {
+        minimizer: [
+             new UglifyJsPlugin({
+                 test: isProduction ? /.*\.js$/ : /(?!.*)/,
+             })
+        ]
+    },
 
   // install loader: // more in webpack.js.org documentation.
   module: { 
