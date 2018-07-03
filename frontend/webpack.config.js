@@ -27,7 +27,9 @@ module.exports = (env) => {
         throw new Error("env.GMS_HOST not defined.")
     if(!env.GMS_PORT)
         throw new Error("env.GMS_PORT not defined.")
-  const isProduction = env === 'production';
+    if (!env.mode)
+        console.log("warning. env.mode not set. Will default to development.")
+  const isProduction = env.mode === 'production';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
     node:{
@@ -103,7 +105,8 @@ return {
             'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
             'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
             'process.env.GMS_HOST':JSON.stringify(env.GMS_HOST),
-            'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT)
+            'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT),
+            'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
         })
     ],
   devtool: isProduction? 'source-map':'inline-source-map',

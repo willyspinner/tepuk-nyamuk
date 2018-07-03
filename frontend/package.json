@@ -52,8 +52,8 @@
     "yarn": "^1.5.1"
   },
   "scripts": {
-    "build:dev": "webpack --env development",
-    "build:prod": "webpack -p  --env production",
+    "build:dev": "webpack --env.mode development --env.APPCS_PORT 3000 --env.APPCS_HOST \"localhost\" --env.GMS_HOST \"localhost\" --env.GMS_PORT 4000",
+    "build:prod": "webpack -p  --env.mode production --env.APPCS_PORT 3000 --env.APPCS_HOST \"localhost\" --env.GMS_HOST \"localhost\" --env.GMS_PORT 4000",
     "serve": "node server/server.js",
     "dev-server": "webpack-dev-server --mode development --env.APPCS_PORT 3000 --env.APPCS_HOST \"localhost\" --env.GMS_HOST \"localhost\" --env.GMS_PORT 4000",
     "dev-server-LAN": "if [[ $(uname -s) == \"Darwin\" ]]; then ipaddr=\"$(ipconfig getifaddr en0)\"; else ipaddr=\"$(hostname -I | awk '{print $1}')\"; fi;echo \"serving dev server on $ipaddr...\"; command -v notif >/dev/null 2>&1 &&  notif 'webpack' \"Devserver on $ipaddr\" 'daniel' & webpack-dev-server --env.APPCS_HOST \"$ipaddr\" --env.APPCS_PORT \"3000\" --env.GMS_HOST \"$ipaddr\" --env.GMS_PORT 4000 --mode development --host \"$ipaddr\"",
