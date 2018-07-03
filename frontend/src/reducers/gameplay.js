@@ -31,7 +31,7 @@ const gameplayReducer = (state= {},action)=>{
                 counter: state.counter + 1,
                 match: action.isMatch || ((state.counter ) % 13 )+ 1=== action.card,
                 playerinturn:action.nextplayer,
-                players : state.players.map((player)=>{
+                players : state.players?state.players.map((player)=>{
                     if(player.username === action.username && state.playerinturn === player.username) {
                         return {
                             ...player,
@@ -40,13 +40,13 @@ const gameplayReducer = (state= {},action)=>{
                     }
                     else
                         return player;
-                }),
-                pile: [...state.pile,action.card]
+                }): undefined,
+                pile: state.pile? [...state.pile,action.card]: undefined
             };
         case 'PLAYER_SLAP':
             return {
                 ...state,
-                players : state.players.map((player)=>{
+                players : state.players? state.players.map((player)=>{
                     if(player.username === action.username
                         &&
                         state.players.find((player)=>player.username === action.username).hasslapped === false) {
@@ -58,7 +58,7 @@ const gameplayReducer = (state= {},action)=>{
                     }
                     else
                         return player;
-                })
+                }):undefined
             };
         case 'RECEIVE_MATCH_RESULT':
             return {
