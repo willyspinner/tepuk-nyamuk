@@ -8,7 +8,8 @@ import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
 import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
-import {Input, Button} from 'antd';
+import { Button} from 'antd';
+import AuthenticationModal from './RegisterModal';
 import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
@@ -197,77 +198,26 @@ class MainPage extends Component {
                 />
             </Modal>
         );
+
         const registerModal = (
-            <Modal
-                contentLabel="Welcome"
-                isOpen={!this.props.user.username}
-                className="mainPage__registerModal"
-                ariaHideApp={false}
-            >
-                <h2
-                    style={{marginTop: "20px"}}
-                >
-                    Welcome.
-                </h2>
+          <AuthenticationModal
+            isOpen={!this.props.user.username}
+            inputUsernameValue={this.state.inputusername}
+            onInputUsernameChange={(e)=> {this.setState({inputusername: e.target.value})}}
+            inputPasswordValue={this.state.password}
+            onInputPasswordChange={(e)=> {this.setState({password: e.target.value})}}
+            inputRepeatPasswordValue={this.state.repeatPassword}
+            onInputRepeatPasswordChange={(e)=> {this.setState({repeatPassword: e.target.value})}}
+            onPressEnter={this.state.isLoggingIn? this.loginUserHandler: this.registerUserHandler}
+            isLoggingIn={this.state.isLoggingIn}
+            onTypeChange={()=>{
+                console.log(`logging in changed`);
+                this.setState((prevState) => ({isLoggingIn: !prevState.isLoggingIn}))
+            }}
 
-                <Input size="large"
-                       placeholder="name"
-                       value={this.state.inputusername}
-                       onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
-                       style={{marginBottom: "4px"}}
-                       onChange={(e) => {
-                           this.setState({inputusername: e.target.value})
-                       }}
-                />
-                <Input size="large"
-                       placeholder="password"
-                       type={"password"}
-                       value={this.state.password}
-                       style={{marginBottom: "4px"}}
-                       onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
-                       onChange={(e) => {
-                           this.setState({password: e.target.value})
-                       }}
-                />
-                {this.state.isLoggingIn ?
-                    null :
-                    <Input size="large"
-                           placeholder="repeat password"
-                           type={"password"}
-                           value={this.state.repeatPassword}
-                           style={{marginBottom: "4px"}}
-                           onPressEnter={this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
-                           onChange={(e) => {
-                               this.setState({repeatPassword: e.target.value})
-                           }}
-                    />
-                }
-                <Button
-                    type="primary"
-                    style={{marginBottom:"4px", marginTop: "4px"}}
-                    onClick = {this.state.isLoggingIn? this.loginUserHandler:this.registerUserHandler}
-                >
-                    {this.state.isLoggingIn ? "login" : "register"}
-                </Button>
 
-                <Button
-                    type="dashed"
-                    ghost
-                    style={{marginTop:"4px", marginBottom: "12px"}}
-                    onClick={() => {
-                        console.log(`logging in changed`);
-                        this.setState((prevState) => ({isLoggingIn: !prevState.isLoggingIn}))
-                    }}
-                >
-                    {this.state.isLoggingIn ?
-                        "First time here? Click me!"
-                        :
-                        "Already a registered user? Click me!"
-                    }
-                </Button>
-            </Modal>
+          />
         );
-
         const joinGameModal = (
             //TODO: Fix modal styling - contents need to be centered.
             <Modal
