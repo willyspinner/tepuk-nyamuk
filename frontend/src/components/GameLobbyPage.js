@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {List,Button} from 'antd';
+import {List,Button,Icon} from 'antd';
 import ReactLoading from 'react-loading';
 import {startLeaveGame,startRemoveGame,startStartGame} from "../actions/games";
 import ChatRoom from './ui/ChatRoom';
@@ -66,32 +66,35 @@ class GameLobbyPage extends Component {
             console.log(`GameLobbyPage: this.state.game undefined.`);
             return (<h4> ERROR: GAME LOBBY</h4>);
         }
-        let currentgame = this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
-        )[0];
 
         return (
             <div>
                 <Beforeunload onBeforeunload={e => this.onLeaveHandler()} />
                 <Button onClick={this.onLeaveHandler}
                         >
+                    <Icon type="close-circle-o" />
                     {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
                 </Button>
-                <h1 className="mainPageHeader"> Game Lobby Page </h1>
+                <h1 className="mainPageHeader"> {this.state.game.name}</h1>
                 <div style={{display:'flex',flexDirection:'row'}}>
                 <div style={{width:'70%', marginRight:'10px'}}>
                     <h2>players</h2>
                     <List
                         size="large"
                         bordered
-                        dataSource={currentgame? currentgame.players:[]}
+                        dataSource={this.state.game? this.state.game.players:[]}
                         renderItem={item => (<List.Item>{item}</List.Item>)}
                     />
                     <h5>shuffling cards...</h5>
                     <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
-                    <h3>Waiting for {this.state.game.creator} to start the game...</h3>
+                    {this.state.game.creator === this.props.user.username?
+                        (null)
+                        :
+                            (<h3>Waiting for {this.state.game.creator} to start the game...</h3>)
+                    }
                 </div>
                 <div style={{width:'35%',paddingRight:'10px'}}>
-                    <h2>Game Lobby Chat</h2>
+                    <h2>Lobby Chat</h2>
                 <ChatRoom
                     messageFeed={this.props.roomchat}
                     namespace={this.props.match.params.uuid}
@@ -106,6 +109,7 @@ class GameLobbyPage extends Component {
                     //1===1?
                     (
                         <Button onClick={this.gameStartHandler}>
+                            <Icon type="caret-right" />
                             Start game
                         </Button>)
                 : null

@@ -8,9 +8,10 @@ import Modal from 'react-modal';
 import GamePlayTutorial from './GamePlayTutorial';
 import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
-import { Button} from 'antd';
+import { Icon, Button} from 'antd';
+
 import AuthenticationModal from './RegisterModal';
-import {initializeGame} from "../actions/gameplay";
+import {initializeGame,finishGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
@@ -56,7 +57,7 @@ class MainPage extends Component {
                     }
                 );
             }).catch((e)=>{
-                alert(`MainPage::connectToGameUpdates: couldnt get open games. error: ${e}`);
+                alert(`MainPage::connectToGameUpdates: couldn't get open games. error: ${e}`);
             });
         }).catch((e)=>{
            alert(`couldn't connect to live game updates... server timed out.${JSON.stringify(e)}`);
@@ -233,8 +234,12 @@ class MainPage extends Component {
 
         const tutorialModal = (
             <Modal
-                isOpen={true}
+                isOpen={this.state.showTutorial}
                 ariaHideApp={false}
+                onRequestClose={()=>{
+                    this.setState({showTutorial:false});
+                }
+                }
             >
                 <GamePlayTutorial
                     tutorialLevel={3}
@@ -259,11 +264,7 @@ class MainPage extends Component {
                 {createGameModal}
                 {registerModal}
                 {joinGameModal}
-                {this.state.showTutorial ? tutorialModal : null}
-                <Button
-                onClick={()=>this.setState({isCreatingGame:true})}>
-                    Create a game
-                </Button>
+                {tutorialModal }
                 <div style={{display:'flex',flexDirection:'row'}}>
                     <div style={{width:'35%'}}>
                         <h2>Chatroom</h2>
@@ -274,18 +275,22 @@ class MainPage extends Component {
                             username={this.props.user.username}
                         />
                     </div>
-                    <div>
+                    <div style={{marginLeft: '15px'}}>
                         <h2>Games</h2>
                     <GameList
                         onJoin={this.onGameJoinHandler}
                         games={this.props.games}
+                        onCreateGame={()=>this.setState({isCreatingGame:true})}
                     />
                     </div>
                 </div>
                 Don't know how to play? Do a tutorial below.
-                <Button onClick={this.onTutorialStartHandler}>
+                <div style={{display:'inline-block',width:300}}>
+                <Button onClick={this.onTutorialStartHandler} >
                     Tutorial
+                    <Icon type="bulb" />
                 </Button>
+                </div>
             </div>
         );
     }

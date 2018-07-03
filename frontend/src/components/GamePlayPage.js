@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {startPlayerThrow, startPlayerSlap} from '../actions/gameplay';
 import {connect} from 'react-redux';
-import {initializeGame,playerThrow,playerSlap,receiveMatchResult} from "../actions/gameplay";
+import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame} from "../actions/gameplay";
 import PlayingCard from './ui/PlayingCard';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
@@ -152,7 +152,7 @@ class GamePlayPage extends Component {
                     :
                         (
 
-                            <div>
+                            <div style={{margin: '0 auto'}}>
                                 <ReactLoading type={"cylon"} color={"blue"} height={300} width={180}/>
                                 <h1> joining game...</h1>
                             </div>

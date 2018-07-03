@@ -1,7 +1,7 @@
 // component that holds the game. This one connects to redux right away.
 // NOTE: this is different than GamePlayPage because the logic with local state and GMS is way too different to reconcile.
 import React,{Component} from 'react';
-import {initializeGame,playerSlap,playerThrow,receiveMatchResult} from '../actions/gameplay';
+import {playerSlap,playerThrow,receiveMatchResult,finishGame} from '../actions/gameplay';
 import {connect} from 'react-redux';
 import PlayingCard from './ui/PlayingCard';
 import key from 'keymaster';
@@ -115,6 +115,10 @@ class GamePlayTutorial extends Component{
             }
         });
     };
+    componentWillUnmount(){
+        // this is needed.
+        this.props.dispatch(finishGame());
+    }
 componentDidUpdate(prevProps,prevState){
         if(this.props.gameplay.players.filter((player)=>player.hasslapped === false).length ===0){
             // MATCH RESULT
