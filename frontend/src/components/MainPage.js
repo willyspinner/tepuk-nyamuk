@@ -9,10 +9,10 @@ import GamePlayTutorial from './GamePlayTutorial';
 import ReactLoading from 'react-loading';
 import {connect} from 'react-redux';
 import {Input, Button} from 'antd';
-import {initializeGame,playerThrow,playerSlap,receiveMatchResult} from "../actions/gameplay";
+import {initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
-import SocketClient from '../socket/socketclient';
+import socketclient from '../socket/socketclient';
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -22,7 +22,6 @@ class MainPage extends Component {
         isLoggingIn: true,
         showTutorial: false,
         isCreatingGame: false,
-        socketclient: SocketClient
     }
     componentDidMount(){
         Modal.setAppElement('#app');
@@ -36,16 +35,17 @@ class MainPage extends Component {
             return {success: false, error: "passwords do not match"}
         return {success: true}
     }
+
     connectToGameUpdates= () =>{
         const connectionStr =`http://${process.env.APPCS_HOST}:${process.env.APPCS_PORT}`;
-        this.state.socketclient.connect(connectionStr, this.props.user.token).then((socketid)=>{
+        socketclient.connect(connectionStr, this.props.user.token).then((socketid)=>{
             this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(()=>{
                 console.log(`connected here 2 `);
                 //TODO: This needs to be abstracted away. We shouldn't need to call
                 //TODO: socketclient anywhere... Socketclient should reside inside the redux actions.
-                this.state.socketclient.subscribeToMainPage((newGame) =>
+                socketclient.subscribeToMainPage((newGame) =>
                         this.props.dispatch(addGame(newGame))
                     , (deletedGameuuid)=>
                         this.props.dispatch(removeGame( deletedGameuuid)),
@@ -79,45 +79,14 @@ class MainPage extends Component {
                 alert(JSON.stringify(e));
         });
     }
+
     onGameLobbyStart = (gamestartobj)=>{
-        //NOTE: for now, make this here, and see what happens.
-        // refactor as needed later.
-        const onPlayerSlapRegistered = (data)=>{
-            this.props.dispatch(playerSlap(data.username,data.reactiontime));
-        };
-        const onNextTick= (nextTick)=>{
-            this.props.dispatch(playerThrow(
-                nextTick.playerthrew,
-                nextTick.piletop,
-                nextTick.nextplayer,
-                nextTick.match
-                ));
-        };
-        const onMatchResult= (result)=>{
-            this.props.dispatch(receiveMatchResult(
-                result.loser,
-                result.loserAddToPile,
-                result.nextplayer,
-                ));
-        }
-        const onGameStart = (onrealgamestartobj)=>{
-            console.log(`onGameStart TING : ${JSON.stringify(onrealgamestartobj)}`)
-            this.props.dispatch(initializeGame(onrealgamestartobj.playerinturn,
-                onrealgamestartobj.players,
-                onrealgamestartobj.nhand));
-            //NOTEDIFF: this pushing happens when we get GAME_START signal.
-            //this makes things easier as we have our redux state ready already.
-            this.props.history.push(`/game/play/${gamestartobj.gamesessionid}`);
-        }
-        //TODO TODO: again, socket logic shouldnt be here.
-        //TODO: also, this is game logic. Shouldn't this be later?
-        this.state.socketclient.subscribeToGameplay(gamestartobj,
-            this.props.user.username,
-            onPlayerSlapRegistered,
-            onNextTick,
-            onMatchResult,onGameStart).then(()=>{
+        this.props.history.push({
+            pathname: `/game/play/${gamestartobj.gamesessionid}`,
+            gamestartobj: gamestartobj
         })
     }
+
     onLeaderGameJoinHandler = (gameId)=>{
         this.setState({isJoiningGame:true});
         // the leader just goes straight to his/her lobby .
@@ -131,6 +100,7 @@ class MainPage extends Component {
             this.setState({isJoiningGame:false});
         });
     }
+
     onGameJoinHandler = (gameId) => {
         this.setState({isJoiningGame: true});
         const onGameDeleted= (gameuuid)=>{
@@ -212,6 +182,7 @@ class MainPage extends Component {
     onChatMessageSendHandler = (msg)=>{
         this.props.dispatch(startSendMessage(msg,null));
     }
+
     render() {
         const createGameModal = (
             <Modal

@@ -7,6 +7,8 @@ const gameplayReducer = (state= {},action)=>{
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
             return {
                 counter:0,
+                initialized: true, //NOTEDIFF: added this so we can conditionally render on gameplaypage.
+                // i.e. loading screen when not initialized yet.
                 playerinturn : action.game.playerinturn,
                 playerhand: action.game.playerhand,
                 pile: action.game.pile,
