@@ -15,8 +15,6 @@ class GameLobbyPage extends Component {
             //NOTEDIFF: I put the same code below in the render method
             // because we had a bug where onUserJoin would be reflected in this local state,
             // but onUserLeave wouldn't hmm.
-            game: this.props.games.filter(g=>g.uuid === props.match.params.uuid
-                )[0], // NOTE: this doesn't have to be from our props. Can just be from
             // ws connection.
             isStartingGame:false
         };
@@ -30,7 +28,7 @@ class GameLobbyPage extends Component {
         if(!this.state.isStartingGame){
             this.props.dispatch(startLeaveGame(this.state.uuid,this.props.user.username))
                 .then(() => {
-                    if(this.props.user.username === this.state.game.creator){
+                    if(this.props.user.username === currentgame.creator){
                         
                         console.log(`dispatching startRemoveGame...`);
                         this.props.dispatch(startRemoveGame(this.state.uuid)).then(()=>{
@@ -59,11 +57,13 @@ class GameLobbyPage extends Component {
         });
     };
     render(){
+        const currentgame =  this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
+        )[0];
         if(!this.props.user.username)
             return (<h4>ERROR: GAME LOBBY</h4>);
-        if(!this.state.game)
+        if(!currentgame)
         {
-            console.log(`GameLobbyPage: this.state.game undefined.`);
+            console.log(`GameLobbyPage: currentgame undefined.`);
             return (<h4> ERROR: GAME LOBBY</h4>);
         }
 
@@ -73,24 +73,24 @@ class GameLobbyPage extends Component {
                 <Button onClick={this.onLeaveHandler}
                         >
                     <Icon type="close-circle-o" />
-                    {this.state.game.creator ===this.props.user.username?"leave and delete game": "leave game"}
+                    {currentgame.creator ===this.props.user.username?"leave and delete game": "leave game"}
                 </Button>
-                <h1 className="mainPageHeader"> {this.state.game.name}</h1>
+                <h1 className="mainPageHeader"> {currentgame.name}</h1>
                 <div style={{display:'flex',flexDirection:'row'}}>
                 <div style={{width:'70%', marginRight:'10px'}}>
                     <h2>players</h2>
                     <List
                         size="large"
                         bordered
-                        dataSource={this.state.game? this.state.game.players:[]}
+                        dataSource={currentgame? currentgame.players:[]}
                         renderItem={item => (<List.Item>{item}</List.Item>)}
                     />
                     <h5>shuffling cards...</h5>
                     <ReactLoading type={"cubes"} color={"blue"} height={90} width={90} />
-                    {this.state.game.creator === this.props.user.username?
+                    {currentgame.creator === this.props.user.username?
                         (null)
                         :
-                            (<h3>Waiting for {this.state.game.creator} to start the game...</h3>)
+                            (<h3>Waiting for {currentgame.creator} to start the game...</h3>)
                     }
                 </div>
                 <div style={{width:'35%',paddingRight:'10px'}}>
@@ -105,7 +105,7 @@ class GameLobbyPage extends Component {
                 </div>
                 {
                     //TEMPDIS
-                    this.state.game.creator === this.props.user.username?
+                    currentgame.creator === this.props.user.username?
                     //1===1?
                     (
                         <Button onClick={this.gameStartHandler}>
