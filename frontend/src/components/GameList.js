@@ -18,7 +18,7 @@ import {Icon,Card}from 'antd';
                     style={{display:'flex',flexFlow:'center',alignItems:'center', role:'button'}}
                 >
                 <Icon type="plus" style={{fontSize:40}} />
-                    <p style={{marginLeft:'15px'}}>click to create a game</p>
+                    <p style={{marginLeft:'15px'}}>click to create</p>
                 </div>
             </Card>
         </div>

@@ -10,7 +10,7 @@ import ReactLoading from 'react-loading';
 import {Icon, Button} from 'antd';
 import {connect} from 'react-redux';
 import AuthenticationModal from './RegisterModal';
-import {initializeGame } from "../actions/gameplay";
+import {finishGame, initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
@@ -157,6 +157,7 @@ class MainPage extends Component {
         const allplayers = [this.props.user.username, "bob", "berdog", "Jonathan", "Mike"];
         const playerinturn = this.props.user.username;
         let nhands = 10;
+        this.props.dispatch(finishGame());
         this.props.dispatch(initializeGame(
             playerinturn,
             allplayers,
@@ -273,7 +274,7 @@ class MainPage extends Component {
                             onClick={this.logoutHandler}
                         >Logout</Button>
                     ) : null}
-                <h1 className="mainPageHeader"> Wilson's Lit Game </h1>
+                <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
                 {/* modals here */}
                 {createGameModal}
                 {registerModal}
@@ -330,7 +331,7 @@ class MainPage extends Component {
                         </Button>
                     </div>
                 </div>
-                    <div>
+                    <div className="mainPage__module">
                         <img src="/fly-image.png"
                             height="40%"
                              width="30%"

@@ -27,9 +27,14 @@ const PlayingCard = (props) => {
             break;
         default:
             let num = props.number;
-            rank = num.toString();
+            if (num)
+                rank = num.toString();
             break
     }
+    if(!rank)
+        return (
+            <p> INVALID CARD. number not defined.</p>
+        );
     return (
         <Card rank={rank} suit={props.suit}/>
     );

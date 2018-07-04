@@ -57,6 +57,7 @@ class GamePlayTutorial extends Component{
 
         // key bindings
         key('t',()=>{
+            console.log(`throw. playerinturn : ${this.props.gameplay.playerinturn}, myusername: ${this.props.myusername}. match? ${this.props.myusername === this.props.gameplay.playerinturn}`);
             if( this.props.gameplay.playerinturn === this.props.myusername){
                 this.throw(this.props.myusername);
             }else{
@@ -111,7 +112,7 @@ class GamePlayTutorial extends Component{
             if(this.props.gameplay.playerinturn === player.username){
                 setTimeout(()=>{
                     this.throw(player.username);
-                }, (1/ reactiontime) * 2700);
+                }, (1/ reactiontime) * 2000);
             }
         });
     };
