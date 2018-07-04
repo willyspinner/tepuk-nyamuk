@@ -19,8 +19,20 @@ class GameLobbyPage extends Component {
             // ws connection.
             initgame: this.props.games.filter(g => g.uuid === this.props.match.params.uuid
             )[0],
-            isStartingGame: false
+            isStartingGame: false,
+            loadingtypes: ["cubes", "bars", "cylon"],
+            loadingidx: 0
         };
+        setInterval(() => {
+                this.setState((prevState) => {
+                    return {
+
+                        loadingidx: (prevState.loadingidx + 1) % 3
+                    };
+                })
+            },
+            3000);
+
     }
 
     componentWillUnmount() {
@@ -66,10 +78,10 @@ class GameLobbyPage extends Component {
         const currentgame = this.props.games.filter(g => g.uuid === this.props.match.params.uuid
         )[0];
         if (!this.props.user.username)
-            return (<h4>ERROR: GAME LOBBY</h4>);
+            return (<h2>ERROR: GAME LOBBY</h2>);
         if (!currentgame) {
             console.log(`GameLobbyPage: currentgame undefined.`);
-            return (<h4> ERROR: GAME LOBBY</h4>);
+            return (<h2> ERROR: GAME LOBBY</h2>);
         }
 
         return (
@@ -77,26 +89,56 @@ class GameLobbyPage extends Component {
                 <Beforeunload onBeforeunload={e => this.onLeaveHandler()}/>
                 <Button onClick={this.onLeaveHandler}
                 >
-                    <Icon type="close-circle-o"/>
+
+                    <Icon type={currentgame.creator === this.props.user.username?"close-circle-o":"home"}/>
                     {currentgame.creator === this.props.user.username ? "leave and delete game" : "leave game"}
                 </Button>
+                <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+                <Icon type="rocket" style={{fontSize:'50px', marginRight:'10px'}}/>
                 <h1 className="mainPageHeader"> {currentgame.name}</h1>
+            </div>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <div style={{width: '70%', marginRight: '10px'}}>
-                        <h2>players</h2>
-                        <List
-                            size="large"
-                            bordered
-                            dataSource={currentgame ? currentgame.players : []}
-                            renderItem={item => (<List.Item>{item}</List.Item>)}
-                        />
-                        <h5>shuffling cards...</h5>
-                        <ReactLoading type={"cubes"} color={"blue"} height={90} width={90}/>
-                        {currentgame.creator === this.props.user.username ?
-                            (null)
-                            :
-                            (<h3>Waiting for {currentgame.creator} to start the game...</h3>)
-                        }
+                        <div className="gameLobbyPage__module">
+                            <h2>players</h2>
+                            <List
+                                size="large"
+                                bordered
+                                dataSource={currentgame ? currentgame.players : []}
+                                renderItem={item => (
+                                    <List.Item>
+                                        {currentgame.creator === item ?
+                                            (
+                                                <div style={{marginRight: "15px"}}>
+                                                    <Icon type="user"/>
+                                                    <Icon type="star-o"/>
+                                                </div>
+                                            )
+                                            : (
+                                                <div style={{marginRight: "30px"}}>
+                                                    <Icon type="user"/>
+                                                </div>
+                                            )
+                                        }
+
+                                        <div>
+                                            {item}
+                                        </div>
+                                    </List.Item>)}
+                            />
+                        </div>
+                        <div className="gameLobbyPage__module">
+                            <h4>shuffling cards...</h4>
+                            <div >
+                            <ReactLoading type={this.state.loadingtypes[this.state.loadingidx]} color={"blue"}
+                                          height={100} width={100}/>
+                            </div>
+                            {currentgame.creator === this.props.user.username ?
+                                (null)
+                                :
+                                (<h3>Waiting for {currentgame.creator} to start the game...</h3>)
+                            }
+                        </div>
                     </div>
                     <div style={{width: '35%', paddingRight: '10px'}}>
                         <h2>Lobby Chat</h2>
@@ -109,26 +151,24 @@ class GameLobbyPage extends Component {
                     </div>
                 </div>
                 {
-                    //TEMPDIS
                     currentgame.creator === this.props.user.username ?
-                        //1===1?
                         (
-                            <div>
-                            {currentgame.players.length > 1 ?
-                                (
-                                    <Button onClick={this.gameStartHandler}>
-                                        <Icon type="caret-right"/>
-                                        Start game
-                                    </Button>
-                                ) :
-                                (
-                                    <p>
-                                    You need at least 2 players to play a game! invite others!
-                                </p>
-                                )
-                            }
+                            <div className="gameLobbyPage__module">
+                                {currentgame.players.length > 1 ?
+                                    (
+                                        <Button onClick={this.gameStartHandler}>
+                                            <Icon type="caret-right"/>
+                                            Start game
+                                        </Button>
+                                    ) :
+                                    (
+                                        <h3>
+                                            You need at least 2 players to start a game! invite others!
+                                        </h3>
+                                    )
+                                }
                             </div>
-                        ): null
+                        ) : null
                 }
             </div>
         );

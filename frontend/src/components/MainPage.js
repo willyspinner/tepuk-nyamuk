@@ -24,9 +24,9 @@ class MainPage extends Component {
         isLoggingIn: true,
         showTutorial: false,
         isCreatingGame: false,
-        playingcarddemo:{
+        playingcarddemo: {
             suit: "S",
-            number:2
+            number: 2
         }
     }
 
@@ -272,74 +272,86 @@ class MainPage extends Component {
                         <Button
                             style={{width: "10%"}}
                             onClick={this.logoutHandler}
-                        >Logout</Button>
-                    ) : null}
-                <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
-                {/* modals here */}
-                {createGameModal}
-                {registerModal}
-                {joinGameModal}
-                {tutorialModal}
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <div style={{width: '35%'}} className="mainPage__module">
-                        <h2>Chatroom</h2>
-                        <ChatRoom
-                            messageFeed={this.props.mainchat}
-                            namespace={null}
-                            onMessageSend={this.onChatMessageSendHandler}
-                            username={this.props.user.username}
-                        />
-                    </div>
-                    <div style={{width: "65%"}} className="mainPage__module">
-                        <h2>Games</h2>
-                        <GameList
-                            onJoin={this.onGameJoinHandler}
-                            games={this.props.games}
-                            onCreateGame={() => this.setState({isCreatingGame: true})}
-                        />
-                    </div>
-                </div>
-                <div style={{display:'flex',flexDirection:'row'}}>
-
-                <div style={{width:'80%'}}>
-                    <div className="mainPage__module">
-                        <h2>How to play</h2>
-                        <ol>
-                            <li>
-                                Everyone gets given out a personal pile of cards. They are not to look at their own pile, and must be faced down.
-                            </li>
-                            <li>
-                                Players count in order (Ace to King) as they throw a single card to a central pile from their own pile.
-                            </li>
-                            <li>
-                                if the count matches the card's number, then everyone has to slap the central pile. The last person to slap this central pile has to get all the cards from the center.
-                            </li>
-                            <li>
-                                First person to finish their own pile, and successfuly slaps in 3 rounds with their pile finished wins!
-                            </li>
-
-                        </ol>
-
-                    </div>
-                    <div style={{display: 'inline-block', width: 300}} className="mainPage__module">
-                        <p>
-                            Don't know how to play? Do a tutorial below.
-                        </p>
-                        <Button onClick={this.onTutorialStartHandler}>
-                            Tutorial
-                            <Icon type="bulb"/>
+                        >
+                            <Icon type="logout" />
+                            Logout
                         </Button>
-                    </div>
+                    ) : null}
+                <div style={{display: 'flex', flexDirection: "row", justifyContent: "center"}}>
+                <Icon type="trophy" style={{fontSize:50, marginRight:'15px'}}/>
+                <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
+                <Icon type="smile-o" style={{ fontSize: 50 ,marginLeft:'15px'}}/>
+            </div>
+    {/* modals here */}
+    {createGameModal}
+    {registerModal}
+    {joinGameModal}
+    {tutorialModal}
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            <div style={{width: '35%'}} className="mainPage__module">
+                <h2>Chatroom</h2>
+                <ChatRoom
+                    messageFeed={this.props.mainchat}
+                    namespace={null}
+                    onMessageSend={this.onChatMessageSendHandler}
+                    username={this.props.user.username}
+                />
+            </div>
+            <div style={{width: "65%"}} className="mainPage__module">
+                <h2>Games</h2>
+                <GameList
+                    onJoin={this.onGameJoinHandler}
+                    games={this.props.games}
+                    onCreateGame={() => this.setState({isCreatingGame: true})}
+                />
+            </div>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+
+            <div style={{width: '80%'}}>
+                <div className="mainPage__module">
+                    <h2>How to play</h2>
+                    <ol>
+                        <li>
+                            Everyone gets given out a personal pile of cards. They are not to look at their own pile,
+                            and must be faced down.
+                        </li>
+                        <li>
+                            Players count in order (Ace to King) as they throw a single card to a central pile from
+                            their own pile.
+                        </li>
+                        <li>
+                            if the count matches the card's number, then everyone has to slap the central pile. The last
+                            person to slap this central pile has to get all the cards from the center.
+                        </li>
+                        <li>
+                            First person to finish their own pile, and successfuly slaps in 3 rounds with their pile
+                            finished wins!
+                        </li>
+
+                    </ol>
+
                 </div>
-                    <div className="mainPage__module">
-                        <img src="/fly-image.png"
-                            height="40%"
-                             width="30%"
-                        />
-                    </div>
+                <div style={{display: 'inline-block', width: 300}} className="mainPage__module">
+                    <p>
+                        Wanna try it out? Do a tutorial below.
+                    </p>
+                    <Button onClick={this.onTutorialStartHandler}>
+                        Tutorial
+                        <Icon type="bulb"/>
+                    </Button>
                 </div>
             </div>
-        );
+            <div className="mainPage__module">
+                <img src="/fly-image.png"
+                     height="40%"
+                     width="30%"
+                />
+            </div>
+        </div>
+    </div>
+    )
+        ;
     }
 }
 
