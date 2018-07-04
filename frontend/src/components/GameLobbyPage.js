@@ -16,6 +16,8 @@ class GameLobbyPage extends Component {
             // because we had a bug where onUserJoin would be reflected in this local state,
             // but onUserLeave wouldn't hmm.
             // ws connection.
+            initgame:this.props.games.filter(g=>g.uuid === this.props.match.params.uuid
+            )[0],
             isStartingGame:false
         };
     }
@@ -28,7 +30,7 @@ class GameLobbyPage extends Component {
         if(!this.state.isStartingGame){
             this.props.dispatch(startLeaveGame(this.state.uuid,this.props.user.username))
                 .then(() => {
-                    if(this.props.user.username === currentgame.creator){
+                    if(this.props.user.username === this.state.initgame.creator){
                         
                         console.log(`dispatching startRemoveGame...`);
                         this.props.dispatch(startRemoveGame(this.state.uuid)).then(()=>{
