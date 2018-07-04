@@ -11,7 +11,7 @@ const GameListItem = (props)=> (
                 <div onClick={props.game.isStarted? null:props.onJoin}>
                     {
                         props.game.isStarted? null:(
-                            <div>
+                            <div className={"gameList__item__joinButton"}>
                             <Icon
                                 type="rocket"
                             />

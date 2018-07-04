@@ -16,3 +16,10 @@ button:disabled {
 .is-active {
   font-weight:bold;
 }
+
+.appFooter {
+  bottom:0;
+  width:100%;
+  background:#6cf;
+  margin: $module-spacing;
+}
