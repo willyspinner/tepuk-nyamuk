@@ -34,20 +34,39 @@ class SocketClient {
         });
     }
 
-    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat,onGameStarted){
+    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat,onGameStarted,onRecvInvitation){
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
         this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
         this.mysocket.on(EVENTS.RECV_CHAT_MSG,(data)=>onRecvChat(data) )
         this.mysocket.on(EVENTS.GAME_STARTED,(data)=>onGameStarted(data) )
+        this.mysocket.on(EVENTS.LOBBY.LOBBY_INVITATION,(data)=>onRecvInvitation(data) )
     }
     sendChatMessage(msgObj){
         //NOTE: this isn't promise based, since we'll be waiting for the broadcast
         // from the ws server for our chat sent.
             this.mysocket.emit(EVENTS.EMIT_CHAT_MSG,msgObj);
     }
+    inviteToLobby(myusername,gameid,inviteeUsername,onSuccess,onFail){
+        this.mysocket.emit(EVENTS.LOBBY.INVITE_USER,{
+            gameid,
+            invitee:inviteeUsername,
+            invitedBy: myusername
+
+
+        },(ack)=>{
+            if(ack === EVENTS.LOBBY.INVITE_USER_SUCCESS){
+                onSuccess();
+            }else{
+                onFail();
+            }
+
+        });
+    }
     unsubscribeFromMainPage(){
         this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
+        this.mysocket.removeAllListeners(EVENTS.GAME_STARTED);
+        this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_INVITATION);
         this.mysocket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
 
     }

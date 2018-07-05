@@ -580,5 +580,35 @@ io.use(function (socket, next) {
         }
     });
 
+    /*
+    User invitations.
+    accepts:
+
+
+     */
+    socket.on(EVENTS.LOBBY.INVITE_USER, (data,callback)=>{
+        const invitedBy = data.invitedBy;
+        const invitee = data.invitee;
+        const gameid = data.gameid;
+        if(!invitedBy || !invitee || !gameid){
+            callback(EVENTS.LOBBY.INVITE_USER_FAIL);
+            return;
+        }
+        db.getUserSecrets(invitee).then((user)=>{
+            if(!user){
+                callback(EVENTS.LOBBY.INVITE_USER_FAIL);
+                return;
+            }
+            const socketid= user.socketid;
+            io.to(socketid).emit(EVENTS.LOBBY.LOBBY_INVITATION,{
+               invitedBy,
+               gameid,
+            });
+        }).catch((e)=>{
+            callback(EVENTS.LOBBY.INVITE_USER_FAIL);
+        })
+
+    })
+
 });
 

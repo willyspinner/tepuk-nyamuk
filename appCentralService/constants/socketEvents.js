@@ -14,6 +14,10 @@ module.exports=  {
         CLIENT_LEAVE: 'clientLeave',
         CLIENT_LEAVE_ACK: 'clientLeaveAck',
         CLIENT_LEAVE_NOACK: 'clientLeaveNoAck',
+        INVITE_USER:'inviteUser',
+        INVITE_USER_FAIL:'inviteUserFail',
+        INVITE_USER_SUCCESS:'inviteUserSuccess',
+        LOBBY_INVITATION:'lobbyInvitation'
     },
     // these are just some helper tings that will query the socket's room information.
     UTILS:{

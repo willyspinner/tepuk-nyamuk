@@ -14,6 +14,12 @@ const userReducer = (state = {}, action) => {
               ...state,
               socketid: action.socketid
           };
+
+      case 'RECEIVE_LOBBY_INVITATION':
+          return {
+              ...state,
+              invitation:action.invitation
+          }
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;

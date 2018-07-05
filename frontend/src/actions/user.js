@@ -2,7 +2,6 @@ import request from 'request';
 import {NEWUSER,LOGINUSER} from "../serverroutes/AppCSRoutes";
 import socketclient from '../socket/socketclient';
 
-//NOTE: I don't think we need this userRegistered action here.
 
 export const userLoggedIn = (username,token)=>({
     type: 'USER_LOGGED_IN',
@@ -76,4 +75,17 @@ export const connectSocket = (socketid)=>({
     socketid
 });
 
-
+export const startInviteToLobby = (gameid,invitee_username)=>{
+    return (reduxDispatch,getState)=>{
+        return new Promise((resolve,reject)=>{
+            socketclient.inviteToLobby(getState().user.username,
+                gameid,invitee_username,
+                ()=>resolve(),
+                ()=>reject());
+        });
+    }
+};
+export const receiveInvitation = (invitation)=>({
+    type:'RECEIVE_LOBBY_INVITATION',
+    invitation
+});
