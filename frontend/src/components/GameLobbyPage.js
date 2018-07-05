@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {List, Button, Icon} from 'antd';
+import {List, Button, Icon,Input} from 'antd';
+import AlertDialog from './ui/AlertDialog';
 import ReactLoading from 'react-loading';
 import {startLeaveGame, startRemoveGame, startStartGame} from "../actions/games";
+import {startInviteToLobby} from "../actions/user";
 import ChatRoom from './ui/ChatRoom';
 import Beforeunload from 'react-beforeunload';
 import {startSendMessage} from "../actions/chatroom";
@@ -21,7 +23,18 @@ class GameLobbyPage extends Component {
             )[0],
             isStartingGame: false,
             loadingtypes: ["cubes", "bars", "cylon"],
-            loadingidx: 0
+            loadingidx: 0,
+            invitation:{
+                invitee:'',
+                showAlert:false,
+                subject:'',
+                message:''
+            },
+            error:{
+                showErrorModal:false,
+                subject:'',
+                message:''
+            }
         };
         setInterval(() => {
                 this.setState((prevState) => {
@@ -34,7 +47,15 @@ class GameLobbyPage extends Component {
             3000);
 
     }
-
+    alertError(subject, message) {
+        this.setState({
+            error: {
+                showErrorModal: true,
+                subject,
+                message
+            }
+        })
+    }
     componentWillUnmount() {
         if (!this.state.hasLeft)
             this.onLeaveHandler();
@@ -60,6 +81,18 @@ class GameLobbyPage extends Component {
                 });
         }
     };
+    inviteUser= ()=>{
+        console.log('called inviteUSer on invitee',this.state.invitation.invitee);
+        if(this.state.invitation.invitee !== '')
+        this.props.dispatch(startInviteToLobby(this.props.match.params.uuid,
+            this.state.initgame.name,
+            this.state.invitation.invitee)).then(()=>{
+                //TODO: Don't show an alert. Show a breadcrumb or something smaller.!
+            //Yes? okay.
+        }).catch(()=>{
+                this.alertError("Sorry!",`Couldn't invite ${this.state.invitation.invitee}. There was an error.`)
+        });
+    }
     gameStartHandler = () => {
         this.setState({isStartingGame: true}, () => {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
@@ -89,7 +122,19 @@ class GameLobbyPage extends Component {
                 <Beforeunload onBeforeunload={e => this.onLeaveHandler()}/>
                 <Button onClick={this.onLeaveHandler}
                 >
-
+                    <AlertDialog
+                    subject={this.state.invitation.subject}
+                    message={this.state.invitation.message}
+                    handleclose={()=>this.setState({invitation:{showAlert:false}})}
+                    isShowingModal={this.state.invitation.showAlert}
+                    icontype={"smile-o"}
+                    />
+                    <AlertDialog
+                        isShowingModal={this.state.error.showErrorModal}
+                        handleClose={() => this.setState({error: {showErrorModal: false}})}
+                        subject={this.state.error.subject}
+                        message={this.state.error.message}
+                    />
                     <Icon type={currentgame.creator === this.props.user.username?"close-circle-o":"home"}/>
                     {currentgame.creator === this.props.user.username ? "leave and delete game" : "leave game"}
                 </Button>
@@ -150,9 +195,20 @@ class GameLobbyPage extends Component {
                         />
                     </div>
                 </div>
+                <div className="gameLobbyPage__module">
+                    <h3>Invite people here:</h3>
+                    <Input value={this.state.invitation.invitee}
+                           onPressEnter={this.inviteUser}
+                           onChange={(e)=>this.setState({invitation:{invitee:e.target.value}})}/>
+                    <Button onClick={this.inviteUser}>
+                        invite
+                    </Button>
+
+                </div>
                 {
                     currentgame.creator === this.props.user.username ?
                         (
+                            <div>
                             <div className="gameLobbyPage__module">
                                 {currentgame.players.length > 1 ?
                                     (
@@ -167,6 +223,7 @@ class GameLobbyPage extends Component {
                                         </h3>
                                     )
                                 }
+                            </div>
                             </div>
                         ) : null
                 }

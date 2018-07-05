@@ -46,9 +46,11 @@ class SocketClient {
         // from the ws server for our chat sent.
             this.mysocket.emit(EVENTS.EMIT_CHAT_MSG,msgObj);
     }
-    inviteToLobby(myusername,gameid,inviteeUsername,onSuccess,onFail){
+    inviteToLobby(myusername,gameid,gamename, inviteeUsername,onSuccess,onFail){
+
         this.mysocket.emit(EVENTS.LOBBY.INVITE_USER,{
             gameid,
+            gamename,
             invitee:inviteeUsername,
             invitedBy: myusername
 

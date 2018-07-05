@@ -75,13 +75,15 @@ export const connectSocket = (socketid)=>({
     socketid
 });
 
-export const startInviteToLobby = (gameid,invitee_username)=>{
+export const startInviteToLobby = (gameid, gamename,invitee_username)=>{
     return (reduxDispatch,getState)=>{
         return new Promise((resolve,reject)=>{
             socketclient.inviteToLobby(getState().user.username,
-                gameid,invitee_username,
-                ()=>resolve(),
-                ()=>reject());
+            gameid,
+            gamename,
+            invitee_username,
+            ()=>resolve(),
+            ()=>reject());
         });
     }
 };
@@ -89,3 +91,7 @@ export const receiveInvitation = (invitation)=>({
     type:'RECEIVE_LOBBY_INVITATION',
     invitation
 });
+
+export const discardInvitation = ()=>({
+    type: 'DISCARD_LOBBY_INVITATION'
+})

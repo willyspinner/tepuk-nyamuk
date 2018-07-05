@@ -21,7 +21,7 @@ class AlertDialog extends React.Component {
                     <ModalDialog onClose={this.handleClose}>
                         <h1>{this.props.subject}</h1>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-                            <Icon type="frown-o" style={{fontSize:25}}/>
+                            <Icon type={this.props.icontype? this.props.icontype:"frown-o"} style={{fontSize:25}}/>
                         </div>
                         <p>{this.props.message}</p>
                     </ModalDialog>

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {startCreateGame, startedGame, startJoinGame, startLeaveGame} from "../actions/games";
-import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser} from "../actions/user";
+import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser, discardInvitation,receiveInvitation} from "../actions/user";
 import {receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
@@ -15,6 +15,8 @@ import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
 import AlertDialog from './ui/AlertDialog';
+import InvitationDialog from './ui/InvitationDialog';
+
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -29,9 +31,9 @@ class MainPage extends Component {
             number: 2
         },
         error: {
-            subject:'',
-            message:'',
-            showErrorModal:false
+            subject: '',
+            message: '',
+            showErrorModal: false
         }
     }
 
@@ -40,22 +42,23 @@ class MainPage extends Component {
         /*
         check if we have any error dialog messages when going to mainpage.
          */
-        if(this.props.location.dialog){
+        if (this.props.location.dialog) {
             this.alertError(this.props.location.dialog.subject,
                 this.props.location.dialog.message
-                );
+            );
         }
     }
 
-    alertError(subject,message){
+    alertError(subject, message) {
         this.setState({
-            error:{
-                showErrorModal:true,
+            error: {
+                showErrorModal: true,
                 subject,
                 message
             }
         })
     }
+
     validateInput = () => {
         if (this.state.inputusername === '')
             return {success: false, error: "name can't be empty."};
@@ -82,12 +85,15 @@ class MainPage extends Component {
                     (newMessageObj) => this.props.dispatch(receiveMessage(newMessageObj)),
                     (onGameStarted) => {
                         this.props.dispatch(startedGame(onGameStarted.gameuuid));
+                    },
+                    (invitation)=>{
+                    this.props.dispatch(receiveInvitation(invitation));
                     }
                 );
             }).catch((e) => {
                 this.alertError('server error. Sorry!',
                     `couldn't get open games. Server error. Please try again later. ${e}`
-                    );
+                );
             });
         }).catch((e) => {
             this.alertError(
@@ -103,7 +109,7 @@ class MainPage extends Component {
         if (!validateInput.success) {
             this.alertError(
                 'input validation error.',
-               `${validateInput.error}`
+                `${validateInput.error}`
             );
             return;
         }
@@ -111,13 +117,13 @@ class MainPage extends Component {
             .then(() => {
                 this.connectToGameUpdates();
             }).catch((e) => {
-            if (e.error){
+            if (e.error) {
                 this.alertError(
                     'login error.',
                     'authentication failed.'
                 );
             }
-            else{
+            else {
                 this.alertError(
                     'login error.',
                     'authentication failed.'
@@ -145,7 +151,7 @@ class MainPage extends Component {
         }).catch((e) => {
             this.alertError('error creating and joining game. Please try again later!',
                 JSON.stringify(e)
-                )
+            )
             this.setState({isJoiningGame: false});
         });
     }
@@ -156,10 +162,10 @@ class MainPage extends Component {
             this.props.dispatch(startLeaveGame(gameuuid, this.props.user.username))
                 .then(() => {
                     this.props.history.push({
-                        pathname:'/',
+                        pathname: '/',
                         dialog: {
                             subject: 'Sorry!',
-                            message:'your game lobby leader has deleted the game.'
+                            message: 'your game lobby leader has deleted the game.'
                         }
                     });
                 })
@@ -192,11 +198,11 @@ class MainPage extends Component {
             .then(() => {
                 this.connectToGameUpdates();
             }).catch((e) => {
-            if (e.error){
+            if (e.error) {
 
-                this.alertError('registration error',e.error);
+                this.alertError('registration error', e.error);
             }
-            else{
+            else {
 
                 this.alertError('registration error', JSON.stringify(e));
             }
@@ -241,6 +247,15 @@ class MainPage extends Component {
 
     onChatMessageSendHandler = (msg) => {
         this.props.dispatch(startSendMessage(msg, null));
+    }
+
+    handleAcceptInvitation = () => {
+        const gameid = this.props.user.invitation.gameid;
+        this.props.dispatch(discardInvitation());
+        this.onGameJoinHandler(gameid);
+    }
+    handleDeclineInvitation = () => {
+        this.props.dispatch(discardInvitation());
     }
 
     render() {
@@ -323,92 +338,102 @@ class MainPage extends Component {
                             style={{width: "10%"}}
                             onClick={this.logoutHandler}
                         >
-                            <Icon type="logout" />
+                            <Icon type="logout"/>
                             Logout
                         </Button>
                     ) : null}
                 <div style={{display: 'flex', flexDirection: "row", justifyContent: "center"}}>
-                <Icon type="trophy" style={{fontSize:50, marginRight:'15px'}}/>
-                <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
-                <Icon type="smile-o" style={{ fontSize: 50 ,marginLeft:'15px'}}/>
-            </div>
-    {/* modals here */}
-    {createGameModal}
-    {registerModal}
-    {joinGameModal}
-    {tutorialModal}
-    <AlertDialog
-        isShowingModal={this.state.error.showErrorModal}
-        handleClose={()=>this.setState({error:{showErrorModal:false}})}
-        subject={this.state.error.subject}
-        message={this.state.error.message}
-    />
-
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-            <div style={{width: '35%'}} className="mainPage__module">
-                <h2>Chatroom</h2>
-                <ChatRoom
-                    messageFeed={this.props.mainchat}
-                    namespace={null}
-                    onMessageSend={this.onChatMessageSendHandler}
-                    username={this.props.user.username}
-                />
-            </div>
-            <div style={{width: "65%"}} className="mainPage__module">
-                <h2>Games</h2>
-                <GameList
-                    onJoin={this.onGameJoinHandler}
-                    games={this.props.games}
-                    onCreateGame={() => this.setState({isCreatingGame: true})}
-                />
-            </div>
-        </div>
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-
-            <div style={{width: '80%'}}>
-                <div className="mainPage__module">
-                    <h2>How to play</h2>
-                    <ol>
-                        <li>
-                            Everyone gets given out a personal pile of cards. They are not to look at their own pile,
-                            and must be faced down.
-                        </li>
-                        <li>
-                            Players count in order (Ace to King) as they throw a single card to a central pile from
-                            their own pile.
-                        </li>
-                        <li>
-                            if the count matches the card's number, then everyone has to slap the central pile. The last
-                            person to slap this central pile has to get all the cards from the center.
-                        </li>
-                        <li>
-                            First person to finish their own pile, and successfuly slaps in 3 rounds with their pile
-                            finished wins!
-                        </li>
-
-                    </ol>
-
+                    <Icon type="trophy" style={{fontSize: 50, marginRight: '15px'}}/>
+                    <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
+                    <Icon type="smile-o" style={{fontSize: 50, marginLeft: '15px'}}/>
                 </div>
-                <div style={{display: 'inline-block', width: 300}} className="mainPage__module">
-                    <p>
-                        Wanna try it out? Do a tutorial below.
-                    </p>
-                    <Button onClick={this.onTutorialStartHandler}>
-                        Tutorial
-                        <Icon type="bulb"/>
-                    </Button>
+                {/* modals here */}
+                {createGameModal}
+                {registerModal}
+                {joinGameModal}
+                {tutorialModal}
+                <AlertDialog
+                    isShowingModal={this.state.error.showErrorModal}
+                    handleClose={() => this.setState({error: {showErrorModal: false}})}
+                    subject={this.state.error.subject}
+                    message={this.state.error.message}
+                />
+                <InvitationDialog
+                    isShowingModal={!!this.props.user.invitation}
+                    invitation={this.props.user.invitation}
+                    handleAcceptInvitation={this.handleAcceptInvitation}
+                    handleDeclineInvitation={this.handleDeclineInvitation}
+                />
+
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <div style={{width: '35%'}} className="mainPage__module">
+                        <h2>Chatroom</h2>
+                        <ChatRoom
+                            messageFeed={this.props.mainchat}
+                            namespace={null}
+                            onMessageSend={this.onChatMessageSendHandler}
+                            username={this.props.user.username}
+                        />
+                    </div>
+                    <div style={{width: "65%"}} className="mainPage__module">
+                        <h2>Games</h2>
+                        <GameList
+                            onJoin={this.onGameJoinHandler}
+                            games={this.props.games}
+                            onCreateGame={() => this.setState({isCreatingGame: true})}
+                        />
+                    </div>
+                </div>
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+
+                    <div style={{width: '80%'}}>
+                        <div className="mainPage__module">
+                            <h2>How to play</h2>
+                            <ol>
+                                <li>
+                                    Everyone gets given out a personal pile of cards. They are not to look at their own
+                                    pile,
+                                    and must be faced down.
+                                </li>
+                                <li>
+                                    Players count in order (Ace to King) as they throw a single card to a central pile
+                                    from
+                                    their own pile.
+                                </li>
+                                <li>
+                                    if the count matches the card's number, then everyone has to slap the central pile.
+                                    The last
+                                    person to slap this central pile has to get all the cards from the center.
+                                </li>
+                                <li>
+                                    First person to finish their own pile, and successfuly slaps in 3 rounds with their
+                                    pile
+                                    finished wins!
+                                </li>
+
+                            </ol>
+
+                        </div>
+                        <div style={{display: 'inline-block', width: 300}} className="mainPage__module">
+                            <p>
+                                Wanna try it out? Do a tutorial below.
+                            </p>
+                            <Button onClick={this.onTutorialStartHandler}>
+                                Tutorial
+                                <Icon type="bulb"/>
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="mainPage__module">
+                        <img src="/fly-image.png"
+                             height="40%"
+                             width="30%"
+                        />
+                    </div>
                 </div>
             </div>
-            <div className="mainPage__module">
-                <img src="/fly-image.png"
-                     height="40%"
-                     width="30%"
-                />
-            </div>
-        </div>
-    </div>
-    )
-        ;
+        )
+            ;
     }
 }
 

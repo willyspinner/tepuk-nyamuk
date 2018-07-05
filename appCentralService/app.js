@@ -590,7 +590,9 @@ io.use(function (socket, next) {
         const invitedBy = data.invitedBy;
         const invitee = data.invitee;
         const gameid = data.gameid;
-        if(!invitedBy || !invitee || !gameid){
+        const gamename = data.gamename;
+        logger.info("on INVITE_USER", `got data : ${JSON.stringify(data)}`)
+        if(!invitedBy || !invitee || !gameid || !gamename){
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);
             return;
         }
@@ -603,6 +605,7 @@ io.use(function (socket, next) {
             io.to(socketid).emit(EVENTS.LOBBY.LOBBY_INVITATION,{
                invitedBy,
                gameid,
+                gamename
             });
         }).catch((e)=>{
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);

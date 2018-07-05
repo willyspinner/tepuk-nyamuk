@@ -20,6 +20,11 @@ const userReducer = (state = {}, action) => {
               ...state,
               invitation:action.invitation
           }
+      case 'DISCARD_LOBBY_INVITATION':
+          return {
+              ...state,
+              invitation:undefined
+          }
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);
       return state;
