@@ -48,9 +48,9 @@ return {
   },
 
     optimization: {
-        splitChunks:{
+        /*splitChunks:{
             chunks:'all'
-        },
+        },*/
         minimizer: [
              new UglifyJsPlugin({
                  test: isProduction ? /.*\.js$/ : /(?!.*)/,
@@ -115,9 +115,12 @@ return {
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 
         // minify operating on everything?
+        /*
         new MinifyPlugin({
             exclude: /node_modules/
         })
+        */
+
 
 
 

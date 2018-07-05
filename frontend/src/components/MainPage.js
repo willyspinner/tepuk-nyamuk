@@ -14,7 +14,7 @@ import {finishGame, initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
-
+import AlertDialog from './ui/AlertDialog';
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -27,20 +27,42 @@ class MainPage extends Component {
         playingcarddemo: {
             suit: "S",
             number: 2
+        },
+        error: {
+            subject:'',
+            message:'',
+            showErrorModal:false
         }
     }
 
     componentDidMount() {
         Modal.setAppElement('#app');
+        /*
+        check if we have any error dialog messages when going to mainpage.
+         */
+        if(this.props.location.dialog){
+            this.alertError(this.props.location.dialog.subject,
+                this.props.location.dialog.message
+                );
+        }
     }
 
+    alertError(subject,message){
+        this.setState({
+            error:{
+                showErrorModal:true,
+                subject,
+                message
+            }
+        })
+    }
     validateInput = () => {
         if (this.state.inputusername === '')
-            return {success: false, error: "name can't be empty"};
+            return {success: false, error: "name can't be empty."};
         if (this.state.password === '')
-            return {success: false, error: "password can't be empty!"};
+            return {success: false, error: "password can't be empty."};
         if (!this.state.isLoggingIn && this.state.repeatPassword !== this.state.password)
-            return {success: false, error: "passwords do not match"}
+            return {success: false, error: "passwords do not match."}
         return {success: true}
     }
 
@@ -63,10 +85,15 @@ class MainPage extends Component {
                     }
                 );
             }).catch((e) => {
-                alert(`MainPage::connectToGameUpdates: couldn't get open games. error: ${e}`);
+                this.alertError('server error. Sorry!',
+                    `couldn't get open games. Server error. Please try again later. ${e}`
+                    );
             });
         }).catch((e) => {
-            alert(`couldn't connect to live game updates... server timed out.${JSON.stringify(e)}`);
+            this.alertError(
+                'server error. Sorry!',
+                `couldn't connect to socket for live updates. Server error. Please try again later. ${e}`
+            );
         })
     }
 
@@ -74,17 +101,28 @@ class MainPage extends Component {
         console.log(`calling loginUserHandler`);
         let validateInput = this.validateInput();
         if (!validateInput.success) {
-            alert(validateInput.error);
+            this.alertError(
+                'input validation error.',
+               `${validateInput.error}`
+            );
             return;
         }
         this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
             .then(() => {
                 this.connectToGameUpdates();
             }).catch((e) => {
-            if (e.error)
-                alert(e.error);
-            else
-                alert(JSON.stringify(e));
+            if (e.error){
+                this.alertError(
+                    'login error.',
+                    'authentication failed.'
+                );
+            }
+            else{
+                this.alertError(
+                    'login error.',
+                    'authentication failed.'
+                )
+            }
         });
     }
 
@@ -105,7 +143,9 @@ class MainPage extends Component {
         })).then((/*empty resolve arg*/) => {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
-            alert(JSON.stringify(e))
+            this.alertError('error creating and joining game. Please try again later!',
+                JSON.stringify(e)
+                )
             this.setState({isJoiningGame: false});
         });
     }
@@ -115,7 +155,13 @@ class MainPage extends Component {
         const onGameDeleted = (gameuuid) => {
             this.props.dispatch(startLeaveGame(gameuuid, this.props.user.username))
                 .then(() => {
-                    this.props.history.push('/');
+                    this.props.history.push({
+                        pathname:'/',
+                        dialog: {
+                            subject: 'Sorry!',
+                            message:'your game lobby leader has deleted the game.'
+                        }
+                    });
                 })
         }
         this.props.dispatch(startJoinGame(gameId, this.props.user.username, this.onGameLobbyStart, onGameDeleted)).then((playersInLobby) => {
@@ -126,7 +172,7 @@ class MainPage extends Component {
             })
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
-            alert("Sorry! There was a server error.");
+            this.alertError('Sorry! There was a server error', JSON.stringify(e));
             this.setState({isJoiningGame: false});
         })
         // we render a modal for loading until the promise is returned.
@@ -138,7 +184,7 @@ class MainPage extends Component {
         console.log(`calling loginUserHandler`);
         let validateInput = this.validateInput();
         if (!validateInput.success) {
-            alert(validateInput.error);
+            this.alertError('registration error.', validateInput.error);
             return;
         }
         this.props.dispatch(startRegisterUser(this.state.inputusername,
@@ -146,10 +192,14 @@ class MainPage extends Component {
             .then(() => {
                 this.connectToGameUpdates();
             }).catch((e) => {
-            if (e.error)
-                alert(e.error);
-            else
-                alert(JSON.stringify(e));
+            if (e.error){
+
+                this.alertError('registration error',e.error);
+            }
+            else{
+
+                this.alertError('registration error', JSON.stringify(e));
+            }
         })
     }
 
@@ -287,6 +337,13 @@ class MainPage extends Component {
     {registerModal}
     {joinGameModal}
     {tutorialModal}
+    <AlertDialog
+        isShowingModal={this.state.error.showErrorModal}
+        handleClose={()=>this.setState({error:{showErrorModal:false}})}
+        subject={this.state.error.subject}
+        message={this.state.error.message}
+    />
+
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <div style={{width: '35%'}} className="mainPage__module">
                 <h2>Chatroom</h2>
