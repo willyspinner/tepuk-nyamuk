@@ -124,7 +124,10 @@ class GameLobbyPage extends Component {
             })
         });
     };
-
+    onKickUserHandler = (username)=>{
+        //TODO TODO. KICK
+        message.success(`kicked ${username} from game lobby.`)
+    }
     render() {
         const currentgame = this.props.games.filter(g => g.uuid === this.props.match.params.uuid
         )[0];
@@ -181,6 +184,16 @@ class GameLobbyPage extends Component {
                                         <div>
                                             {item}
                                         </div>
+                                        {currentgame.creator !== item && currentgame.creator ===this.props.user.username?
+                                            (
+                                                <div style={{ position: 'absolute',
+                                                    right: '10px', cursor:'pointer'}}
+                                                     onClick={()=>this.onKickUserHandler(item)}
+                                                >
+                                                    <Icon type="close-circle-o" style={{fontSize: '30px'}}/>
+                                                </div>
+                                            ): null
+                                        }
                                     </List.Item>)}
                             />
                         </div>
