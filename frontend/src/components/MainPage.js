@@ -339,7 +339,6 @@ class MainPage extends Component {
                             onClick={this.logoutHandler}
                         >
                             <Icon type="logout"/>
-                            Logout
                         </Button>
                     ) : null}
                 <div style={{display: 'flex', flexDirection: "row", justifyContent: "center"}}>

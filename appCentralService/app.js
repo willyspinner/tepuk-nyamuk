@@ -596,9 +596,14 @@ io.use(function (socket, next) {
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);
             return;
         }
-        db.getUserSecrets(invitee).then((user)=>{
+        db.getUser(invitee).then((user)=>{
             if(!user){
                 callback(EVENTS.LOBBY.INVITE_USER_FAIL);
+                return;
+            }
+            logger.info('on INVITE_USER',`user.gameid === gameid : ${user.gameid === gameid}`);
+            if (user.gameid === gameid){
+                callback(`${invitee} is already in the lobby.`);
                 return;
             }
             const socketid= user.socketid;
@@ -607,6 +612,7 @@ io.use(function (socket, next) {
                gameid,
                 gamename
             });
+            callback(EVENTS.LOBBY.INVITE_USER_SUCCESS);
         }).catch((e)=>{
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);
         })

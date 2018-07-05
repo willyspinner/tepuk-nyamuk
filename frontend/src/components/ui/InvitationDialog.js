@@ -19,7 +19,7 @@ class InvitationDialog extends React.Component {
                         <h1>You've been invited by {this.props.invitation.invitedBy}!</h1>
                         <p>Please confirm if you'd like to join game {this.props.invitation.gamename}.</p>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-                            <Button onClick={this.props.handleAcceptInvitation}>
+                            <Button onClick={this.props.handleAcceptInvitation} type="primary">
                                 Accept
                             </Button>
                             <Button type='danger' onClick={this.props.handleDeclineInvitation}>

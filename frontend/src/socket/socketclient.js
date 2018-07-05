@@ -53,13 +53,11 @@ class SocketClient {
             gamename,
             invitee:inviteeUsername,
             invitedBy: myusername
-
-
         },(ack)=>{
             if(ack === EVENTS.LOBBY.INVITE_USER_SUCCESS){
                 onSuccess();
             }else{
-                onFail();
+                onFail(ack);
             }
 
         });

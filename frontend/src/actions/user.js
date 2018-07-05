@@ -83,7 +83,7 @@ export const startInviteToLobby = (gameid, gamename,invitee_username)=>{
             gamename,
             invitee_username,
             ()=>resolve(),
-            ()=>reject());
+            (err)=>reject(err));
         });
     }
 };

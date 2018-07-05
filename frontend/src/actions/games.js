@@ -163,6 +163,12 @@ export const startStartGame = (gameid) => {
                STARTGAMEFROMLOBBY(gameid,getState().user.token,getState().user.socketid,
                    (err,res,body)=>{
                         const response = JSON.stringify(body);
+
+                        console.log(`error obj :`,err);
+                        if(err){
+                            reject(err);
+                            return;
+                        }
                        alert(`start game from lobby result : ${response}`);
                         if(response.success)
                             resolve(response);
