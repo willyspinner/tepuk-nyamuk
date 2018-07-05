@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 /*
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -30,7 +32,7 @@ module.exports = (env) => {
         throw new Error("env.GMS_PORT not defined.")
     if (!env.mode)
         console.log("warning. env.mode not set. Will default to development.")
-  const isProduction = env.mode === 'production';
+  const isProduction = env.mode === 'production' || env.mode === 'production_profile';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
     node:{
@@ -46,6 +48,9 @@ return {
   },
 
     optimization: {
+        splitChunks:{
+            chunks:'all'
+        },
         minimizer: [
              new UglifyJsPlugin({
                  test: isProduction ? /.*\.js$/ : /(?!.*)/,
@@ -97,25 +102,25 @@ return {
   },
     plugins: [
         CSSExtract,
-        /*new webpack.DefinePlugin({ // this will be bundled into clientside by webpack.
-            // we use JSON.stringify since we want to make the env variables a string.
-            'process.env.FIREBASE_API_KEY': JSON.stringify(process.env.FIREBASE_API_KEY),
-            'process.env.FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN),
-            'process.env.FIREBASE_DATABASE_URL': JSON.stringify(process.env.FIREBASE_DATABASE_URL),
-            'process.env.FIREBASE_PROJECT_ID': JSON.stringify(process.env.FIREBASE_PROJECT_ID),
-            'process.env.FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
-            'process.env.FIREBASE_MESSAGING_SENDER_ID':JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID)
-        })*/
+        env.mode==='production_profile' ? new BundleAnalyzerPlugin():
+            new webpack.DefinePlugin({
+                'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
+                'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
+                'process.env.GMS_HOST':JSON.stringify(env.GMS_HOST),
+                'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT),
+                'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
+            }),
 
+        // Ignore all locale files of moment.js
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 
-        // For appcs.
-        new webpack.DefinePlugin({
-            'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
-            'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
-            'process.env.GMS_HOST':JSON.stringify(env.GMS_HOST),
-            'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT),
-            'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
+        // minify operating on everything?
+        new MinifyPlugin({
+            exclude: /node_modules/
         })
+
+
+
     ],
   devtool: isProduction? 'source-map':'inline-source-map',
   // source-map is good for production, but is slow to build.
