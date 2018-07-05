@@ -17,7 +17,9 @@ module.exports=  {
         INVITE_USER:'inviteUser',
         INVITE_USER_FAIL:'inviteUserFail',
         INVITE_USER_SUCCESS:'inviteUserSuccess',
-        LOBBY_INVITATION:'lobbyInvitation'
+        LOBBY_INVITATION:'lobbyInvitation',
+        KICK_OUT_USER:'kickOutUser',
+        KICKED_OUT:'iHaveBeenKickedOut'
     },
     // these are just some helper tings that will query the socket's room information.
     UTILS:{

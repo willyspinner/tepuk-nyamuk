@@ -170,7 +170,20 @@ class MainPage extends Component {
                     });
                 })
         }
-        this.props.dispatch(startJoinGame(gameId, this.props.user.username, this.onGameLobbyStart, onGameDeleted)).then((playersInLobby) => {
+        const onKickedOut =() =>{
+            this.props.dispatch(startLeaveGame(gameId, this.props.user.username))
+                .then(() => {
+                    this.props.history.push({
+                        pathname: '/',
+                        dialog: {
+                            subject: 'Sorry!',
+                            message: 'your game lobby leader has kicked you out.'
+                        }
+                    });
+                })
+
+        }
+        this.props.dispatch(startJoinGame(gameId, this.props.user.username, this.onGameLobbyStart, onGameDeleted,onKickedOut)).then((playersInLobby) => {
             playersInLobby.forEach((player) => {
                 this.props.dispatch(joinGame(gameId, player))
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence

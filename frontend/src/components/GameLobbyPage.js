@@ -4,7 +4,7 @@ import {List, Button, Icon, Input} from 'antd';
 import AlertDialog from './ui/AlertDialog';
 import ReactLoading from 'react-loading';
 import EVENTS from '../../../appCentralService/constants/socketEvents';
-import {startLeaveGame, startRemoveGame, startStartGame} from "../actions/games";
+import {startKickoutUser, startLeaveGame, startRemoveGame, startStartGame} from "../actions/games";
 import {startInviteToLobby} from "../actions/user";
 import ChatRoom from './ui/ChatRoom';
 import {message} from 'antd';
@@ -125,8 +125,11 @@ class GameLobbyPage extends Component {
         });
     };
     onKickUserHandler = (username)=>{
-        //TODO TODO. KICK
-        message.success(`kicked ${username} from game lobby.`)
+        this.props.dispatch(startKickoutUser(username,this.props.match.params.uuid)).then(()=>{
+            message.success(`kicked ${username} from game lobby.`,5);
+        }).catch((e)=>{
+            message.error(`failed to kick ${username} from game lobby.`,5);
+        })
     }
     render() {
         const currentgame = this.props.games.filter(g => g.uuid === this.props.match.params.uuid
@@ -190,7 +193,7 @@ class GameLobbyPage extends Component {
                                                     right: '10px', cursor:'pointer'}}
                                                      onClick={()=>this.onKickUserHandler(item)}
                                                 >
-                                                    <Icon type="close-circle-o" style={{fontSize: '30px'}}/>
+                                                    <Icon type="close-circle-o" style={{fontSize: '20px'}}/>
                                                 </div>
                                             ): null
                                         }

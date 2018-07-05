@@ -70,7 +70,7 @@ class SocketClient {
         this.mysocket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
 
     }
-    subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted){
+    subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted,onKickedOut){
         return new Promise((resolve,reject)=>{
             this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid, token : this.token},
                 (ackResponse)=>{
@@ -88,12 +88,26 @@ class SocketClient {
                             this.mysocket.close();
                             onLobbyGameStart(gameStartObj);
                         });
+                        this.mysocket.on(EVENTS.LOBBY.KICKED_OUT,(kickoutobj)=>{
+                            onKickedOut(kickoutobj);
+                        })
                         resolve(ackResponse.players);
                     }else{
                         reject();
                         //No ack.
                     }
                 });
+        });
+    }
+    kickoutUser(user,gameid){
+        return new Promise((resolve,reject)=>{
+            this.mysocket.emit(EVENTS.LOBBY.KICK_OUT_USER,{ kickee:user,gameid},(ack)=>{
+                if(ack)
+                    resolve(ack);
+                else
+                    reject(ack);
+
+            })
         });
     }
     subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart){

@@ -583,6 +583,9 @@ io.use(function (socket, next) {
     /*
     User invitations.
     accepts:
+    invitation object
+    {invitedBy, invitee, gameid, gamename}
+
 
 
      */
@@ -618,6 +621,25 @@ io.use(function (socket, next) {
         })
 
     })
+    socket.on(EVENTS.LOBBY.KICK_OUT_USER,(data,callback)=>{
+        db.getUser(data.kickee).then((user)=>{
+            if(!user || user.gameid !== data.gameid){
+                callback(false);
+                return;
+            }
+            //TODO: very inefficient.
+            db.getGame(data.gameid).then((game)=>{
+                db.getUser(game.creator).then((creator)=>{
+                    if(creator.socketid === socket.id){
+                        socket.to(user.socketid).emit(EVENTS.LOBBY.KICKED_OUT);
+                        callback(true);
+                    }else{
+                        callback(false);
+                    }
+                }).catch((e)=>callback(false))
+            }).catch((e)=>callback(false))
+        }).catch((e)=>callback(false))
+    });
 
-});
+})
 

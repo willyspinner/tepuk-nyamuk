@@ -87,7 +87,7 @@ export const joinGame = (gameuuid,username) => ({
     username,
 });
 
-export const startJoinGame = (uuid,username,onGameStart,onGameDeleted) => {
+export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOut) => {
     //returns a JS promise when game join is approved by server.
     return (reduxDispatch,getState) => {
     return new Promise((resolve,reject)=>{
@@ -106,7 +106,7 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted) => {
 
 
                 mysocket.subscribeToLobby(username,uuid,
-                    onUserJoin,onUserLeft,onGameStart,onGameDeleted).then((playersInLobby)=>{
+                    onUserJoin,onUserLeft,onGameStart,onGameDeleted,onKickedOut).then((playersInLobby)=>{
                     reduxDispatch(joinGame(uuid,username));
                     resolve(playersInLobby);
                 }).catch((e)=>{
@@ -156,8 +156,14 @@ export const startedGame = (uuid)=>{
     }
 }
 
+export const startKickoutUser = (username,gameid)=>{
+    return (reduxDispatch,getState)=>{
+        /* returns a promise. */
+            return mysocket.kickoutUser(username,gameid)
+    };
+};
 export const startStartGame = (gameid) => {
-    return (ReduxDispatch,getState)=>{
+    return (reduxDispatch,getState)=>{
         return new Promise((resolve,reject)=>{
            request.post(
                STARTGAMEFROMLOBBY(gameid,getState().user.token,getState().user.socketid,
