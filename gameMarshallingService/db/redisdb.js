@@ -214,18 +214,42 @@ const self = module.exports = {
                 .get(`${gamesessionid}/nplayers`)
                 .get(`${gamesessionid}/turnoffset`)
                 .lrange(`${gamesessionid}/players`,0,-1)
+                //TODO: WHY DO WE NEED THIS. WHY WE NEED TO LRANGE THE PLAYERS?
                 .llen(`${gamesessionid}/players`);
             chain.execAsync().then((data)=>{
                 const newcounter = parseInt(data[0]);
                 const nplayers = parseInt(data[1]);
                 const offset = parseInt(data[2]);
+                const player_array = data[3];
                 let newindex = (offset + newcounter) % nplayers;
-                redisclient.lindexAsync(`${gamesessionid}/players`, newindex).then((nextplayer) => {
-                    console.log(`redisdb::incrementCurrentCounter: got next player: ${nextplayer}`);
-                    redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
-                        resolve({nextplayer: nextplayer,nextcounter: newcounter});
-                    }).catch(e => reject(e));
-                }).catch(e => reject(e))
+                    //NOTE: check for empty hands.
+                    /* Check empty hands here */
+                    let chain_hands = redisclient.multi();
+                    player_array.forEach((player)=>{
+                        chain_hands = chain_hands.llen(`${gamesessionid}/player/${player}/hand`);
+                    })
+                    chain_hands.execAsync().then((result)=>{
+                        // every index in result corresponds to its player_array.
+                        // i is the final index we will go with.
+                        let i = newindex;
+                        let n_zero_hands = 0;
+                        // start from index newindex, and determine how much we have to skip due to them having no cards (default is 0)
+                        do{
+                            if(result[i] ===0){
+                                n_zero_hands++;
+                            }else{
+                                break;
+                            }
+                            i = (i + 1) % nplayers ;
+                        } while (i !== newindex);
+                        const nextplayer = player_array[(newindex + n_zero_hands) % nplayers];
+                        console.log(`redisdb::incrementCurrentCounter: got next player: ${nextplayer}`);
+                        redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
+                            resolve({nextplayer: nextplayer,nextcounter: newcounter});
+                        }).catch(e => reject(e));
+
+                    });
+
                 })
             });
     },

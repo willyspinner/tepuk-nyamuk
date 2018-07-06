@@ -285,3 +285,61 @@ describe('redisdb.test: playground testing.', function () {
     });
 });
 
+describe('redisdb.test: skipping players in  playerinturn', function(done){
+    before(function(done){
+        redisdb.initializeGame(dummydata.game1.gamesessionid, 'SECRET',
+            [dummydata.game1.players[0],dummydata.game1.players[1]],dummydata.game1.players[2],5)
+            .then((snapshot) => { // remember that snapshot are kv pairs of user: [c1,c2,,..]
+                done();
+            }).catch((e)=>done(new Error(e)));
+    });
+    after(function(done){
+        redisdb.deleteGame(dummydata.game1.gamesessionid).then(()=>done()).catch((e)=>done(new Error(e)));
+    })
+    it('should skip a player with 0 cards',function(done){
+        // we call pop hand 5 times since this is the cards per player.
+        let gamesessionid = dummydata.game1.gamesessionid;
+        let player1 =dummydata.game1.players[0];
+        let player2 =dummydata.game1.players[1];
+        let player3 =dummydata.game1.players[1];
+
+        redisdb.getCurrentTurn(gamesessionid).then((currentturn) => {
+            assert.equal(currentturn.playerinturn, player1);
+            redisdb.popHandToPile(gamesessionid,player1)
+                .then(()=>{
+                    redisdb.popHandToPile(gamesessionid,player1)
+                        .then(()=>{
+                            redisdb.popHandToPile(gamesessionid,player1)
+                                .then(()=>{
+                                    redisdb.popHandToPile(gamesessionid,player1)
+                                        .then(()=>{
+                                            redisdb.popHandToPile(gamesessionid,player1)
+                                                .then(()=>{
+                                                    //now. should have 0 things.
+                                                    // now player 2 turn:
+                                                        redisdb.incrementCurrentCounter(gamesessionid).then((currentcounter)=>{
+                                                            console.log(`first ting. ${currentcounter.nextplayer}, ${player2}`)
+                                                            assert.equal(currentcounter.nextplayer, player2);
+                                                            // now player 3turn:
+                                                            redisdb.incrementCurrentCounter(gamesessionid).then((currentcounter2)=>{
+                                                                console.log(`2nd ting. ${currentcounter2.nextplayer}, ${player3}`)
+                                                                assert.equal(currentcounter2.nextplayer, player3);
+                                                                //now player 1 turn (supposedly).
+                                                                redisdb.incrementCurrentCounter(gamesessionid).then((currentcounter3)=>{
+                                                                    // player 1 shouldn't be in turn. It should be player 2 because player 1 has no more cards.
+                                                                    console.log(`3rd ting. ${currentcounter3.nextplayer}, ${player2}`)
+                                                                    assert.equal(currentcounter3.nextplayer, player2);
+                                                                    done();
+                                                                }).catch(e => done(new Error(e)));
+                                                            }).catch(e => done(new Error(e)));
+                                                        }).catch(e => done(new Error(e)));
+                                                    }).catch(e => done(new Error(e)));
+                                                }).catch(e => done(new Error(e)));
+                                        }).catch(e => done(new Error(e)));
+                                }).catch(e => done(new Error(e)));
+                        }).catch(e => done(new Error(e)));
+                }).catch(e => done(new Error(e)));
+    });
+});
+
+
