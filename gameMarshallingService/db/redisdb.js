@@ -298,7 +298,7 @@ const self = module.exports = {
         return redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`);
     },
 
-    setZeroSreak: (gamesessionid, player) => {
+    setZeroStreak: (gamesessionid, player) => {
         // we need for this promise thing to be here because 'set' returns 0.
         return new Promise((resolve, reject) => {
             redisclient.setAsync(`${gamesessionid}/player/${player}/streak`,0).then((newstreak) => {

@@ -302,6 +302,7 @@ io.use(function (socket, next) {
                                 success:false,
                                 error: "you have already slapped."
                             });
+                            return;
                         }
                         else{
                             if(!data.reactiontime){
@@ -309,6 +310,7 @@ io.use(function (socket, next) {
                                     success:false,
                                     error:"no reaction time"
                                 })
+                                return;
                             }
                             redisdb.slap(gamesessionid, username, data.reactiontime).then((slappedplayers) => {
                                 io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username,reactiontime:data.reactiontime});
@@ -321,20 +323,54 @@ io.use(function (socket, next) {
                                         const loser = slappedplayers[slappedplayers.length - 1];
                                         Promise.all([
                                             redisdb.popAllPileToLoser(gamesessionid,loser),
-                                                redisdb.resetSlaps(gamesessionid),
-                                                redisdb.setCurrentCounter(gamesessionid, loser),
+                                            redisdb.resetSlaps(gamesessionid),
+                                            redisdb.setCurrentCounter(gamesessionid, loser),
                                             redisdb.setMatch(gamesessionid, false) //NOTEDIFF: put setMAtch false here.
                                         ]).then((data)=>{
-
                                             let poppedpile = data[0];
                                             console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
-                                            io.to(gamesessionid).emit(events.MATCH_RESULT, {
-                                                loser: loser,
-                                                loserAddToPile: poppedpile.length,
-                                                nextplayer:loser,
-                                                matchResult: slappedplayers
-                                            });
-                                            response({success:true});
+                                            redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
+                                                redisdb.getSnapshot(gamesessionid).then((snapshot)=>{
+                                                    //TODO find out from snapshot WHY our guy isn't getting streaked.
+                                                    logger.info('SNAPSHOT GOT', JSON.stringify(snapshot));
+                                                    //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
+
+                                                   // const zeroed_players= snapshot.filter((playerobj)=>(playerobj.hand.length === 0 || !playerobj.hand));
+
+                                                    const zeroed_players = slappedplayers.filter((playerusername)=>
+                                                        playerusername !== loser && !snapshot.map((playerobj)=>playerobj.username).includes(playerusername));
+                                                    Promise.all(
+                                                        zeroed_players
+                                                            .map((zeroed_player_username)=>redisdb.incrementStreak(gamesessionid,zeroed_player_username))
+                                                        /*
+                                                            Surely there has to be something simpler than
+                                                            new Promise((res,rej)=>res())
+                                                            ??
+                                                            Yes. return null.
+                                                         */
+                                                        ).then((zeroed_players_new_streaks)=>{
+
+                                                        //TODO: set winning condition for people who have 3 streaks.
+                                                        zeroed_players_new_streaks.forEach((score,idx)=>{
+                                                            logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}`);
+                                                           if (score === 3){
+                                                               logger.info(`WINNING CONDITION`,`streak 3 for player ${zeroed_players[idx]}`)
+                                                           }
+                                                        });
+
+                                                        io.to(gamesessionid).emit(events.MATCH_RESULT, {
+                                                            loser: loser,
+                                                            loserAddToPile: poppedpile.length,
+                                                            nextplayer:loser,
+                                                            matchResult: slappedplayers
+                                                        });
+                                                        response({success:true});
+                                                    });
+
+
+                                                    })
+
+                                                })
                                         }).catch((e)=>{
                                             response({success:false, error:`${e.stack}`});
                                         });
@@ -352,7 +388,6 @@ io.use(function (socket, next) {
                 } else {
                     // punish accidental slap.
                     const loser = username;
-                    
                     console.log(`gmsapp::events.PLAYER_SLAPPED: executing punishment promise`);
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),
@@ -361,14 +396,16 @@ io.use(function (socket, next) {
                     ]).then((data)=>{
                         const poppedpile = data[0];
                         console.log(`gmsapp::events.PLAYER_SLAPPED: poppedpile : ${JSON.stringify(poppedpile)}`);
-                        io.to(gamesessionid).emit(events.MATCH_RESULT, {
-                            loser: loser,
-                            loserAddToPile: poppedpile.length,
-                            nextplayer: loser
-                        });
-                        response({
-                            success:true,
-                            consequence: "you slapped when not in match!"
+                        redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
+                            io.to(gamesessionid).emit(events.MATCH_RESULT, {
+                                loser: loser,
+                                loserAddToPile: poppedpile.length,
+                                nextplayer: loser
+                            });
+                            response({
+                                success:true,
+                                consequence: "you slapped when not in match!"
+                            })
                         })
                     }).catch((e)=>{
 
