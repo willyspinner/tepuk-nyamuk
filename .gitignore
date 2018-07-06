@@ -4,6 +4,7 @@ yarn.lock
 yarn-error.log
 *.env
 package-lock.json
+gameMarshallingService/package-lock.json
 .idea
 .nyc_output
 dist
