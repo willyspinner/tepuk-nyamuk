@@ -343,7 +343,7 @@ io.use(function (socket, next) {
                                                         zeroed_players
                                                             .map((zeroed_player_username)=>redisdb.incrementStreak(gamesessionid,zeroed_player_username))
                                                         /*
-                                                            Surely there has to be something simpler than
+                                                            Surely there has to be something simpler than3
                                                             new Promise((res,rej)=>res())
                                                             ??
                                                             Yes. return null.
@@ -358,11 +358,21 @@ io.use(function (socket, next) {
                                                            }
                                                         });
 
+
                                                         io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                                             loser: loser,
                                                             loserAddToPile: poppedpile.length,
                                                             nextplayer:loser,
-                                                            matchResult: slappedplayers
+                                                            matchResult: slappedplayers,
+                                                            streakUpdate:
+                                                                zeroed_players_new_streaks.map((score,idx)=>{
+                                                                    return {username: zeroed_players[idx], streak: score}
+                                                                })
+
+
+                                                            //NOTEDIFF:
+
+
                                                         });
                                                         response({success:true});
                                                     });

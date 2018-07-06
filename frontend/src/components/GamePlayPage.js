@@ -6,7 +6,7 @@ import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame} fro
 import PlayingCard from './ui/PlayingCard';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
-import {Row, Col} from 'antd';
+import {Row, Col,notification,Progress} from 'antd';
 import socketclient from '../socket/socketclient';
 
 /*
@@ -43,6 +43,7 @@ class GamePlayPage extends Component {
                 result.loser,
                 result.loserAddToPile,
                 result.nextplayer,
+                result.streakUpdate
             ));
         };
         const onGameStart = (onrealgamestartobj)=>{
@@ -57,17 +58,24 @@ class GamePlayPage extends Component {
             onMatchResult,onGameStart).then(()=>{
                 // bind key bindings only when we subscribed to the gameplay and everything ok...
                 key('t', () => {
+                    console.log('pressed t.')
                     if (this.props.gameplay.playerinturn === this.props.myusername) {
+
                         this.throw();
                     } else {
-                        alert("it isn't your turn!");
+                        notification.open({
+                            message: "it isn't your turn!",
+                            description:"you can't throw a card when it isn't your turn."
+                        });
                     }
                 });
                 key('space', () => {
                     if (!this.props.gameplay.match) {
                         this.slap(123091); // you just slapped mistakenly.
-                        alert(`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`);
-                        this.determineLoser();
+                        notification.open({
+                            message:'oops!',
+                            description:`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`
+                        })
                     }
                     this.slap(performance.now() - this.state.myreactiontime);
                 })
@@ -84,7 +92,10 @@ class GamePlayPage extends Component {
         });
 
         console.log(`got loser ${loser.username} out of ${JSON.stringify(this.props.gameplay.players.map((player) => player.username))}`);
-        alert(`after slap event: loser: ${JSON.stringify(loser)}`);
+        notification.open({
+            message:'Match results',
+            description: `Loser is : ${loser.username}, who slapped in time: ${loser.slapreactiontime}`
+        })
     };
 
     componentDidUpdate(prevProps, prevState) {
@@ -103,6 +114,7 @@ class GamePlayPage extends Component {
     render() {
 
         return (
+
             <div>
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
@@ -112,6 +124,18 @@ class GamePlayPage extends Component {
                         <h4>
                             whoami : {this.props.myusername}
                         </h4>
+                        <div>
+                            {/* Pile */}
+                            <h2>Pile:</h2>
+                            <Progress
+                                percent ={
+                                    (this.props.gameplay.pile.length /(
+                                        this.props.gameplay.pile.length +
+                                        this.props.gameplay.players.map((player)=>player.nhand).reduce((acc,cur)=>acc+cur) ))* 100}
+                                format={()=>`pile: ${this.props.gameplay.pile.length}`}
+                            />
+
+                        </div>
                         <Row type="flex" justify="center" align="top">
                             <Col span={8}>
                                 <div style={{flex: 1, flexDirection: "row"}}>
@@ -122,7 +146,8 @@ class GamePlayPage extends Component {
                                                 <br/>
                                                 cards in hand: {player.nhand}
                                                 <br/>
-                                                streaks: {player.streaks}
+                                                <Progress type="circle" percent={player.streak * 33.33333} format={percent => `${player.streak} streak`}/>
+                                                <br/>
                                                 <br/>
                                                 {player.hasslapped ? "SLAPPED" : null}
                                                 <br/>
@@ -133,7 +158,7 @@ class GamePlayPage extends Component {
                                 </div>
                             </Col>
                             <Col span={8}>
-                                {this.props.gameplay.pile.length === 0 ? "throw the card to continue..." :
+                                {this.props.gameplay.pile.length === 0 ? `${this.props.gameplay.playerinturn}, throw the card to continue...` :
                                     (
                                         <PlayingCard
                                             suit={"S"}
@@ -159,6 +184,7 @@ class GamePlayPage extends Component {
                         )
 
                 }
+
             </div>
         );
     }

@@ -16,7 +16,7 @@ const gameplayReducer = (state= {},action)=>{
                     return {
                         username : player,
                         nhand: action.game.nhand,
-                        streaks : 0,
+                        streak : 0,
                         hasslapped: false,
                         slapreactiontime: undefined
                     }
@@ -32,6 +32,7 @@ const gameplayReducer = (state= {},action)=>{
                 match: action.isMatch || ((state.counter ) % 13 )+ 1=== action.card,
                 playerinturn:action.nextplayer,
                 players : state.players?state.players.map((player)=>{
+                   // default streak unless still continued to streak increase.
                     if(player.username === action.username && state.playerinturn === player.username) {
                         return {
                             ...player,
@@ -39,7 +40,9 @@ const gameplayReducer = (state= {},action)=>{
                         };
                     }
                     else
-                        return player;
+                        return {
+                        ...player,
+                        };
                 }): undefined,
                 pile: state.pile? [...state.pile,action.card]: undefined
             };
@@ -68,6 +71,10 @@ const gameplayReducer = (state= {},action)=>{
                 counter: 0,
                 match: false,
                 players : state.players.map((player)=>{
+                    let streak = action.streakUpdate.filter(
+                        updateObj=>updateObj.username === player.username
+                    )[0];
+                    streak = streak? streak.streak: 0;
                     if(player.username === action.loser) {
 
                         console.log(`receive match result zeroing hasslapped for loser ${player.username}`);
@@ -75,7 +82,8 @@ const gameplayReducer = (state= {},action)=>{
                             ...player,
                             nhand: player.nhand + action.loseraddtopile,
                             hasslapped: false,
-                            slapreactiontime:undefined
+                            slapreactiontime:undefined,
+                            streak
                         }
                     }
                     else{
@@ -83,7 +91,8 @@ const gameplayReducer = (state= {},action)=>{
                         return {
                             ...player,
                             hasslapped:false,
-                            slapreactiontime:undefined
+                            slapreactiontime:undefined,
+                            streak
                         }
                     }
                 })
