@@ -393,6 +393,7 @@ io.use(function (socket, next) {
                 } else {
                     // punish accidental slap.
                     const loser = username;
+                    //TODO: SOMETHING WRONG FOR FALSE SLAPPINGS.
                     console.log(`gmsapp::events.PLAYER_SLAPPED: executing punishment promise`);
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),
@@ -404,8 +405,9 @@ io.use(function (socket, next) {
                         redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                 loser: loser,
-                                loserAddToPile: poppedpile.length,
-                                nextplayer: loser
+                                loserAddToPile: poppedpile ? poppedpile.length: 0,
+                                nextplayer: loser,
+                                streakUpdate: [{username:loser, streak: 0 }] // nothing NOTEDIFF: nothing since no one's streaks are increased or decreased.
                             });
                             response({
                                 success:true,

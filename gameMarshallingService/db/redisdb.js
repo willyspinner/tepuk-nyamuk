@@ -191,6 +191,12 @@ const self = module.exports = {
                     .then((poppedpile) => {
                     console.log(`redisdb::popAllPileToLoser: poppedpile: ${JSON.stringify(poppedpile)}`);
                     // 2. , push the popped pile cards to loser.
+                        if(!poppedpile ){
+                            console.log(`redisdb::popAllPileToLoser: resolving with poppedpile ${poppedpile} already pushed into ${loser}`);
+                            resolve(poppedpile);
+                            return
+
+                        }else
                     redisclient.lpushAsync(`${gamesessionid}/player/${loser}/hand`, ...poppedpile)
                         .then((result) => {
                             console.log(`redisdb::popAllPileToLoser: resolving with poppedpile ${poppedpile} already pushed into ${loser}`);

@@ -146,23 +146,6 @@ const self = module.exports = {
             })
         });
     },
-    truncateGames: ()=>{
-        //WARNING.
-        // DELETES ALL ENTRIES IN GAMES.
-        return new Promise ((resolve,reject)=>{
-            // NOTE: we use the PG_TRUNCATE
-            if (process.env.ENVIRON !== 'test' || !process.env.PG_TRUNCATE=== "0")
-                reject(new Error("ERROR: Tried to truncate games database. NOT ON TEST ENVIRON"));
-            
-            console.log(`truncating entire games database... i hope you know what you're doing...`);
-            const deletequery = `TRUNCATE TABLE ${fields.GAMES.TABLENAME};`;
-            client.query(deletequery,(err,res)=>{
-                if(err)
-                    reject(err);
-                resolve();
-            })
-        });
-    },
     getGame: (gameId)=>{
         return new Promise ((resolve,reject)=>{
             const query = {
@@ -207,7 +190,7 @@ const self = module.exports = {
                 values: [userObj.username,null,null,userObj.password]
             };
             
-            console.log(`trying to regitser user ${JSON.stringify(userObj)}`);
+            logger.info(`db::registerUser()`,`trying to register user ${JSON.stringify(userObj)}`);
             client.query(newuserquery,(err,res)=>{
                 if(err)
                     reject(err);
@@ -419,5 +402,34 @@ const self = module.exports = {
              resolve();
            })
         });
+    },
+    //TODO: get history of all played games by this user.
+    getGamesHistory : (username)=>{
+
+    },
+    // Called by GMS when a game finishes.
+    gmsFinishGame : (gameid,resultObj)=>{
+      return new Promise((resolve,reject)=>{
+          const finishgamequery = {
+              text: `UPDATE ${fields.GAMES.TABLENAME} `+
+              `SET ${fields.GAMES.STATUS} `+
+              `= '${dbconstants.GAMES.STATUS.ENDED}' ${fields.GAMES.RESULT} = $2 `+
+              `WHERE ${fields.GAMES.UUID} = $1;`,
+              values: [gameid,JSON.stringify(resultObj)]
+          };
+          client.query(finishgamequery,(err,res)=>{
+              if(err){
+                  reject(err);
+                  return;
+
+              }
+              resolve(res);
+          })
+
+      });
+    },
+    // called by GMS when someone leaves in a game (midway).
+    gmsInterruptOngoingGame:  (gameid)=>{
+
     }
 };

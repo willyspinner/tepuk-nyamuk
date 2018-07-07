@@ -39,6 +39,7 @@ class GamePlayPage extends Component {
             ));
         };
         const onMatchResult= (result)=>{
+            this.determineLoser();
             this.props.dispatch(receiveMatchResult(
                 result.loser,
                 result.loserAddToPile,
@@ -71,19 +72,23 @@ class GamePlayPage extends Component {
                 });
                 key('space', () => {
                     if (!this.props.gameplay.match) {
-                        this.slap(123091); // you just slapped mistakenly.
+                        this.slap(123012091); // you just slapped mistakenly.
+                        /*
                         notification.open({
                             message:'oops!',
                             description:`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`
                         })
+                        */
+                    }else{
+                        this.slap(performance.now() - this.state.myreactiontime);
                     }
-                    this.slap(performance.now() - this.state.myreactiontime);
                 })
         });
     }
 
     determineLoser = () => {
         let loser = undefined;
+        console.log(`called determineLoser. players: ${JSON.stringify(this.props.gameplay.players)}`);
         this.props.gameplay.players.forEach((player) => {
             if (!loser)
                 loser = player;
@@ -99,11 +104,13 @@ class GamePlayPage extends Component {
     };
 
     componentDidUpdate(prevProps, prevState) {
+        /*
         if (this.props.gameplay.players.filter((player) => player.hasslapped === false).length === 0) {
             // MATCH RESULT
             this.determineLoser();
             return;
         }
+        */
         if (prevProps.gameplay.playerinturn !== this.props.gameplay.playerinturn) {
             if (this.props.gameplay.match) {
                 this.setState({myreactiontime: performance.now()})
@@ -143,16 +150,13 @@ class GamePlayPage extends Component {
                                     {this.props.gameplay.players.map((player, idx) => {
                                         return (
                                             <div key={idx}>
-                                                <h3>{player.username}</h3>
-                                                <br/>
-                                                cards in hand: {player.nhand}
-                                                <br/>
+                                                <h2>{player.username}</h2>
+                                                <p> cards in hand: {player.nhand} </p>
                                                 <Progress
                                                     type="circle"
-                                                      status={player.streak === 3? 'success': 'active'}
+                                                      status={player.streak >= 3? 'success': 'active'}
                                                       percent={player.streak * 33.33333}
-                                                      format={percent => `${player.streak} streak`}/>
-                                                <br/>
+                                                      format={percent => `${player.streak} streak${player.streak > 1 ? 's':''}`}/>
                                                 <br/>
                                                 {player.hasslapped ? "SLAPPED" : null}
                                                 <br/>

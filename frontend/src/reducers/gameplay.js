@@ -74,7 +74,8 @@ const gameplayReducer = (state= {},action)=>{
                     let streak = action.streakUpdate.filter(
                         updateObj=>updateObj.username === player.username
                     )[0];
-                    streak = streak? streak.streak: 0;
+                    //NOTEDIFF: if there is no update, then it'll just be the same.
+                    streak = streak? streak.streak: player.streak;
                     if(player.username === action.loser) {
 
                         console.log(`receive match result zeroing hasslapped for loser ${player.username}`);

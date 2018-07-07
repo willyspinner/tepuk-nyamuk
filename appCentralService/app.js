@@ -357,6 +357,7 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                                 gameid: req.params.gameid,
                                 gamename: "zz game", // NOTE:  we don't actually need the game name i think.
                                 players: game.players// an array of the usernames.
+                                //TODO authentication here too!
                             },
                         },
                         (err, resp, body) => {
@@ -420,12 +421,29 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
     })
 });
 
+/*
+
+GMS to APPCS route. Finish game.
+ */
+app.post(`/appcs/game/finish/:gameid`,(req,res)=>{
+   //TODO TODO
+    //TODO authenticate: token? how?
+
+    //then:
+    db.gmsFinishGame(req.params.gameid,req.resultObj).then(()=>{
+    res.json({
+        success:true,
+
+    })
+    })
+});
 
 // health check
 app.get('/health', (req,res)=>{
     logger.info("app.js: GET /health","Consul health checkup...");
     res.sendStatus(200);
 })
+
 // WS routes: authenticated
 // we use our middleware to deal with JWT auth
 io.use(function (socket, next) {
