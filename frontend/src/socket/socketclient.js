@@ -110,7 +110,9 @@ class SocketClient {
             })
         });
     }
-    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart){
+    //TODO: make unsubscribefromgameplay?
+    // or just close the socket?
+    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart,onGameFinished){
         return new Promise((resolve,reject)=>{
             this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
                 {gamesecret: gameStartObj.gamesecret, username: username}
@@ -126,6 +128,9 @@ class SocketClient {
                 })
                 this.mysocket.on(GMSEVENTS.GAME_START,(data)=>{
                     onGameStart(data);
+                })
+                this.mysocket.on(GMSEVENTS.GAME_FINISHED,(data)=>{
+                    onGameFinished(data);
                 })
                 resolve();
             }).catch((e)=>reject(e));

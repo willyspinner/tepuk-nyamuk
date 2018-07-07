@@ -393,7 +393,6 @@ io.use(function (socket, next) {
                 } else {
                     // punish accidental slap.
                     const loser = username;
-                    //TODO: SOMETHING WRONG FOR FALSE SLAPPINGS.
                     console.log(`gmsapp::events.PLAYER_SLAPPED: executing punishment promise`);
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),

@@ -3,6 +3,11 @@ const gameplayReducer = (state= {},action)=>{
     switch(action.type){
         case 'FINISH_GAME':
             return {};
+        case 'GAME_WINNER':
+            return {
+                ...state,
+                winner: action.winner
+            }
         case 'INIT_GAME':
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
             return {

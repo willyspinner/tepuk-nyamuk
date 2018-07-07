@@ -23,8 +23,12 @@ export const initializeGame = (playerinturn, players ,nhand)=> ({
         players
     }
 });
+export const gameWinner = (gameFinishObj)=>({
+    type: 'GAME_WINNER',
+    winner:gameFinishObj.winner
+})
 export const finishGame = ()=>({
-    type: 'FINISH_GAME'
+    type: 'FINISH_GAME',
 });
 // playerThrow is basically next tick.
 export const playerThrow = (username, card,nextplayer,isMatch)=>({

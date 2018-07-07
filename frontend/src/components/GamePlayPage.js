@@ -2,8 +2,9 @@
 import React, {Component} from 'react';
 import {startPlayerThrow, startPlayerSlap} from '../actions/gameplay';
 import {connect} from 'react-redux';
-import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame} from "../actions/gameplay";
+import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame,gameWinner} from "../actions/gameplay";
 import PlayingCard from './ui/PlayingCard';
+import GameplayResultsModal from './GameplayResultsModal';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
 import {Row, Col,notification,Progress} from 'antd';
@@ -16,6 +17,9 @@ tutorialLevel= 1 to 10 (difficulty of tutorial - 1 is easy, 10 is difficult)
  */
 class GamePlayPage extends Component {
     // method for me throwing.
+    state={
+        isShowingResultsModal :false
+    }
     throw = () => {
         this.props.dispatch(startPlayerThrow());
     };
@@ -52,16 +56,18 @@ class GamePlayPage extends Component {
                 onrealgamestartobj.players,
                 onrealgamestartobj.nhand));
         };
+        const onGameWinnerAnnounced = (gameFinishedObj)=>{
+            this.props.dispatch(gameWinner(gameFinishedObj));
+            this.setState({isShowingResultsModal:true});
+        }
         socketclient.subscribeToGameplay(this.props.location.gamestartobj,
             this.props.myusername,
             onPlayerSlapRegistered,
             onNextTick,
-            onMatchResult,onGameStart).then(()=>{
+            onMatchResult,onGameStart,onGameWinnerAnnounced).then(()=>{
                 // bind key bindings only when we subscribed to the gameplay and everything ok...
                 key('t', () => {
-                    console.log('pressed t.')
                     if (this.props.gameplay.playerinturn === this.props.myusername) {
-
                         this.throw();
                     } else {
                         notification.open({
@@ -123,6 +129,9 @@ class GamePlayPage extends Component {
         return (
 
             <div>
+                <GameplayResultsModal
+                    isOpen={this.state.isShowingResultsModal}
+                />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
                         <h1> gameplay: prototype </h1>
