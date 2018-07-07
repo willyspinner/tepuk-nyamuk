@@ -334,31 +334,22 @@ io.use(function (socket, next) {
                                                     //TODO find out from snapshot WHY our guy isn't getting streaked.
                                                     logger.info('SNAPSHOT GOT', JSON.stringify(snapshot));
                                                     //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
-
-                                                   // const zeroed_players= snapshot.filter((playerobj)=>(playerobj.hand.length === 0 || !playerobj.hand));
-
                                                     const zeroed_players = slappedplayers.filter((playerusername)=>
                                                         playerusername !== loser && !snapshot.map((playerobj)=>playerobj.username).includes(playerusername));
                                                     Promise.all(
                                                         zeroed_players
                                                             .map((zeroed_player_username)=>redisdb.incrementStreak(gamesessionid,zeroed_player_username))
-                                                        /*
-                                                            Surely there has to be something simpler than3
-                                                            new Promise((res,rej)=>res())
-                                                            ??
-                                                            Yes. return null.
-                                                         */
                                                         ).then((zeroed_players_new_streaks)=>{
-
-                                                        //TODO: set winning condition for people who have 3 streaks.
+                                                        let winning_condition = false;
+                                                        let winner = null
                                                         zeroed_players_new_streaks.forEach((score,idx)=>{
                                                             logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}`);
                                                            if (score === 3){
                                                                logger.info(`WINNING CONDITION`,`streak 3 for player ${zeroed_players[idx]}`)
+                                                               winning_condition = true;
+                                                               winner = zeroed_players[idx];
                                                            }
                                                         });
-
-
                                                         io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                                             loser: loser,
                                                             loserAddToPile: poppedpile.length,
@@ -367,13 +358,17 @@ io.use(function (socket, next) {
                                                             streakUpdate:
                                                                 zeroed_players_new_streaks.map((score,idx)=>{
                                                                     return {username: zeroed_players[idx], streak: score}
-                                                                })
-
-
-                                                            //NOTEDIFF:
-
-
+                                                                }),
+                                                            scoreUpdate:undefined // TODO TODO: scoring.
                                                         });
+                                                        if(winning_condition){
+                                                            //TODO. SCORING !!! PLEASE!
+                                                            io.to(gamesessionid).emit(events.GAME_FINISHED,{
+                                                                winner : winner,
+
+
+                                                            })
+                                                        }
                                                         response({success:true});
                                                     });
 

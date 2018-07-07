@@ -133,6 +133,7 @@ class GamePlayPage extends Component {
                                         this.props.gameplay.pile.length +
                                         this.props.gameplay.players.map((player)=>player.nhand).reduce((acc,cur)=>acc+cur) ))* 100}
                                 format={()=>`pile: ${this.props.gameplay.pile.length}`}
+                                status={this.props.gameplay.pile.length > 13? 'exception':'active'}
                             />
 
                         </div>
@@ -146,7 +147,11 @@ class GamePlayPage extends Component {
                                                 <br/>
                                                 cards in hand: {player.nhand}
                                                 <br/>
-                                                <Progress type="circle" percent={player.streak * 33.33333} format={percent => `${player.streak} streak`}/>
+                                                <Progress
+                                                    type="circle"
+                                                      status={player.streak === 3? 'success': 'active'}
+                                                      percent={player.streak * 33.33333}
+                                                      format={percent => `${player.streak} streak`}/>
                                                 <br/>
                                                 <br/>
                                                 {player.hasslapped ? "SLAPPED" : null}

@@ -211,16 +211,13 @@ const self = module.exports = {
             let chain = redisclient.multi();
             chain
                 .incr(`${gamesessionid}/counter`)
-                .get(`${gamesessionid}/nplayers`)
                 .get(`${gamesessionid}/turnoffset`)
                 .lrange(`${gamesessionid}/players`,0,-1)
-                //TODO: WHY DO WE NEED THIS. WHY WE NEED TO LRANGE THE PLAYERS?
-                .llen(`${gamesessionid}/players`);
             chain.execAsync().then((data)=>{
                 const newcounter = parseInt(data[0]);
-                const nplayers = parseInt(data[1]);
-                const offset = parseInt(data[2]);
-                const player_array = data[3];
+                const offset = parseInt(data[1]);
+                const player_array = data[2];
+                const nplayers = player_array.length;
                 let newindex = (offset + newcounter) % nplayers;
                     //NOTE: check for empty hands.
                     /* Check empty hands here */
@@ -313,9 +310,10 @@ const self = module.exports = {
     // returns {playerinturn: ___, currentcounter: ___}
     getCurrentTurn: (gamesessionid) => {
             return new Promise((resolve,reject)=>{
-                
                 console.log(`redisdb::getCurrentTurn: trying to get: ${gamesessionid}/playerinturn`);
-                let chain = redisclient.multi().get(`${gamesessionid}/playerinturn`).get(`${gamesessionid}/counter`);
+                let chain = redisclient.multi()
+                    .get(`${gamesessionid}/playerinturn`)
+                    .get(`${gamesessionid}/counter`);
                 chain.execAsync().then((data)=>{
                     resolve({playerinturn: data[0],currentcounter: data[1]})
                 }).catch((e)=>reject(e));

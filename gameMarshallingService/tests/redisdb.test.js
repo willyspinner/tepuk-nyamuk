@@ -263,7 +263,7 @@ describe('redisdb.test: incrementing streaks', function () {
                 assert.equal(newstreak2, 2);
                 redisdb.incrementStreak(this.sessid, this.player1).then((newstreak3) => {
                     assert.equal(newstreak3, 3);
-                    redisdb.setZeroSreak(this.sessid, this.player1).then((newstreak4) => {
+                    redisdb.setZeroStreak(this.sessid, this.player1).then((newstreak4) => {
                         assert.equal(newstreak4, 0);
                         done();
                     }).catch(e => done(e));
@@ -288,7 +288,7 @@ describe('redisdb.test: playground testing.', function () {
 describe('redisdb.test: skipping players in  playerinturn', function(done){
     before(function(done){
         redisdb.initializeGame(dummydata.game1.gamesessionid, 'SECRET',
-            [dummydata.game1.players[0],dummydata.game1.players[1]],dummydata.game1.players[2],5)
+            [dummydata.game1.players[0],dummydata.game1.players[1],dummydata.game1.players[2]],5)
             .then((snapshot) => { // remember that snapshot are kv pairs of user: [c1,c2,,..]
                 done();
             }).catch((e)=>done(new Error(e)));
@@ -301,7 +301,7 @@ describe('redisdb.test: skipping players in  playerinturn', function(done){
         let gamesessionid = dummydata.game1.gamesessionid;
         let player1 =dummydata.game1.players[0];
         let player2 =dummydata.game1.players[1];
-        let player3 =dummydata.game1.players[1];
+        let player3 =dummydata.game1.players[2];
 
         redisdb.getCurrentTurn(gamesessionid).then((currentturn) => {
             assert.equal(currentturn.playerinturn, player1);
