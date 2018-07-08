@@ -1,7 +1,7 @@
 //initialise tables.
-import db from './db';
+const db require('./db');
 
-import logger from '../log/appcs_logger';
+const logger = require('../log/appcs_logger');
 db.initTables().then(()=>{
         logger.info("INIT DB", "DB Initialized");
 }).catch(()=>{
