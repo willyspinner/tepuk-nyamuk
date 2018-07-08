@@ -10,12 +10,15 @@ const GameplayResultsModal  = (props)=>{
             onRequestClose={()=>{/* cannot close. */}}
             ariaHideApp={false}
         >
+            <div style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
       <h1> Game results</h1>
         <h3> {props.gameplay.winner} WON THE GAME!</h3>
-            <Button onClick={()=>alert("not implemented yet")}>
+            <Icon type="trophy" style={{fontSize:60}}/>
+            <Button onClick={props.onGoBackToHome}>
                <Icon type="home" style={{fontSize:30}}/>
-                Go back to home page.
+                Go to home
             </Button>
+            </div>
         </Modal>
     );
 };

@@ -9,6 +9,10 @@ import ReactLoading from 'react-loading';
 import key from 'keymaster';
 import {Row, Col,notification,Progress} from 'antd';
 import socketclient from '../socket/socketclient';
+import {connectSocket, receiveInvitation} from "../actions/user";
+import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
+import {receiveMessage} from "../actions/chatroom";
+import AlertDialog from "./ui/AlertDialog";
 
 /*
 props:
@@ -18,7 +22,12 @@ tutorialLevel= 1 to 10 (difficulty of tutorial - 1 is easy, 10 is difficult)
 class GamePlayPage extends Component {
     // method for me throwing.
     state={
-        isShowingResultsModal :false
+        isShowingResultsModal :false,
+        error:{
+            showErrorModal: false,
+            subject:'',
+            message:''
+        }
     }
     throw = () => {
         this.props.dispatch(startPlayerThrow());
@@ -123,14 +132,67 @@ class GamePlayPage extends Component {
             }
         }
     }
-
+    alertError(subject, message) {
+        this.setState({
+            error: {
+                showErrorModal: true,
+                subject,
+                message
+            }
+        })
+    }
+    goBackToHome = ()=>{
+        //TODO ELEGANT: this method is an exact duplicate of the one in mainpage (connectToGameUpdates).
+        // TODO: maybe abstract both away?
+        // e.g. make a socketclient method which is simpler for both to call?
+        socketclient.close();
+        const connectionStr = `http://${process.env.APPCS_HOST}:${process.env.APPCS_PORT}`;
+        socketclient.connect(connectionStr, this.props.user.token).then((socketid) => {
+            this.props.dispatch(connectSocket(socketid));
+            this.props.dispatch(startGetOpenGames()).then(() => {
+                socketclient.subscribeToMainPage(
+                    (newGame) =>
+                        this.props.dispatch(addGame(newGame)),
+                    (deletedGameuuid) =>
+                        this.props.dispatch(removeGame(deletedGameuuid)),
+                    (newMessageObj) =>
+                        this.props.dispatch(receiveMessage(newMessageObj)),
+                    (onGameStarted) =>
+                        this.props.dispatch(startedGame(onGameStarted.gameuuid))
+                    ,
+                    (invitation)=>
+                        this.props.dispatch(receiveInvitation(invitation))
+                );
+                this.props.history.push({
+                    pathname: '/'
+                });
+            }).catch((e) => {
+                this.alertError('server error. Sorry!',
+                    `couldn't get open games. Server error. Please try again later. ${e}`
+                );
+            });
+        }).catch((e) => {
+            this.alertError(
+                'server error. Sorry!',
+                `couldn't connect to socket for live updates. Server error. Please try again later. ${e}`
+            );
+        })
+}
     render() {
 
         return (
 
             <div>
+                {/* modals */}
+                <AlertDialog
+                isShowingModal={this.state.error.showErrorModal}
+                handleClose={() => this.setState({error: {showErrorModal: false}})}
+                subject={this.state.error.subject}
+                message={this.state.error.message}
+                />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}
+                    onGoBackToHome={this.goBackToHome}
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
@@ -210,7 +272,8 @@ class GamePlayPage extends Component {
 
 const mapStateToProps = (state) => ({
     gameplay: state.gameplay,
-    myusername: state.user.username
+    myusername: state.user.username,
+    user: state.user
 });
 
 export default connect(mapStateToProps, undefined)(GamePlayPage);
