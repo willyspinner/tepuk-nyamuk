@@ -35,8 +35,10 @@ const self = module.exports = {
             const createGames = games.INIT;
             const createUsers = users.INIT;
             client.query(createGames,(err,res)=>{
-                if (err)
+                if (err){
                     reject(err);
+                    return;
+                }
                 client.query(createUsers, (err2,res2) => {
                     if(err2)
                         reject(err2);
@@ -80,7 +82,10 @@ const self = module.exports = {
             //console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
                 if(err)
+                {
                     reject(err);
+                    return;
+                }
                 gameObj.uuid= table_uuid;
                 gameObj.players= [];//[gameObj.creator]; // NOTEDIFF: HERE IT IS.
                 // NOTEDIFF: the above is now []l not [gameObj.creator]
@@ -125,8 +130,10 @@ const self = module.exports = {
             };
             console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
-                if (err)
+                if (err){
                     reject(err);
+                    return;
+                }
                 resolve(res.rows);
             })
         })
@@ -192,8 +199,10 @@ const self = module.exports = {
             
             logger.info(`db::registerUser()`,`trying to register user ${JSON.stringify(userObj)}`);
             client.query(newuserquery,(err,res)=>{
-                if(err)
+                if(err){
                     reject(err);
+                    return;
+                }
                 resolve(res);
             })
         })
@@ -208,8 +217,10 @@ const self = module.exports = {
                 values: [username]
             };
             client.query(getuserquery,(err,res)=>{
-                if(err)
+                if(err){
                     reject(err);
+                    return;
+                }
                 logger.info('db.js::getUser()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
                 
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
@@ -227,6 +238,7 @@ const self = module.exports = {
             client.query(updatesocketuserquery,(err, res )=>{
                 if(err){
                     reject(err);
+                    return;
                 }
                 resolve();
             });
@@ -283,6 +295,7 @@ const self = module.exports = {
                             console.error('Error rolling back client', err.stack)
                         }
                         reject();
+                        return;
                     })
                 }
                 return !!err;
