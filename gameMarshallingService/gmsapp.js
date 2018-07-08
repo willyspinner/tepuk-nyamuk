@@ -60,7 +60,7 @@ app.post('/gms/game/create', (req, res) => {
         });
         return;
     }
-    let cardsperplayer = 10; // this can be made a post body option (req.body) later if needed.
+    let cardsperplayer = 25; // this can be made a post body option (req.body) later if needed.
     let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
         .update(req.body.gameid, 'utf8').digest('hex');
     let gamesecret = crypto.createHmac('sha256',process.env.GAME_SECRET_2)
