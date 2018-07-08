@@ -1,6 +1,5 @@
 //initialise tables.
 const db = require('./db');
-
 const logger = require('../log/appcs_logger');
 db.initTables().then(()=>{
         logger.info("INIT DB", "DB Initialized");
