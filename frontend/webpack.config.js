@@ -22,14 +22,16 @@ module.exports = (env) => {
   console.log('environment variables :',JSON.stringify(env));
    if(!env)
        throw new Error("env not defined.")
-    if(!env.APPCS_HOST)
-        throw new Error("env.APPCS_HOST not defined.")
-    if(!env.APPCS_PORT)
-        throw new Error("env.APPCS_PORT not defined.")
-    if(!env.GMS_HOST)
-        throw new Error("env.GMS_HOST not defined.")
-    if(!env.GMS_PORT)
-        throw new Error("env.GMS_PORT not defined.")
+    if(env.mode !== 'production_profile'){
+        if(!env.APPCS_HOST)
+            throw new Error("env.APPCS_HOST not defined.")
+        if(!env.APPCS_PORT)
+            throw new Error("env.APPCS_PORT not defined.")
+        if(!env.GMS_HOST)
+            throw new Error("env.GMS_HOST not defined.")
+        if(!env.GMS_PORT)
+            throw new Error("env.GMS_PORT not defined.")
+    }
     if (!env.mode)
         console.log("warning. env.mode not set. Will default to development.")
   const isProduction = env.mode === 'production' || env.mode === 'production_profile';
