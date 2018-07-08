@@ -2,6 +2,7 @@ import request from 'request';
 import moment from 'moment';
 import mysocket from '../socket/socketclient';
 import {GETOPENGAMES,CREATEGAME,DELETEGAME,STARTGAMEFROMLOBBY} from "../serverroutes/AppCSRoutes";
+import {recordCurrentGameid, recordCurrentgameid} from "./user";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
 });
@@ -104,7 +105,7 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOu
                 reduxDispatch(leaveGame(uuid,other_user));
             };
 
-
+                reduxDispatch(recordCurrentGameid(uuid));
                 mysocket.subscribeToLobby(username,uuid,
                     onUserJoin,onUserLeft,onGameStart,onGameDeleted,onKickedOut).then((playersInLobby)=>{
                     reduxDispatch(joinGame(uuid,username));
@@ -132,6 +133,7 @@ export const startLeaveGame = (uuid,username) => {
             const onSuccessLeave = ()=>{
                 console.log(`frontend::action/games::startLeaveGame: dispatching leave game... from start leave game`);
                 reduxDispatch(leaveGame(uuid,username));
+                reduxDispatch(recordCurrentGameid(undefined)); // NOTEDIFF: you have no gameid .
                 resolve();
             };
             const onFailLeave = ()=>{

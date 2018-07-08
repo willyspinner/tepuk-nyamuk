@@ -95,3 +95,8 @@ export const receiveInvitation = (invitation)=>({
 export const discardInvitation = ()=>({
     type: 'DISCARD_LOBBY_INVITATION'
 })
+
+export const recordCurrentGameid = (gameid)=>({
+    type: 'RECORD_CURRENT_GAMEID',
+    gameid
+})

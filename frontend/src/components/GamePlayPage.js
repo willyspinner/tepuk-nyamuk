@@ -165,6 +165,11 @@ class GamePlayPage extends Component {
                     (invitation)=>
                         this.props.dispatch(receiveInvitation(invitation))
                 );
+                //remove our finished game.
+                this.props.dispatch(removeGame(this.props.user.gameid));
+                //remove our gameplay object.
+                this.props.dispatch(finishGame());
+
                 this.props.history.push({
                     pathname: '/'
                 });

@@ -436,7 +436,13 @@ app.post(`/appcs/game/finish/:gameid`,(req,res)=>{
     //TODO authenticate: token? how?
 
     //then:
-    db.gmsFinishGame(req.params.gameid,req.resultObj).then(()=>{
+    db.gmsFinishGame(req.params.gameid,req.body.resultObj).then(()=>{
+        // emit to main lobby that the game is finished (deleted)
+        io.emit(EVENTS.GAME_DELETED,
+            {
+                gameuuid: req.params.gameid
+            }
+            );
     res.json({
         success:true,
 

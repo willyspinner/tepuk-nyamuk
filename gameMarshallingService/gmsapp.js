@@ -379,6 +379,7 @@ io.use(function (socket, next) {
 
                                                                     }
                                                                 );
+
                                                                 io.to(gamesessionid).emit(events.GAME_FINISHED,
                                                                     resultObj
                                                                 )

@@ -9,6 +9,11 @@ const userReducer = (state = {}, action) => {
         };
       case 'USER_LOG_OUT':
           return {} ; //blank.
+      case 'RECORD_CURRENT_GAMEID':
+          return {
+              ...state,
+              gameid:action.gameid
+          };
       case 'USER_CONNECT_SOCKET':
           return {
               ...state,
