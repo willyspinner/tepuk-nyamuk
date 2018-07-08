@@ -81,7 +81,8 @@ class GamePlayPage extends Component {
                     } else {
                         notification.open({
                             message: "it isn't your turn!",
-                            description:"you can't throw a card when it isn't your turn."
+                            description:"you can't throw a card when it isn't your turn.",
+                            duration: '2'
                         });
                     }
                 });
@@ -114,7 +115,8 @@ class GamePlayPage extends Component {
         console.log(`got loser ${loser.username} out of ${JSON.stringify(this.props.gameplay.players.map((player) => player.username))}`);
         notification.open({
             message:'Match results',
-            description: `Loser is : ${loser.username}, who slapped in time: ${loser.slapreactiontime}`
+            description: `Loser is : ${loser.username}, who slapped in time: ${loser.slapreactiontime}`,
+            duration: 3
         })
     };
 
@@ -174,7 +176,7 @@ class GamePlayPage extends Component {
         }).catch((e) => {
             this.alertError(
                 'server error. Sorry!',
-                `couldn't connect to socket for live updates. Server error. Please try again later. ${e}`
+                `couldn't connect to socket for live updates. Please try again later. ${e}`
             );
         })
 }

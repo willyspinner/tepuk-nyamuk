@@ -9,7 +9,8 @@ const io = require('socket.io')();
 const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
 const events = require('./constants/socketEvents');
-app.set('port', process.env.PORT || 3000);
+const request = require('request');
+app.set('port', process.env.PORT || 4000);
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -68,7 +69,7 @@ app.post('/gms/game/create', (req, res) => {
     //  then we store the game secret in redis
     const salt = bcrypt.genSaltSync(10);
     const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
-    redisdb.initializeGame(gamesessionid, encryptedgamesecret,
+    redisdb.initializeGame(req.body.gameid,gamesessionid, encryptedgamesecret,
         req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
         .then((result) => {
             // then with the created game, we generate JWT gametoken.
@@ -363,16 +364,30 @@ io.use(function (socket, next) {
                                                         });
                                                         if(winning_condition){
                                                             //TODO. SCORING !!! PLEASE!
-                                                            io.to(gamesessionid).emit(events.GAME_FINISHED,{
-                                                                winner : winner,
+                                                            const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
+                                                            const APPCS_PORT = process.env.APPCS_PORT || 3000;
+                                                            const resultObj = {winner : winner};
+                                                            redisdb.getGameId(gamesessionid).then((gameid)=>{
+                                                                request.post(
+                                                                    {
+                                                                        url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
+                                                                        form :{
+                                                                            resultObj:resultObj
+                                                                        }
+                                                                    },
+                                                                    (err,resp,body)=>{
 
-
+                                                                    }
+                                                                );
+                                                                io.to(gamesessionid).emit(events.GAME_FINISHED,
+                                                                    resultObj
+                                                                )
+                                                                response({success:true});
                                                             })
+                                                        }else{
+                                                            response({success:true});
                                                         }
-                                                        response({success:true});
                                                     });
-
-
                                                     })
 
                                                 })

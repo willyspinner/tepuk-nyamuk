@@ -91,7 +91,7 @@ const self = module.exports = {
             ...etc.
         }
     */
-    initializeGame: (gamesessionid, gamesecret, players, cardsperplayer) => {
+    initializeGame: (gameid,gamesessionid, gamesecret, players, cardsperplayer) => {
         //TODO: do we really need to be strict about card distribution here....
         return new Promise((resolve,reject)=>{
             let snapshotobj = {};
@@ -117,6 +117,7 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/playerinturn`,players[0]);
             chain= chain.set(`${gamesessionid}/turnoffset`,0); // player[0] has index 0.
             chain = chain.set(`${gamesessionid}/cardsperplayer`,`${cardsperplayer}`);
+            chain = chain.set(`${gamesessionid}/gameid`,gameid);
             // execute transaction.
             chain.execAsync().then((result)=>{
                 console.log(`redisdb::initializeGame: playerinturn now : ${players[0]}`);
@@ -130,6 +131,9 @@ const self = module.exports = {
     });
     },
 
+    getGameId: (gamesessionid)=>{
+           return redisclient.getAsync(`${gamesessionid}/gameid`);
+    },
     getCardsPerPlayer : (gamesessionid)=>{
         return new Promise((resolve,reject)=>{
             redisclient.getAsync(`${gamesessionid}/cardsperplayer`).then((i)=>{

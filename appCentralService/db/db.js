@@ -413,7 +413,7 @@ const self = module.exports = {
           const finishgamequery = {
               text: `UPDATE ${fields.GAMES.TABLENAME} `+
               `SET ${fields.GAMES.STATUS} `+
-              `= '${dbconstants.GAMES.STATUS.ENDED}' ${fields.GAMES.RESULT} = $2 `+
+              `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2 `+
               `WHERE ${fields.GAMES.UUID} = $1;`,
               values: [gameid,JSON.stringify(resultObj)]
           };

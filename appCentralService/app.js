@@ -192,9 +192,9 @@ app.post('/appcs/game/create', (req, res) => {
             });
             return;
         }
-        let game = req.body.game;
+        let game = req.body.game; //NOTEDIFF: from frontend, game is already json.
         game.creator = decoded.username;
-        db.createGame(JSON.parse(game)).then((newgame) => {
+        db.createGame(game).then((newgame) => {
             // link used to go to the lobby page.
             io.emit(EVENTS.GAME_CREATED, {
                 game: newgame
@@ -369,7 +369,16 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                                 })
                                 return;
                             }
-                            const response = JSON.parse(body);
+                            let response = null;
+                            try{
+                                response = JSON.parse(body);
+                            } catch(e){
+                                res.status(500).json({
+                                    success:false,
+                                    error: "game server error."
+                                })
+                                return;
+                            }
 
                             if(!response.success){
                                 res.status(400).json({
@@ -382,9 +391,6 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                             //oops. forgot to add this chunk below:
                             db.startGame(req.params.gameid).then(()=>{
                                 // emit to main lobby that this game is starting..
-
-                                //TODO: should this be  a game_deleted thing... race condition?
-                                //IDEA: make EVENTS.GAME_STARTED event?
                                 io.emit(EVENTS.GAME_STARTED,{gameuuid: req.params.gameid} );
                                 io
                                     .to(req.params.gameid)
