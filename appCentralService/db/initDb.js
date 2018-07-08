@@ -1,4 +1,5 @@
 //initialise tables.
+require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
 const db = require('./db');
 const logger = require('../log/appcs_logger');
 db.initTables().then(()=>{
