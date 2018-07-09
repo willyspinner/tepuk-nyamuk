@@ -1,3 +1,28 @@
+/*
+initialize our environment.
+ */
+if (process.argv.length < 3){
+    console.error("ERROR. Environment not set.");
+    console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+    process.exit(1);
+}
+switch(process.argv[2]){
+    case 'development.local':
+        require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
+        break;
+    case 'development.lan':
+        require('dotenv').config({path: `${__dirname}/../shared/.development.lan.env`});
+        break;
+    case 'production.local':
+        require('dotenv').config({path: `${__dirname}/../shared/.production.local.env`});
+        break;
+    case 'production.host':
+        require('dotenv').config({path: `${__dirname}/../shared/.production.host.env`});
+        break;
+    default :
+        throw new Error("INVALID environment mode.");
+}
+// gms ting here is default.
 require('dotenv').config({path: `${__dirname}/.gms.test.env`});
 const redisdb = require('./db/redisdb');
 const express = require('express');
@@ -10,7 +35,7 @@ const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
 const events = require('./constants/socketEvents');
 const request = require('request');
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.GMS_PORT || 4000);
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies

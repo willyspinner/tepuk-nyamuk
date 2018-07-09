@@ -21,7 +21,7 @@ const client = new Client(
 client.connect().then(()=>{
     logger.info('db.js: initial connection',`connection successful`);
 }).catch((e)=>{
-    logger.error('db.js: initial connection', 'connection ERROR.')
+    logger.error('db.js: initial connection', 'connection ERROR. Is postgresql running?')
     process.exit(1);
 });
 

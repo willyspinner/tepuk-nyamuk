@@ -1,3 +1,27 @@
+const logger = require('./log/appcs_logger');
+if (process.argv.length < 3){
+    console.error("ERROR. Environment not set.");
+    console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+    process.exit(1);
+}
+switch(process.argv[2]){
+    case 'development.local':
+        require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
+        break;
+    case 'development.lan':
+        require('dotenv').config({path: `${__dirname}/../shared/.development.lan.env`});
+        break;
+    case 'production.local':
+        require('dotenv').config({path: `${__dirname}/../shared/.production.local.env`});
+        break;
+    case 'production.host':
+        require('dotenv').config({path: `${__dirname}/../shared/.production.host.env`});
+        break;
+    default :
+        throw new Error("INVALID environment mode.");
+}
+logger.info(`Init appcsapp`,`trying to establish host:port ${process.env.APPCS_HOST}:${process.env.APPCS_PORT} ...`)
+require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -9,7 +33,6 @@ require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
-const logger = require('./log/appcs_logger');
 const request = require('request');
 // appcs environment var.
 
@@ -18,7 +41,7 @@ const request = require('request');
 if (process.env.APPCS_PORT){
     app.set('port',process.env.APPCS_PORT);
 }else{
-    app.set('port', process.env.PORT || 3000);
+    app.set('port', process.env.APPCS_PORT || 3000);
 }
 // body parser
 const bodyParser = require('body-parser')

@@ -5,6 +5,7 @@ create game, delete game.
 tests for the behaviour as a person in the dashboard page.
  */
 // make sure that appCS is online before running these tests!
+require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
 require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
 const dummydata = require('./dummydata/dummydata');
 const request = require('request');
@@ -28,9 +29,9 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
     it('after register, username and socket should be established in' +
         ' server db.', function (done) {
        console.log(`berdoge`); 
-        console.log(`posting to http://localhost:${process.env.PORT}/appcs/user/new`);
+        console.log(`posting to http://localhost:${process.env.APPCS_PORT}/appcs/user/new`);
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -47,7 +48,7 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
                 const token = JSON.parse(body).token;
                 console.log(`got token : ${token}`);
 
-                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                         query: {
                             token: token
                         }
@@ -74,7 +75,7 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
     });
     it('should not create duplicates', function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -94,9 +95,9 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
     });
 
     it(' login with wrong pw should be invalidated', function (done) {
-        console.log(`posting to http://localhost:${process.env.PORT}/appcs/user/auth`);
+        console.log(`posting to http://localhost:${process.env.APPCS_PORT}/appcs/user/auth`);
         request.post({
-            url: `http://localhost:${process.env.PORT}/appcs/user/auth`,
+            url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/auth`,
             form: {
                 username: 'willyboomboom',
                 password: 'berdogez' // wrong pw here.
@@ -116,7 +117,7 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
 describe(' gameMain.test: game creation and game deletion events (WS)',function() {
     before(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -127,7 +128,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                     done(err);
                 let token =  JSON.parse(body).token;
                 this.token = token;
-                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                     query: {
                         token: token
                     }
@@ -158,7 +159,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
         });
         // TEST our create game endpoint here.
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/game/create`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/game/create`,
                 form: {
                     game: JSON.stringify(newgame),
                     token: this.token
@@ -184,7 +185,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
             done(new Error("this.newgameuuid is undefined. Please run the whole gameMain.test.js, not just this on 'it'!"));
         // TEST our delete game endpoint here.
         request.delete({
-                url: `http://localhost:${process.env.PORT}/appcs/game/delete/${this.newgameuuid}`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/game/delete/${this.newgameuuid}`,
                 form: {
                     socketid: this.socket.id,
                     token: this.token,
@@ -203,7 +204,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
 describe(' gameMain.test: global chat ',function() {
     before(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -214,7 +215,7 @@ describe(' gameMain.test: global chat ',function() {
                     done(err);
                 let token = JSON.parse(body).token;
                 this.token = token;
-                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                     query: {
                         token: token
                     }
@@ -222,7 +223,7 @@ describe(' gameMain.test: global chat ',function() {
                 this.socket.on('connect', () => {
                     console.log(`Socket connected and authenticated.`);
                     request.post({
-                            url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                            url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                             form: {
                                 username: 'willywonka',
                                 password: 'berdogezaza'
@@ -233,7 +234,7 @@ describe(' gameMain.test: global chat ',function() {
                                 done(err);
                             let token2 = JSON.parse(body).token;
                             this.token2 = token2;
-                            this.socket2 = ioclient(`http://localhost:${process.env.PORT}`, {
+                            this.socket2 = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                                 query: {
                                     token: token2
                                 }

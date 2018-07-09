@@ -32,7 +32,7 @@
     "react-dom": "16.0.0",
     "react-loading": "^2.0.2",
     "react-modal": "^3.3.2",
-    "react-modal-dialog": "Dean177/react-modal-dialog#support\/bump-react",
+    "react-modal-dialog": "Dean177/react-modal-dialog#support/bump-react",
     "react-playing-card": "^0.2.5",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
@@ -54,20 +54,17 @@
     "yarn": "^1.5.1"
   },
   "scripts": {
-    "build:dev": "source ../shared/.development.localhost.env ;webpack --env.mode development --env.APPCS_HOST \"$APPCS_HOST\" --env.APPCS_PORT $APPCS_PORT --env.GMS_HOST \"$GMS_HOST\" --env.GMS_PORT $GMS_PORT ",
-    "build:prod-local": "source ../shared/.production.localhost.env; webpack -p  --optimize-minimize --optimize-dedupe --env.mode production --env.APPCS_HOST \"$APPCS_HOST\" --env.APPCS_PORT $APPCS_PORT --env.GMS_HOST \"$GMS_HOST\" --env.GMS_PORT $GMS_PORT",
-    "build:prod-host": " source ../shared/.production.host.env; webpack -p  --optimize-minimize --optimize-dedupe --env.mode production --env.APPCS_HOST \"$APPCS_HOST\" --env.APPCS_PORT $APPCS_PORT --env.GMS_HOST \"$GMS_HOST\" --env.GMS_PORT $GMS_PORT",
-    "build:prod-profile": "source ../shared/.production.localhost.env; webpack -p  --optimize-minimize --optimize-dedupe --env.mode production_profile",
+    "build:dev": "webpack --env.mode development --env.mode development-local",
+    "build:prod.local": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.local",
+    "build:prod.host": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.host",
+    "build:prod.profile": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.profile",
     "serve-httpster": " httpster -d public/",
     "build:prod-local_and_serve": "npm run build:prod-local && npm run serve-httpster",
     "build:prod-host_and_serve": "npm run build:prod-host && npm run serve-httpster",
-    "dev-server": " source ../shared/.development.localhost.env; webpack-dev-server --mode development --env.APPCS_HOST \"$APPCS_HOST\" --env.APPCS_PORT $APPCS_PORT --env.GMS_HOST \"$GMS_HOST\" --env.GMS_PORT $GMS_PORT ",
-    "dev-server-LAN": "source ../shared/.development.lan.env; command -v notif >/dev/null 2>&1 &&  notif 'webpack' \"Devserver on $ipaddr\" 'daniel' & webpack-dev-server  --mode development --host \"$ipaddr\" --env.APPCS_HOST \"$APPCS_HOST\" --env.APPCS_PORT $APPCS_PORT --env.GMS_HOST \"$GMS_HOST\" --env.GMS_PORT $GMS_PORT ",
+    "dev-server": " webpack-dev-server --mode development.local ",
+    "dev-server-LAN": "if [[ $(uname -s) == \"Darwin\" ]]; then ip=\"$(ipconfig getifaddr en0)\"; else ip=\"$(hostname -I | awk '{print $1}')\";fi command -v notif >/dev/null 2>&1 &&  notif 'webpack' \"Devserver on $ipaddr\" 'daniel' & webpack-dev-server  --mode development --host \"$ipaddr\"",
     "jest": "cross-env NODE_ENV=test jest --config=jest.config.json",
-    "jest-clean": "jest --config=jest.config.json -u",
-    "start": "node server/server.js",
-    "heroku-postbuild": "yarn run build:prod",
-    "build:dev-and-serve": "webpack --env development && node server/server.js"
+    "jest-clean": "jest --config=jest.config.json -u"
   },
   "name": "tepuknyamuk_web_frontend",
   "jest": {
@@ -80,7 +77,7 @@
   "devDependencies": {
     "babel-minify-webpack-plugin": "^0.3.1",
     "cross-env": "^5.2.0",
-    "dotenv": "^5.0.1",
+    "dotenv": "^6.0.0",
     "enzyme": "^3.3.0",
     "enzyme-to-json": "^3.3.3",
     "eslint-plugin-import": "^2.11.0",

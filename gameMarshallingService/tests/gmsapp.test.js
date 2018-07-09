@@ -1,6 +1,15 @@
-require('dotenv').config({path: `${__dirname}/../.gms.test.env`});
-const dummydata = require('./dummydata/dummydata');
 const request = require('request');
+require('dotenv').config({path: `${__dirname}/../../shared/.development.local.env`});
+//require('dotenv').config({path: `${__dirname}/../.gms.test.env`});
+request.get({
+    url: `http://localhost:${process.env.GMS_PORT}/health`,
+},(err,res,body)=>{
+   if(err){
+       console.log("GMS APP OFFLINE. Make sure it is turned on locally.")
+       throw new Error(err.stack);
+   }
+});
+const dummydata = require('./dummydata/dummydata');
 const assert = require('assert');
 const ioclient = require('socket.io-client');
 const redisdb = require('../db/redisdb');
@@ -12,7 +21,7 @@ notes:
 connecting ioclient:
 
 
-this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+this.socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
     query: {
         token: token,
         gamesecret: "ROOMSECRET HERE"
@@ -26,7 +35,7 @@ socket.on(... .
 describe('gmsapp.test: initial connection to game', function () {
     beforeEach(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/gms/game/create`,
+                url: `http://localhost:${process.env.GMS_PORT}/gms/game/create`,
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
@@ -59,7 +68,7 @@ describe('gmsapp.test: initial connection to game', function () {
         }).catch(e => done(e));
     });
     it('should deny invalid tokens or gamesecrets', function (done) {
-        this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+        this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
             query: {
                 token: this.gametoken + "goijwdoijawodijawd",
                 gamesecret: this.gamesecret,
@@ -73,7 +82,7 @@ describe('gmsapp.test: initial connection to game', function () {
         redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers) => {
             assert.equal(connectedPlayers.length, 0);
             this.player1socket.close();
-            this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+            this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                 query: {
                     token: this.gametoken,
                     gamesecret: this.gamesecret + "120eijdaoinklawd",
@@ -87,7 +96,7 @@ describe('gmsapp.test: initial connection to game', function () {
                 // player 1 socket should be denied again.
                 assert.equal(connectedPlayers2.length, 0);
                 this.player2socket.close();
-                this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -97,7 +106,7 @@ describe('gmsapp.test: initial connection to game', function () {
                 this.player1socket.on('connect', () => {
                     redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers3) => {
                         assert.equal(connectedPlayers3.length, 1);
-                        this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                        this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                             query: {
                                 token: this.gametoken,
                                 gamesecret: this.gamesecret,
@@ -107,7 +116,7 @@ describe('gmsapp.test: initial connection to game', function () {
                         this.player2socket.on('connect', () => {
                             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers4) => {
                                 assert.equal(connectedPlayers4.length, 2);
-                                this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                                this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                                     query: {
                                         token: this.gametoken,
                                         gamesecret: this.gamesecret,
@@ -133,7 +142,7 @@ describe('gmsapp.test: initial connection to game', function () {
 
     it('should only start when all sockets connect (receive game start event)', function (done) {
         let allConnected = false;
-        this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+        this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
             query: {
                 token: this.gametoken,
                 gamesecret: this.gamesecret,
@@ -148,7 +157,7 @@ describe('gmsapp.test: initial connection to game', function () {
         this.player1socket.on('connect', () => {
             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers3) => {
                 assert.equal(connectedPlayers3.length, 1);
-                this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -164,7 +173,7 @@ describe('gmsapp.test: initial connection to game', function () {
                     redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers4) => {
                         assert.equal(connectedPlayers4.length, 2);
                         allConnected = true;
-                        this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                        this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                             query: {
                                 token: this.gametoken,
                                 gamesecret: this.gamesecret,
@@ -195,7 +204,7 @@ describe('gmsapp.test: initial connection to game', function () {
 describe('gmsapp.test: registering throw', function () {
     beforeEach(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/gms/game/create`,
+                url: `http://localhost:${process.env.GMS_PORT}/gms/game/create`,
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
@@ -214,21 +223,21 @@ describe('gmsapp.test: registering throw', function () {
                 this.gamesecret = response.gamesecret;
                 this.gamesessionid = response.gamesessionid;
 
-                this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[0]
                     }
                 });
-                this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[1]
                     }
                 });
-                this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -314,7 +323,7 @@ describe('gmsapp.test: registering throw', function () {
 describe('gmsapp.test: match', function () {
     beforeEach(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/gms/game/create`,
+                url: `http://localhost:${process.env.GMS_PORT}/gms/game/create`,
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
@@ -332,21 +341,21 @@ describe('gmsapp.test: match', function () {
                 this.gamesecret = response.gamesecret;
                 this.gamesessionid = response.gamesessionid;
 
-                this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[0]
                     }
                 });
-                this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[1]
                     }
                 });
-                this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -475,7 +484,7 @@ describe('gmsapp.test: match', function () {
 describe('gmsapp.test: slaps', function () {
     beforeEach(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/gms/game/create`,
+                url: `http://localhost:${process.env.GMS_PORT}/gms/game/create`,
                 form: {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
@@ -493,21 +502,21 @@ describe('gmsapp.test: slaps', function () {
                 this.gamesecret = response.gamesecret;
                 this.gamesessionid = response.gamesessionid;
 
-                this.player1socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[0]
                     }
                 });
-                this.player2socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
                         username: dummydata.gameGMStest.players[1]
                     }
                 });
-                this.player3socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,

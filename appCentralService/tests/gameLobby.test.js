@@ -1,6 +1,7 @@
 //TESTS for actual joining of game lobbies.
 //NOTE: be sure that our appCS is actually running.
 require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
+require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
 const dummydata = require('./dummydata/dummydata');
 const request = require('request');
 const assert = require('assert');
@@ -32,7 +33,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
     */
     before(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -45,7 +46,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
                 let token =  JSON.parse(body).token;
                 logger.info("beforeAll hook",`received body value : ${body}`)
                 this.token = token;
-                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                     query: {
                         token: token
                     }
@@ -116,7 +117,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
 describe('gameLobby.test: Lobby chat ',function (){
     before(function (done) {
         request.post({
-                url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                 form: {
                     username: 'willyboomboom',
                     password: 'berdoge'
@@ -127,7 +128,7 @@ describe('gameLobby.test: Lobby chat ',function (){
                     done(err);
                 let token = JSON.parse(body).token;
                 this.token = token;
-                this.socket = ioclient(`http://localhost:${process.env.PORT}`, {
+                this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                     query: {
                         token: token
                     }
@@ -136,7 +137,7 @@ describe('gameLobby.test: Lobby chat ',function (){
                     console.log(`Socket connected and authenticated.`);
                     /* Socket 2 register */
                     request.post({
-                            url: `http://localhost:${process.env.PORT}/appcs/user/new`,
+                            url: `http://localhost:${process.env.APPCS_PORT}/appcs/user/new`,
                             form: {
                                 username: 'willywonka',
                                 password: 'berdogezaza'
@@ -147,7 +148,7 @@ describe('gameLobby.test: Lobby chat ',function (){
                                 done(err);
                             let token2 = JSON.parse(body).token;
                             this.token2 = token2;
-                            this.socket2 = ioclient(`http://localhost:${process.env.PORT}`, {
+                            this.socket2 = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
                                 query: {
                                     token: token2
                                 }

@@ -3,37 +3,60 @@ const webpack = require('webpack');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const MinifyPlugin = require("babel-minify-webpack-plugin");
 /*
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-if (process.env.NODE_ENV ==='test' ){
-    require('dotenv').config({path: '.env.test'});
-    
-    console.log(`node env is test.`);
-    // this will be read
-}else if (process.env.NODE_ENV === 'development'){
+we have 5 modes.
+development.local
+development.lan
+production.localhost
+production.host
+production.profile
 
-    require('dotenv').config({path: '.env.development'})
-    console.log(`node env is development..`);
-}
-*/
+pass in either a specific config file or one of those options above as environment variable.
+to webpack.
+e.g.
+webpack --env.mode development.local
+webpack --env.config <PATH_TO_CONFIG>
+ */
 module.exports = (env) => {
-  console.log('environment variables :',JSON.stringify(env));
    if(!env)
-       throw new Error("env not defined.")
-    if(env.mode !== 'production_profile'){
-        if(!env.APPCS_HOST)
+       throw new Error("env not defined.");
+    if (!(env.config || env.mode))
+        throw new Error("must define either a config or a mode.");
+    if (env.config){
+        require('dotenv').config({path:env.config});
+    }else{
+        switch(env.mode){
+            case 'development.local':
+                require('dotenv').config({path: '../shared/.development.local.env'});
+                break;
+            case 'development.lan':
+                require('dotenv').config({path: '../shared/.development.lan.env'});
+                break;
+            case 'production.profile':
+            case 'production.local':
+                require('dotenv').config({path: '../shared/.production.local.env'});
+                break;
+            case 'production.host':
+                require('dotenv').config({path: '../shared/.production.host.env'});
+                break;
+            default :
+                throw new Error("INVALID environment mode.");
+        }
+    }
+    if(env.mode !== 'production.profile'){
+        if(!process.env.APPCS_HOST)
             throw new Error("env.APPCS_HOST not defined.")
-        if(!env.APPCS_PORT)
+        if(!process.env.APPCS_PORT)
             throw new Error("env.APPCS_PORT not defined.")
-        if(!env.GMS_HOST)
+        if(!process.env.GMS_HOST)
             throw new Error("env.GMS_HOST not defined.")
-        if(!env.GMS_PORT)
+        if(!process.env.GMS_PORT)
             throw new Error("env.GMS_PORT not defined.")
     }
-    if (!env.mode)
-        console.log("warning. env.mode not set. Will default to development.")
+    console.log(`APPCS_HOST: ${process.env.APPCS_HOST}`, 'APPCS_PORT:',process.env.APPCS_PORT);
+    console.log(`GMS_HOST: ${process.env.GMS_HOST}`, 'GMS_PORT:',process.env.GMS_PORT);
+
   const isProduction = env.mode === 'production' || env.mode === 'production_profile';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {

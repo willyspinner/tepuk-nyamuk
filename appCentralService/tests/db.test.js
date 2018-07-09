@@ -1,6 +1,7 @@
 // TESTS for our DB functions
 
 require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
+require('dotenv').config({path: '../shared/.development.local.env'});
 const db = require('../db/db');
 const dummy = require ('./dummydata/dummydata');
 const assert = require('assert');
