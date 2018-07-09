@@ -1,7 +1,7 @@
 //TESTS for actual joining of game lobbies.
 //NOTE: be sure that our appCS is actually running.
 require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
-require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
+require('dotenv').config({path: `${__dirname}/../../shared/.development.local.env`});
 const dummydata = require('./dummydata/dummydata');
 const request = require('request');
 const assert = require('assert');

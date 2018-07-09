@@ -5,7 +5,7 @@ create game, delete game.
 tests for the behaviour as a person in the dashboard page.
  */
 // make sure that appCS is online before running these tests!
-require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
+require('dotenv').config({path: `../../shared/.development.local.env`});
 require('dotenv').config({path: `${__dirname}/../.appcs.test.env`});
 const dummydata = require('./dummydata/dummydata');
 const request = require('request');
