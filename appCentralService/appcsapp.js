@@ -20,7 +20,7 @@ switch(process.argv[2]){
     default :
         throw new Error("INVALID environment mode.");
 }
-logger.info(`Init appcsapp`,`trying to establish host:port ${process.env.APPCS_HOST}:${process.env.APPCS_PORT} ...`)
+logger.info(`connection details`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
 const express = require('express');
 const jwt = require('jsonwebtoken');

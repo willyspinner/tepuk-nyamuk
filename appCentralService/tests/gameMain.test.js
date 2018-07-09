@@ -14,6 +14,7 @@ const ioclient = require('socket.io-client');
 const db = require('../db/db');
 const EVENTS = require('../constants/socketEvents');
 const logger = require('../log/appcs_logger');
+logger.info(`connection details-TEST`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
 // our http endpoints..
 // theyre fine.
 // we do need to test our WS stuff initiated by the HTTP endpoints tho.
@@ -153,6 +154,9 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
         this.socket.on(EVENTS.GAME_CREATED, (data) => {
             const socket_sent_game = data.game;
             console.log(`sent game : ${JSON.stringify(socket_sent_game)}`);
+            console.log('socket_sent_game.creator: ',socket_sent_game.creator);
+            console.log('newgmae.creator: ',newgame.creator);
+
             assert.equal(socket_sent_game.creator, newgame.creator);
             assert.equal(socket_sent_game.name, newgame.name);
             assert.equal(socket_sent_game.players.length,0);
@@ -161,7 +165,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
         request.post({
                 url: `http://localhost:${process.env.APPCS_PORT}/appcs/game/create`,
                 form: {
-                    game: JSON.stringify(newgame),
+                    game: newgame,
                     token: this.token
                 },
             },
