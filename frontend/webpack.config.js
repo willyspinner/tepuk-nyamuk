@@ -57,7 +57,7 @@ module.exports = (env) => {
     console.log(`APPCS_HOST: ${process.env.APPCS_HOST}`, 'APPCS_PORT:',process.env.APPCS_PORT);
     console.log(`GMS_HOST: ${process.env.GMS_HOST}`, 'GMS_PORT:',process.env.GMS_PORT);
 
-  const isProduction = env.mode === 'production' || env.mode === 'production_profile';
+  const isProduction = env.mode === 'production.local'|| env.mode === 'production.host' || env.mode === 'production_profile';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
 return {
     node:{
