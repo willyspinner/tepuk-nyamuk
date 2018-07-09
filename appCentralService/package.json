@@ -4,11 +4,12 @@
   "description": "central service for tepuk nyamuk app",
   "main": "app.js",
   "scripts": {
-    "test-coverage":"nyc mocha tests/*.test.js"
+    "test-coverage": "nyc mocha tests/*.test.js"
   },
   "author": "willyspinner (wilson jusuf)",
   "license": "ISC",
   "dependencies": {
+    "basic-auth": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",

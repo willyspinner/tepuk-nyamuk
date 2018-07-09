@@ -129,10 +129,10 @@ return {
         CSSExtract,
         env.mode==='production_profile' ? new BundleAnalyzerPlugin():
             new webpack.DefinePlugin({
-                'process.env.APPCS_HOST':JSON.stringify(env.APPCS_HOST),
-                'process.env.APPCS_PORT':JSON.stringify(env.APPCS_PORT),
-                'process.env.GMS_HOST':JSON.stringify(env.GMS_HOST),
-                'process.env.GMS_PORT':JSON.stringify(env.GMS_PORT),
+                'process.env.APPCS_HOST':JSON.stringify(process.env.APPCS_HOST),
+                'process.env.APPCS_PORT':JSON.stringify(process.env.APPCS_PORT),
+                'process.env.GMS_HOST':JSON.stringify(process.env.GMS_HOST),
+                'process.env.GMS_PORT':JSON.stringify(process.env.GMS_PORT),
                 'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
             }),
 

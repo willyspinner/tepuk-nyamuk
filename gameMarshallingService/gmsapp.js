@@ -35,6 +35,7 @@ const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
 const events = require('./constants/socketEvents');
 const request = require('request');
+const basicAuth = require('basic-auth');
 app.set('port', process.env.GMS_PORT || 4000);
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -66,51 +67,76 @@ app.get('/health',(req,res)=>{
     logger.info('app.js: GET /health','consul health check.');
     res.sendStatus(200);
 })
-app.post('/gms/game/create', (req, res) => {
-    if (!uuidvalidate(req.body.gameid)){
-        res.json({
-            success: false,
-            error: "gameid invalid"
-        });
+const authMiddleware = (req,res,next)=>{
+    const user = basicAuth(req);
+    if(!user || !user.name || !user.pass){
+        logger.warn('POST /gms/game/create', `no auth provided.`);
+        res.status(401).json({
+            success:false,
+            error:"No authentication information provided."
+        })
         return;
     }
+    if(user.name === process.env.INTERNAL_SECRET_USER
+        && user.pass === process.env.INTERNAL_SECRET_PW) {
+        next();
 
-    // first we generate the game session.
-    
-    logger.info("POST /gms/game/create",`got req.body: ${JSON.stringify(req.body)}`)
-    if (req.body.players.length < 2){
-        res.json({
-            success: false,
-            error: "too few players."
+    }else{
+        logger.warn('POST /gms/game/create', `incorrect auth provided.`);
+        res.status(401).json({
+            success:false,
+            error:"Incorrect authentication information."
         });
-        return;
     }
-    let cardsperplayer = 25; // this can be made a post body option (req.body) later if needed.
-    let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
-        .update(req.body.gameid, 'utf8').digest('hex');
-    let gamesecret = crypto.createHmac('sha256',process.env.GAME_SECRET_2)
-        .update(req.body.gameid,'utf8').digest('hex');
-    // then we generate the game secret
-    //  then we store the game secret in redis
-    const salt = bcrypt.genSaltSync(10);
-    const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
-    redisdb.initializeGame(req.body.gameid,gamesessionid, encryptedgamesecret,
-        req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
-        .then((result) => {
-            // then with the created game, we generate JWT gametoken.
-            const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
-            
-            console.log(`gmsapp: created new game: ${gamesessionid}`);
-            res.status(200).json({
-                success: true,
-                gametoken: gametoken,
-                gamesecret: gamesecret,
-                gamesessionid: gamesessionid // this is to the appcs, so its ok.
-            })
-        }).catch(e => res.json({
-        success: false,
-        error: "redis failed to initialise gme."
-    }));
+};
+
+
+app.post('/gms/game/create', authMiddleware,(req, res) => {
+
+        if (!uuidvalidate(req.body.gameid)) {
+            res.json({
+                success: false,
+                error: "gameid invalid"
+            });
+            return;
+        }
+
+        // first we generate the game session.
+
+        logger.info("POST /gms/game/create", `got req.body: ${JSON.stringify(req.body)}`)
+        if (req.body.players.length < 2) {
+            res.json({
+                success: false,
+                error: "too few players."
+            });
+            return;
+        }
+        let cardsperplayer = 25; // this can be made a post body option (req.body) later if needed.
+        let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
+            .update(req.body.gameid, 'utf8').digest('hex');
+        let gamesecret = crypto.createHmac('sha256', process.env.GAME_SECRET_2)
+            .update(req.body.gameid, 'utf8').digest('hex');
+        // then we generate the game secret
+        //  then we store the game secret in redis
+        const salt = bcrypt.genSaltSync(10);
+        const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
+        redisdb.initializeGame(req.body.gameid, gamesessionid, encryptedgamesecret,
+            req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
+            .then((result) => {
+                // then with the created game, we generate JWT gametoken.
+                const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
+
+                console.log(`gmsapp: created new game: ${gamesessionid}`);
+                res.status(200).json({
+                    success: true,
+                    gametoken: gametoken,
+                    gamesecret: gamesecret,
+                    gamesessionid: gamesessionid // this is to the appcs, so its ok.
+                })
+            }).catch(e => res.status(500).json({
+            success: false,
+            error: "redis failed to initialise gme."
+        }));
 
 });
 
@@ -396,6 +422,10 @@ io.use(function (socket, next) {
                                                                 request.post(
                                                                     {
                                                                         url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
+                                                                        headers:{
+                                                                            Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                                                                .toString('base64')
+                                                                        },
                                                                         form :{
                                                                             resultObj:resultObj
                                                                         }

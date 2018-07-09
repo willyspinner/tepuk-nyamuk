@@ -34,6 +34,7 @@ const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
 const request = require('request');
+const basicAuth=require('basic-auth');
 // appcs environment var.
 
 // constants
@@ -376,6 +377,10 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                     const GMS_PORT = process.env.GMS_PORT || 4000;
                     request.post({
                             url:`http://${GMS_HOST}:${GMS_PORT}/gms/game/create`,
+                            headers:{
+                              Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                  .toString('base64')
+                            },
                             form: {
                                 gameid: req.params.gameid,
                                 gamename: "zz game", // NOTE:  we don't actually need the game name i think.
@@ -454,23 +459,46 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 
 GMS to APPCS route. Finish game.
  */
-app.post(`/appcs/game/finish/:gameid`,(req,res)=>{
-   //TODO TODO
-    //TODO authenticate: token? how?
+const authMiddleware = (req,res,next)=>{
+    const user = basicAuth(req);
+    if(!user || !user.name || !user.pass){
+        logger.warn('POST /appcs/game/finish/:gameid', `no auth provided.`);
+        res.status(401).json({
+            success:false,
+            error:"No authentication information provided."
+        })
+        return;
+    }
+    if(user.name === process.env.INTERNAL_SECRET_USER
+        && user.pass === process.env.INTERNAL_SECRET_PW) {
+        next();
+    }else{
+        logger.warn('POST /appcs/game/finish/:gameid', `incorrect auth provided.`);
+        res.status(401).json({
+            success:false,
+            error:"Incorrect authentication information."
+        });
+    }
+};
+app.post(`/appcs/game/finish/:gameid`,authMiddleware,(req,res)=>{
 
-    //then:
-    db.gmsFinishGame(req.params.gameid,req.body.resultObj).then(()=>{
-        // emit to main lobby that the game is finished (deleted)
-        io.emit(EVENTS.GAME_DELETED,
-            {
-                gameuuid: req.params.gameid
-            }
+        db.gmsFinishGame(req.params.gameid,req.body.resultObj).then(()=>{
+            // emit to main lobby that the game is finished (deleted)
+            io.emit(EVENTS.GAME_DELETED,
+                {
+                    gameuuid: req.params.gameid
+                }
             );
-    res.json({
-        success:true,
+            res.json({
+                success:true,
+            })
+        }).catch((e)=>{
+            res.status(500).json({
+                success:false,
+                error:"postgresql finish game error."
+            })
+        })
 
-    })
-    })
 });
 
 // health check
