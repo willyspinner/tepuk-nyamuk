@@ -8,3 +8,4 @@ gameMarshallingService/package-lock.json
 .idea
 .nyc_output
 dist
+dump.rdb
