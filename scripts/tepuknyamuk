@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 USAGE="$(cat <<EOF
-\e[1;40;39m ]Usage: tepuknyamuk (stop|start|status) [SERVICE|APPGROUP]\e[0m].
+\e[1;40;39m Usage: tepuknyamuk (stop|start|status) [SERVICE|APPGROUP]\e[0m.
 Please specify a command to manage the tepuk-nyamuk app. 
 Commands:
 stop : stop all services pertaining to the app.
