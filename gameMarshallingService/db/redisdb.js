@@ -41,10 +41,11 @@ we have:
 - GAMESESSIONID/gamesecret - bcrypted secret that is sent to only players in the game lobby.
 - GAMESESSIONID/match - 1 if is a match, or 0 if no match
 - GAMESESSIONID/connectedplayers - redis set of connected players.
+- GAMESESSIONID/scores - redis sorted set of players with scores (from lowest to highest)
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
-- GAMESESSIONID/player/USERNAME/streaks - int of how many times (consecutively) a user has no pile.
+- GAMESESSIONID/player/USERNAME/streak - int of how many times (consecutively) a user has no pile.
 - GAMESESSIONID/player/USERNAME/index - idx of player in the GAMESESSIONID/players list.
 
 note: to get the curent card num, simply counter % 13.
@@ -105,9 +106,9 @@ const self = module.exports = {
                    });
                    snapshotobj[player] = hand;
                    chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand);
-                   
-
                     chain = chain.set(`${gamesessionid}/player/${player}/index`,idx);
+                    let score = 0;
+                    chain = chain.zadd(`${gamesessionid}/scores`,score, player);
            });
             // initialise the game variables.
            chain = chain.set(`${gamesessionid}/nplayers`, `${players.length}`);
@@ -129,6 +130,25 @@ const self = module.exports = {
             })
 
     });
+    },
+    //NOTEDIFF: this one is for scoring. gets an array of:
+    /*
+        [ {username: ___, score: ___}, ... etc]
+       // from lowest to highest.
+     */
+    getLowToHighScoreSnapshot :(gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.zrangeAsync(`${gamesessionid}/scores`,0,-1,"WITHSCORES").then((data)=>{
+                let arr = [];
+                for(let i = 0; i < data.length; i+=2 )
+                    arr.push({username: data[i], score:data[i+1]});
+                resolve(arr);
+            }).catch((e)=>reject(e));
+        });
+
+},
+    incrScore:(gamesessionid,player,incrby)=> {
+        return redisclient.zincrbyAsync(`${gamesessionid}/scores`, incrby, player);
     },
 
     getGameId: (gamesessionid)=>{

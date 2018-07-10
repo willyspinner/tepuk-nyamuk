@@ -36,6 +36,7 @@ const crypto = require('crypto');
 const events = require('./constants/socketEvents');
 const request = require('request');
 const basicAuth = require('basic-auth');
+const scoringFunction= require('./constants/scoringFunction');
 app.set('port', process.env.GMS_PORT || 4000);
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -364,12 +365,16 @@ io.use(function (socket, next) {
                                 })
                                 return;
                             }
-                            redisdb.slap(gamesessionid, username, data.reactiontime).then((slappedplayers) => {
+                            Promise.all([
+                                redisdb.slap(gamesessionid, username, data.reactiontime),
+                                    redisdb.getNplayers(gamesessionid),
+                                redisdb.incrScore(gamesessionid,username,scoringFunction(true,data.reactiontime))
+                            ]).then((dataz)=>{
+                                let nplayers = parseInt(dataz[1]);
+                                let slappedplayers = dataz[0];
                                 io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username,reactiontime:data.reactiontime});
-                                
+                                logger.info('data.reactiontime: ',`${data.reactiontime}`);
                                 console.log(`gmsapp::events: PLAYER_SLAPPED for ${username} registered.`);
-                                redisdb.getNplayers(gamesessionid).then((nplayers) => {
-                                     nplayers = parseInt(nplayers);
                                     console.log(`gmsapp::events: n of ppl slapped: ${slappedplayers.length}, out of ${nplayers}`);
                                     if (slappedplayers.length === nplayers) {
                                         const loser = slappedplayers[slappedplayers.length - 1];
@@ -378,12 +383,16 @@ io.use(function (socket, next) {
                                             redisdb.resetSlaps(gamesessionid),
                                             redisdb.setCurrentCounter(gamesessionid, loser),
                                             redisdb.setMatch(gamesessionid, false) //NOTEDIFF: put setMAtch false here.
-                                        ]).then((data)=>{
-                                            let poppedpile = data[0];
+                                        ]).then((data_l)=>{
+                                            let poppedpile = data_l[0];
                                             console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
-                                            redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
-                                                redisdb.getSnapshot(gamesessionid).then((snapshot)=>{
-                                                    //TODO find out from snapshot WHY our guy isn't getting streaked.
+                                            Promise.all(
+                                                [
+                                                    redisdb.setZeroStreak(gamesessionid,loser),
+                                                        redisdb.getSnapshot(gamesessionid)
+                                                ]
+                                            ).then((datas)=>{
+                                                        let  snapshot = datas[1];
                                                     logger.info('SNAPSHOT GOT', JSON.stringify(snapshot));
                                                     //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
                                                     const zeroed_players = slappedplayers.filter((playerusername)=>
@@ -402,50 +411,50 @@ io.use(function (socket, next) {
                                                                winner = zeroed_players[idx];
                                                            }
                                                         });
-                                                        io.to(gamesessionid).emit(events.MATCH_RESULT, {
-                                                            loser: loser,
-                                                            loserAddToPile: poppedpile.length,
-                                                            nextplayer:loser,
-                                                            matchResult: slappedplayers,
-                                                            streakUpdate:
-                                                                zeroed_players_new_streaks.map((score,idx)=>{
-                                                                    return {username: zeroed_players[idx], streak: score}
-                                                                }),
-                                                            scoreUpdate:undefined // TODO TODO: scoring.
-                                                        });
-                                                        if(winning_condition){
-                                                            //TODO. SCORING !!! PLEASE!
-                                                            const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
-                                                            const APPCS_PORT = process.env.APPCS_PORT || 3000;
-                                                            const resultObj = {winner : winner};
-                                                            redisdb.getGameId(gamesessionid).then((gameid)=>{
-                                                                request.post(
-                                                                    {
-                                                                        url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
-                                                                        headers:{
-                                                                            Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
-                                                                                .toString('base64')
+                                                        redisdb.getLowToHighScoreSnapshot(gamesessionid).then((scoresnapshot)=>{
+                                                            logger.info('gmsapp: match result',` emitting match result now, with scoresnapshot: ${scoresnapshot}`)
+                                                            io.to(gamesessionid).emit(events.MATCH_RESULT, {
+                                                                loser: loser,
+                                                                loserAddToPile: poppedpile.length,
+                                                                nextplayer:loser,
+                                                                matchResult: slappedplayers,
+                                                                streakUpdate:
+                                                                    zeroed_players_new_streaks.map((score,idx)=>{
+                                                                        return {username: zeroed_players[idx], streak: score}
+                                                                    }),
+                                                                scoreUpdate:scoresnapshot
+                                                            });
+                                                            if(winning_condition){
+                                                                const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
+                                                                const APPCS_PORT = process.env.APPCS_PORT || 3000;
+                                                                const resultObj = {winner : winner,scores:scoresnapshot};
+                                                                redisdb.getGameId(gamesessionid).then((gameid)=>{
+                                                                    request.post(
+                                                                        {
+                                                                            url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
+                                                                            headers:{
+                                                                                Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                                                                    .toString('base64')
+                                                                            },
+                                                                            form :{
+                                                                                resultObj:resultObj
+                                                                            }
                                                                         },
-                                                                        form :{
-                                                                            resultObj:resultObj
+                                                                        (err,resp,body)=>{
+
                                                                         }
-                                                                    },
-                                                                    (err,resp,body)=>{
+                                                                    );
 
-                                                                    }
-                                                                );
-
-                                                                io.to(gamesessionid).emit(events.GAME_FINISHED,
-                                                                    resultObj
-                                                                )
+                                                                    io.to(gamesessionid).emit(events.GAME_FINISHED,
+                                                                        resultObj
+                                                                    )
+                                                                    response({success:true});
+                                                                })
+                                                            }else{
                                                                 response({success:true});
-                                                            })
-                                                        }else{
-                                                            response({success:true});
-                                                        }
+                                                            }
+                                                        })
                                                     });
-                                                    })
-
                                                 })
                                         }).catch((e)=>{
                                             response({success:false, error:`${e.stack}`});
@@ -453,11 +462,6 @@ io.use(function (socket, next) {
                                     }else {
                                         response({success:true});
                                     }
-                                }).catch( (e)=>{
-
-                                    console.log(`gmsapp::events.PLAYER_SLAPPED: failure: get nplayersfailed.`);
-                                    response({success:false,error:"get nplayersfailed"})
-                                });
                             }).catch((e)=>response({success:false,error:"slap failed"}))
                         }
                     })
@@ -468,21 +472,26 @@ io.use(function (socket, next) {
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),
                         redisdb.resetSlaps(gamesessionid),
-                        redisdb.setCurrentCounter(gamesessionid,loser)
+                        redisdb.setCurrentCounter(gamesessionid,loser),
+                        redisdb.incrScore(gamesessionid,loser,scoringFunction(true,0))
                     ]).then((data)=>{
                         const poppedpile = data[0];
+                        const loserscore = parseInt(data[3]);
                         console.log(`gmsapp::events.PLAYER_SLAPPED: poppedpile : ${JSON.stringify(poppedpile)}`);
                         redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                 loser: loser,
                                 loserAddToPile: poppedpile ? poppedpile.length: 0,
                                 nextplayer: loser,
-                                streakUpdate: [{username:loser, streak: 0 }] // nothing NOTEDIFF: nothing since no one's streaks are increased or decreased.
+                                streakUpdate: [{username:loser, streak: 0 }],// nothing NOTEDIFF: nothing since no one's streaks are increased or decreased.
+                                scoreUpdate: [{username: loser, score: loserscore}]
                             });
                             response({
                                 success:true,
                                 consequence: "you slapped when not in match!"
                             })
+                        }).catch((e)=>{
+                            response({success:false, error :"redisdb set zero streak error."})
                         })
                     }).catch((e)=>{
 

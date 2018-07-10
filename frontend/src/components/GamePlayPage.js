@@ -57,7 +57,8 @@ class GamePlayPage extends Component {
                 result.loser,
                 result.loserAddToPile,
                 result.nextplayer,
-                result.streakUpdate
+                result.streakUpdate,
+                result.scoreUpdate
             ));
         };
         const onGameStart = (onrealgamestartobj)=>{
@@ -230,6 +231,7 @@ class GamePlayPage extends Component {
                                             <div key={idx}>
                                                 <h2>{player.username}</h2>
                                                 <p> cards in hand: {player.nhand} </p>
+                                                <p> score: {player.score} </p>
                                                 <Progress
                                                     type="circle"
                                                       status={player.streak >= 3? 'success': 'active'}

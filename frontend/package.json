@@ -61,7 +61,7 @@
     "serve-httpster": " httpster -d public/",
     "build:prod-local_and_serve": "npm run build:prod-local && npm run serve-httpster",
     "build:prod-host_and_serve": "npm run build:prod-host && npm run serve-httpster",
-    "dev-server": " webpack-dev-server --mode development.local ",
+    "dev-server": " webpack-dev-server --mode development --env.mode development.local ",
     "dev-server-LAN": "if [[ $(uname -s) == \"Darwin\" ]]; then ip=\"$(ipconfig getifaddr en0)\"; else ip=\"$(hostname -I | awk '{print $1}')\";fi command -v notif >/dev/null 2>&1 &&  notif 'webpack' \"Devserver on $ipaddr\" 'daniel' & webpack-dev-server  --mode development --host \"$ipaddr\"",
     "jest": "cross-env NODE_ENV=test jest --config=jest.config.json",
     "jest-clean": "jest --config=jest.config.json -u"

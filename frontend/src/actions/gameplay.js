@@ -56,12 +56,13 @@ export const playerSlap = (username,slapreactiontime) => ({
     slapreactiontime
 });
 
-export const receiveMatchResult = (loser,loseraddtopile,nextplayer,streakUpdate)=>({
+export const receiveMatchResult = (loser,loseraddtopile,nextplayer,streakUpdate,scoreupdate)=>({
     type: "RECEIVE_MATCH_RESULT",
     loser,
     loseraddtopile,
     nextplayer,
-    streakUpdate
+    streakUpdate,
+    scoreUpdate:scoreupdate
 });
 
 

@@ -23,7 +23,8 @@ const gameplayReducer = (state= {},action)=>{
                         nhand: action.game.nhand,
                         streak : 0,
                         hasslapped: false,
-                        slapreactiontime: undefined
+                        slapreactiontime: undefined,
+                        score: 0
                     }
                 })
             };
@@ -79,25 +80,27 @@ const gameplayReducer = (state= {},action)=>{
                     let streak = action.streakUpdate.filter(
                         updateObj=>updateObj.username === player.username
                     )[0];
+                    let newscore= action.scoreUpdate.filter((obj)=>obj.username === player.username)[0];
+                    newscore = newscore? newscore.score: player.score;
                     //NOTEDIFF: if there is no update, then it'll just be the same.
                     streak = streak? streak.streak: player.streak;
                     if(player.username === action.loser) {
 
-                        console.log(`receive match result zeroing hasslapped for loser ${player.username}`);
                         return {
                             ...player,
                             nhand: player.nhand + action.loseraddtopile,
                             hasslapped: false,
                             slapreactiontime:undefined,
-                            streak
+                            streak,
+                            score:newscore
                         }
                     }
                     else{
-                        console.log(`receive match result zeroing hasslapped for ${player.username}`);
                         return {
                             ...player,
                             hasslapped:false,
                             slapreactiontime:undefined,
+                            score: newscore,
                             streak
                         }
                     }
