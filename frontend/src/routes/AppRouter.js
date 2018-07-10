@@ -19,7 +19,7 @@ const AppRouter =()=> (
                     (<Route path="/IntoolsUI" component={IntoolsUIRouter} exact={false}/>)
                     : null
                 }
-                <Route render={(<h1> ROUTE NOT FOUND</h1>)}/>
+                <Route render={()=>(<h1> ROUTE NOT FOUND</h1>)}/>
             </Switch>
             <Footer className="appFooter"/>
         </div>
