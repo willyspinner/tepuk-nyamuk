@@ -52,13 +52,13 @@ class GamePlayPage extends Component {
             ));
         };
         const onMatchResult= (result)=>{
-            this.determineLoser();
+            this.determineLoser(result.loser,result.isAccidental);
             this.props.dispatch(receiveMatchResult(
                 result.loser,
                 result.loserAddToPile,
                 result.nextplayer,
                 result.streakUpdate,
-                result.scoreUpdate
+                result.scoreUpdate,
             ));
         };
         const onGameStart = (onrealgamestartobj)=>{
@@ -103,20 +103,12 @@ class GamePlayPage extends Component {
         });
     }
 
-    determineLoser = () => {
-        let loser = undefined;
-        console.log(`called determineLoser. players: ${JSON.stringify(this.props.gameplay.players)}`);
-        this.props.gameplay.players.forEach((player) => {
-            if (!loser)
-                loser = player;
-            else if (loser.slapreactiontime < player.slapreactiontime)
-                loser = player;
-        });
-
-        console.log(`got loser ${loser.username} out of ${JSON.stringify(this.props.gameplay.players.map((player) => player.username))}`);
+    determineLoser = (loserusername,isaccidental) => {
+        const description = isaccidental? `Loser is: ${loserusername}, who slapped accidentally!! :(`:
+             `Loser is : ${loserusername}, who slapped in time: ${this.props.gameplay.players.filter((player)=>player.username === loserusername)[0].slapreactiontime}`;
         notification.open({
             message:'Match results',
-            description: `Loser is : ${loser.username}, who slapped in time: ${loser.slapreactiontime}`,
+            description,
             duration: 3
         })
     };

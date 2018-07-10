@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Button ,Icon}from 'antd';
 import Modal from 'react-modal';
+import ScoreRankings from "./ui/scoreRankings";
 const GameplayResultsModal  = (props)=>{
     return (
         <Modal
@@ -14,6 +15,9 @@ const GameplayResultsModal  = (props)=>{
       <h1> Game results</h1>
         <h3> {props.gameplay.winner} WON THE GAME!</h3>
             <Icon type="trophy" style={{fontSize:60}}/>
+                <ScoreRankings
+                    finalscores={props.gameplay.finalscores}
+                />
             <Button onClick={props.onGoBackToHome}>
                <Icon type="home" style={{fontSize:30}}/>
                 Go to home

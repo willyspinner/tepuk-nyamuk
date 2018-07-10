@@ -6,7 +6,8 @@ const gameplayReducer = (state= {},action)=>{
         case 'GAME_WINNER':
             return {
                 ...state,
-                winner: action.winner
+                winner: action.winner,
+                finalscores: action.finalscores // ELEGANT: the clients already have an updated score view. Do we really need this ?
             }
         case 'INIT_GAME':
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
@@ -90,7 +91,7 @@ const gameplayReducer = (state= {},action)=>{
                             ...player,
                             nhand: player.nhand + action.loseraddtopile,
                             hasslapped: false,
-                            slapreactiontime:undefined,
+                            //NOTEDIFF: no need to make slapreactiontime undefined.
                             streak,
                             score:newscore
                         }
@@ -99,7 +100,8 @@ const gameplayReducer = (state= {},action)=>{
                         return {
                             ...player,
                             hasslapped:false,
-                            slapreactiontime:undefined,
+                            //NOTEDIFF: no need to make slapreactiontime undefined.
+                            //slapreactiontime:undefined,
                             score: newscore,
                             streak
                         }

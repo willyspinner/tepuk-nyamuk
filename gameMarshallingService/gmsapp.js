@@ -112,7 +112,7 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
             });
             return;
         }
-        let cardsperplayer = 25; // this can be made a post body option (req.body) later if needed.
+        let cardsperplayer = process.env.GAMESETTING_CARDS_PER_PLAYER || 20; // this can be made a post body option (req.body) later if needed.
         let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
             .update(req.body.gameid, 'utf8').digest('hex');
         let gamesecret = crypto.createHmac('sha256', process.env.GAME_SECRET_2)
@@ -419,15 +419,20 @@ io.use(function (socket, next) {
                                                                 nextplayer:loser,
                                                                 matchResult: slappedplayers,
                                                                 streakUpdate:
-                                                                    zeroed_players_new_streaks.map((score,idx)=>{
+                                                                [
+                                                                    ...zeroed_players_new_streaks.map((score,idx)=>{
                                                                         return {username: zeroed_players[idx], streak: score}
                                                                     }),
-                                                                scoreUpdate:scoresnapshot
+                                                                    {username: loser, streak: 0} //NOTEDIFF: bugfix here. Our loser isn't a zero hand player anymore.
+                                                                    // So if he/she had a streak, ppl need to know that he doesn't have one anymore.
+                                                                ],
+                                                                scoreUpdate:scoresnapshot,
+                                                                isAccidental: false
                                                             });
                                                             if(winning_condition){
                                                                 const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
                                                                 const APPCS_PORT = process.env.APPCS_PORT || 3000;
-                                                                const resultObj = {winner : winner,scores:scoresnapshot};
+                                                                const resultObj = {winner : winner,finalscores:scoresnapshot};
                                                                 redisdb.getGameId(gamesessionid).then((gameid)=>{
                                                                     request.post(
                                                                         {
@@ -441,14 +446,13 @@ io.use(function (socket, next) {
                                                                             }
                                                                         },
                                                                         (err,resp,body)=>{
-
+                                                                            io.to(gamesessionid).emit(events.GAME_FINISHED,
+                                                                                resultObj
+                                                                            )
+                                                                            response({success:true});
                                                                         }
                                                                     );
 
-                                                                    io.to(gamesessionid).emit(events.GAME_FINISHED,
-                                                                        resultObj
-                                                                    )
-                                                                    response({success:true});
                                                                 })
                                                             }else{
                                                                 response({success:true});
@@ -468,12 +472,12 @@ io.use(function (socket, next) {
                 } else {
                     // punish accidental slap.
                     const loser = username;
-                    console.log(`gmsapp::events.PLAYER_SLAPPED: executing punishment promise`);
+                    logger.info(`gmsapp::events.PLAYER_SLAPPED`,` executing punishment promise for ${loser}`);
                     Promise.all([
                         redisdb.popAllPileToLoser(gamesessionid,loser),
                         redisdb.resetSlaps(gamesessionid),
                         redisdb.setCurrentCounter(gamesessionid,loser),
-                        redisdb.incrScore(gamesessionid,loser,scoringFunction(true,0))
+                        redisdb.incrScore(gamesessionid,loser,scoringFunction(false,0))
                     ]).then((data)=>{
                         const poppedpile = data[0];
                         const loserscore = parseInt(data[3]);
@@ -484,7 +488,8 @@ io.use(function (socket, next) {
                                 loserAddToPile: poppedpile ? poppedpile.length: 0,
                                 nextplayer: loser,
                                 streakUpdate: [{username:loser, streak: 0 }],// nothing NOTEDIFF: nothing since no one's streaks are increased or decreased.
-                                scoreUpdate: [{username: loser, score: loserscore}]
+                                scoreUpdate: [{username: loser, score: loserscore}],
+                                isAccidental:true
                             });
                             response({
                                 success:true,

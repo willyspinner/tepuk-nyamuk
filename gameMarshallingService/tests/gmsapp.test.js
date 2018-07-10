@@ -40,7 +40,11 @@ describe('gmsapp.test: initial connection to game', function () {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
                     players: (dummydata.gameGMStest.players)
-                }
+                },
+            headers:{
+                Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                    .toString('base64')
+            }
             },
             (err, res, body) => {
                 if (err)
@@ -209,6 +213,10 @@ describe('gmsapp.test: registering throw', function () {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
                     players: (dummydata.gameGMStest.players)
+                },
+                headers:{
+                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                        .toString('base64')
                 }
             },
             (err, res, body) => {
@@ -328,6 +336,10 @@ describe('gmsapp.test: match', function () {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
                     players: (dummydata.gameGMStest.players)
+                },
+                headers:{
+                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                        .toString('base64')
                 }
             },
             (err, res, body) => {
@@ -489,6 +501,10 @@ describe('gmsapp.test: slaps', function () {
                     gamename: dummydata.gameGMStest.gamename,
                     gameid: dummydata.gameGMStest.gameid,
                     players: (dummydata.gameGMStest.players)
+                },
+                headers:{
+                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                        .toString('base64')
                 }
             },
             (err, res, body) => {

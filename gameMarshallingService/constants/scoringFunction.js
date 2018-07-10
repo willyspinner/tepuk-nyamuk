@@ -5,7 +5,7 @@ We are using a reciprocal function where score is inversely proportional to reac
 module.exports = (isMatch,reactionTimeInMilliSeconds)=>{
     if (isMatch)
         // reaction time based scoring.
-        return (1000 / reactionTimeInMilliSeconds);
+        return (250000 / reactionTimeInMilliSeconds);
     else
         // false slap. Punish player by decrementing score.
         return -500;

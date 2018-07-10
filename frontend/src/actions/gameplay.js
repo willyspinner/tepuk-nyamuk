@@ -25,7 +25,8 @@ export const initializeGame = (playerinturn, players ,nhand)=> ({
 });
 export const gameWinner = (gameFinishObj)=>({
     type: 'GAME_WINNER',
-    winner:gameFinishObj.winner
+    winner:gameFinishObj.winner,
+    finalscores: gameFinishObj.finalscores
 })
 export const finishGame = ()=>({
     type: 'FINISH_GAME',
