@@ -9,3 +9,4 @@ gameMarshallingService/package-lock.json
 .nyc_output
 dist
 dump.rdb
+npm-debug.log
