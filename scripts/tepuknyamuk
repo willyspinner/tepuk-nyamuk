@@ -15,7 +15,7 @@ gms (node)
 appcs (node)
 nginx
 
----APPGROUP----
+---APPGROUP---- NOT IMPLEMENTED YET.
 >> (A group of service instances that comprise an app service.)  <<
 gmsapp (comprises of gms service and redis)
 appcsapp (comprises of appcs service and postgresql)
@@ -32,7 +32,7 @@ then echo -e "\e[1;41;97m Must be in ubuntu environment to launch tepuknyamuk li
     exit 1;
 fi
 
-if [[ $# -lt 1 ]]; 
+if [[ $# -lt 1 ]] || [[ $1 == '--help' ]] || [[ $1 == '-h' ]]; 
 then echo -e "$TITLE";
  echo -e "$USAGE";
 else
@@ -49,24 +49,34 @@ if [[ $1 == 'start' ]]; then
 		;;
 		(gms)
 		echo -e "\e[0;40;34m starting gms node service...\e[0m";
+		forever start --pidFile ~/.tepuknyamuk/gms-daemon.pid ~/projects/tepuk-nyamuk/gameMarshallingService/gmsapp.js production.host && echo -e '\e[32m >>>> gms daemon running..' 
 		;;
 		(appcs)
 		echo -e "\e[0;40;34m starting appcs node service...\e[0m";
+		forever start --pidFile ~/.tepuknyamuk/appcs-daemon.pid ~/projects/tepuk-nyamuk/appCentralService/appcsapp.js production.host && echo -e '\e[32m >>>> appcs daemon running...'  
 		;;
 		(nginx)
 		echo -e "\e[0;40;34m starting nginx service...\e[0m";
+		sudo systemctl start nginx && echo -e '\e[32m >>>> nginx web server running....' 
 		;;
 		(*)
+         if [[ $#  -lt 2 ]]; then
+
 		echo -e "\e[0;40;34m starting services...\e[0m";
 		SERVICES=0
 		redis-server ~/.tepuknyamuk/redis-daemon.conf && echo -e '\e[32m >>>> redis-server daemon running' && (( SERVICES+=1 ));
 		sudo systemctl start postgresql && echo -e '\e[32m >>>> postgresql running .'  && (( SERVICES+=1 ));
-		forever start ~/projects/tepuk-nyamuk/gameMarshallingService/gmsapp.js production.host && echo -e '\e[32m >>>> gms daemon running..'  && (( SERVICES+=1 ));
-		forever start ~/projects/tepuk-nyamuk/appCentralService/appcsapp.js production.host && echo -e '\e[32m >>>> appcs daemon running...'  && (( SERVICES+=1 ));
+		forever start --pidFile ~/.tepuknyamuk/gms-daemon.pid ~/projects/tepuk-nyamuk/gameMarshallingService/gmsapp.js production.host && echo -e '\e[32m >>>> gms daemon running..'  && (( SERVICES+=1 ));
+		forever start --pidFile ~/.tepuknyamuk/appcs-daemon.pid ~/projects/tepuk-nyamuk/appCentralService/appcsapp.js production.host && echo -e '\e[32m >>>> appcs daemon running...'  && (( SERVICES+=1 ));
 		sudo systemctl start nginx && echo -e '\e[32m >>>> nginx web server running....'  && (( SERVICES+=1 ));
 		echo -e "\e[36m [ $SERVICES/5 services up and running.]."
 		echo -e "\e[36m [serving on ec2-13-229-206-81.ap-southeast-1.compute.amazonaws.com]"
-		;;
+
+    else
+        echo -e "\e[1;41;97m Unknown service \"$2\" to start.\e[0m"
+        exit 1;
+    fi
+        ;;
 		esac
 
 # stop command
@@ -81,20 +91,29 @@ then
 		echo -e "\e[0;40;34m stopping postgresql...\e[0m";
 	sudo systemctl stop postgresql && echo -e '\e[32m >>>> stopped postgresql.' 
 		;;
-		(apps)
-		echo -e "\e[0;40;34m stopping app node services...\e[0m";
-	forever stopall  && echo -e '\e[32m >>>> stopped appcs daemon...'  &&  echo -e '\e[32m >>>> stopped gms daemon...' 
-		;;
+    (appcs)
+		echo -e "\e[0;40;34m stopping appcs node service...\e[0m";
+        [[ -a ~/.tepuknyamuk/appcs-daemon.pid ]] &&  (forever stop $(cat ~/.tepuknyamuk/appcs-daemon.pid) && echo -e '\e[32m >>>> stopped appcs daemon...') || echo -e "\e[31m ERROR. No appcs pid file found. \e[0m"
+        ;;
+		(gms)
+		echo -e "\e[0;40;34m stopping gms node service...\e[0m";
+        [[ -a ~/.tepuknyamuk/gms-daemon.pid ]] && (forever stop $( cat ~/.tepuknyamuk/gms-daemon.pid)  && echo -e '\e[32m >>>> stopped gms daemon...')  || echo -e "\e[31m Error. No gms pid file found. \e[0m"
+    ;;
 		(nginx)
 		echo -e "\e[0;40;34m stopping nginx service...\e[0m";
 	sudo systemctl stop nginx && echo -e '\e[32m >>>> stopped nginx web server....' 
 		;;
 		(*)
+            if [[ $# -lt 2 ]]; then
 	echo -e "\e[0;40;34m stopping services...\e[0m";
 	[[ -a ~/.tepuknyamuk/redis-server-daemon.pid ]] && (sudo kill $(cat ~/.tepuknyamuk/redis-server-daemon.pid) && echo -e '\e[32m >>>> killed redis-server daemon' ) || echo -e '\e[31m ERROR. NO redis server pid file found. \e[0m';
 	sudo systemctl stop postgresql && echo -e '\e[32m >>>> stopped postgresql.' 
 	forever stopall  && echo -e '\e[32m >>>> stopped appcs daemon...'  &&  echo -e '\e[32m >>>> stopped gms daemon...' 
 	sudo systemctl stop nginx && echo -e '\e[32m >>>> stopped nginx web server....' 
+else
+echo -e "\e[1;41;97m Unknown service \"$2\" to stop. \e[0m"
+fi
+        ;;
     esac
 	
 
