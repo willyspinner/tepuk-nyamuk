@@ -66,7 +66,7 @@ returns the following as json response (To appcs):
 if( process.argv[2] === 'production.host'){
     const dd_options = {
         'response_code':true,
-        'tags': ['app:appcs']
+        'tags': ['app:gms']
     }
     app.use(require('connect-datadog')(dd_options));
     logger.info(`appcs init`, `connecting to datadog monitor...`);
