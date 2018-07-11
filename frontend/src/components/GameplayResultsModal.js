@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Button ,Icon}from 'antd';
 import Modal from 'react-modal';
-import ScoreRankings from "./ui/scoreRankings";
+import ScoreRankings from "./ui/ScoreRankings";
 const GameplayResultsModal  = (props)=>{
     return (
         <Modal

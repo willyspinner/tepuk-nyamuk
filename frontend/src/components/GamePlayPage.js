@@ -7,7 +7,7 @@ import PlayingCard from './ui/PlayingCard';
 import GameplayResultsModal from './GameplayResultsModal';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
-import {Row, Col,notification,Progress} from 'antd';
+import {Row, Col,notification,Progress,Button} from 'antd';
 import socketclient from '../socket/socketclient';
 import {connectSocket, receiveInvitation} from "../actions/user";
 import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
@@ -30,11 +30,23 @@ class GamePlayPage extends Component {
         }
     }
     throw = () => {
-        this.props.dispatch(startPlayerThrow());
+        if (this.props.gameplay.playerinturn === this.props.myusername) {
+            this.props.dispatch(startPlayerThrow());
+        }else{
+            notification.open({
+                message: "it isn't your turn!",
+                description:"you can't throw a card when it isn't your turn.",
+                duration: '2'
+            });
+        }
     };
     // method for me slapping.
-    slap = (reactiontime) => {
-        this.props.dispatch(startPlayerSlap(reactiontime))
+    slap = () => {
+        if (!this.props.gameplay.match) {
+            this.props.dispatch(startPlayerSlap(123059123))
+        }else{
+            this.props.dispatch(startPlayerSlap(performance.now() - this.state.myreactiontime));
+        }
     };
 
     constructor(props) {
@@ -77,28 +89,10 @@ class GamePlayPage extends Component {
             onMatchResult,onGameStart,onGameWinnerAnnounced).then(()=>{
                 // bind key bindings only when we subscribed to the gameplay and everything ok...
                 key('t', () => {
-                    if (this.props.gameplay.playerinturn === this.props.myusername) {
                         this.throw();
-                    } else {
-                        notification.open({
-                            message: "it isn't your turn!",
-                            description:"you can't throw a card when it isn't your turn.",
-                            duration: '2'
-                        });
-                    }
                 });
                 key('space', () => {
-                    if (!this.props.gameplay.match) {
-                        this.slap(123012091); // you just slapped mistakenly.
-                        /*
-                        notification.open({
-                            message:'oops!',
-                            description:`oh no! despite not being a match event, you slapped! you received ${this.props.gameplay.pile.length} cards.`
-                        })
-                        */
-                    }else{
-                        this.slap(performance.now() - this.state.myreactiontime);
-                    }
+                    this.slap();
                 })
         });
     }
@@ -239,7 +233,13 @@ class GamePlayPage extends Component {
                                 </div>
                             </Col>
                             <Col span={8}>
-                                {this.props.gameplay.pile.length === 0 ? `${this.props.gameplay.playerinturn}, throw the card to continue...` :
+                                <Button onClick={this.throw} >
+                                    throw
+                                </Button>
+                                <Button onClick={this.slap} >
+                                    slap
+                                </Button>
+                                {this.props.gameplay.pile.length === 0 ? (<p>{this.props.gameplay.playerinturn}, throw the card to continue...`</p>) :
                                     (
                                         <PlayingCard
                                             suit={"S"}
