@@ -72,7 +72,13 @@ if( process.argv[2] === 'production.host'){
     app.use(require('connect-datadog')(dd_options));
     logger.info(`appcs init`, `connecting to datadog monitor...`);
 
-    Datadog= require('node-dogstatsd').StatsD()
+    StatsD=  require('node-dogstatsd').StatsD;
+    Datadog = new StatsD();
+    /*
+    Datadog.socket.on('error', function (exception) {
+          logger.error(`Datadog Node`,"error event in socket.send(): " + exception);
+    });
+    */
 
 }
 app.get('/health',(req,res)=>{
@@ -139,6 +145,8 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
                 const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
 
                 console.log(`gmsapp: created new game: ${gamesessionid}`);
+                if(Datadog)
+                    Datadog.increment('gms.game_created');
                 res.status(200).json({
                     success: true,
                     gametoken: gametoken,

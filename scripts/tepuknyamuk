@@ -122,7 +122,7 @@ then
 	sudo systemctl stop postgresql && echo -e '\e[32m >>>> stopped postgresql.' 
 	forever stopall  && echo -e '\e[32m >>>> stopped appcs daemon...'  &&  echo -e '\e[32m >>>> stopped gms daemon...' 
 	sudo systemctl stop nginx && echo -e '\e[32m >>>> stopped nginx web server....' 
-    sudo systemctl stop datadog-agent &&  echo -e "\e[32m >>>> stopped datadog agent.....\e[0m";
+    echo -e '\e[0m Datadog-agent isn't stopped, due to continuous monitoring reasons. Stop using tpk stop datadog-agent if needed. '
 else
 echo -e "\e[1;41;97m Unknown service \"$2\" to stop. \e[0m"
 fi
