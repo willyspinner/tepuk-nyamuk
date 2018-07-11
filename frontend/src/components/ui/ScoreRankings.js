@@ -2,9 +2,9 @@ import React from 'react';
 import {List, Icon} from 'antd';
 
 const ScoreRankings = (props) => {
-    const sorted_scores = props.finalscores
-        .sort((player_a, player_b) => player_b.score - player_a.score)
-    const highest_score = sorted_scores[0].score;
+    const sorted_scores = props.finalscores? props.finalscores
+        .sort((player_a, player_b) => player_b.score - player_a.score): undefined
+
     return (
         <div style={{
             display: 'flex',
@@ -12,7 +12,7 @@ const ScoreRankings = (props) => {
             alignItems: 'center',
         }}>
             {
-                props.finalscores ?
+                sorted_scores ?
                     <div>
                         <h2>Rankings </h2>
                         <List

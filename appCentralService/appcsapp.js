@@ -50,6 +50,15 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
+if( process.argv[2] === 'production.host'){
+    const dd_options = {
+        'response_code':true,
+        'tags': ['app:appcs']
+    }
+    app.use(require('connect-datadog')(dd_options));
+    logger.info(`appcs init`, `connecting to datadog monitor...`);
+
+}
 
 // server listening.
 const server = app.listen(app.get('port'));

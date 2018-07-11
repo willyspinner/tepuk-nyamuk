@@ -63,7 +63,15 @@ returns the following as json response (To appcs):
     gamesecret: "109rh2pqiwnaklwdmaw" // secret used to join room
 }
  */
+if( process.argv[2] === 'production.host'){
+    const dd_options = {
+        'response_code':true,
+        'tags': ['app:appcs']
+    }
+    app.use(require('connect-datadog')(dd_options));
+    logger.info(`appcs init`, `connecting to datadog monitor...`);
 
+}
 app.get('/health',(req,res)=>{
     logger.info('app.js: GET /health','consul health check.');
     res.sendStatus(200);
@@ -274,11 +282,14 @@ io.use(function (socket, next) {
                                 error: "is currently in match"
                             });
                         else{
-                            redisdb.popHandToPile(gamesessionid, username).then((poppedcard) => {
+                            Promise.all([
+                                redisdb.popHandToPile(gamesessionid, username),
+                                    redisdb.incrementCurrentCounter(gamesessionid)
+                            ]).then((data_pop_inc)=>{
+                                const poppedcard = data_pop_inc[0];
+                                const nextcounter= data_pop_inc[1];
                                 // increment counter.
-                                redisdb.incrementCurrentCounter(gamesessionid).then((nextcounter) => {
                                     // check match event.
-                                    
                                     console.log(`gmsapp::events.PLAYER_THREW. checking match : counter ${nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
                                     if (JSON.stringify(nextcounter.nextcounter % 13) === poppedcard) {
                                         // match event
@@ -298,7 +309,6 @@ io.use(function (socket, next) {
                                         });
                                     } else {
                                         // just a normal throw.
-
                                         io.to(gamesessionid).emit(events.NEXT_TICK, {
                                             match: false,
                                             piletop: poppedcard, // next top of pile.
@@ -310,7 +320,6 @@ io.use(function (socket, next) {
                                             success: true
                                         })
                                     }
-                                })
                             })
                         }
                         //throw card if not in match
