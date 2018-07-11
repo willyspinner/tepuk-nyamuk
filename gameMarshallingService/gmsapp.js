@@ -72,7 +72,7 @@ if( process.argv[2] === 'production.host'){
     app.use(require('connect-datadog')(dd_options));
     logger.info(`appcs init`, `connecting to datadog monitor...`);
 
-    Datadog= require('node-dogstatsd').StatsD('gms service',8125)
+    Datadog= require('node-dogstatsd').StatsD()
 
 }
 app.get('/health',(req,res)=>{
