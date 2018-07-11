@@ -63,42 +63,37 @@ class ChatRoom extends Component {
                     background: isMe ? '#a4d12a' : '#49adff',
                     borderRadius: '18px',
                     borderBottom: '4px solid grey',
-                    display: 'inline-block'
                 }}>
                     <div style={{
                         display: 'flex',
-                        flexDirection: isMe ? 'row-reverse' : 'row',
-                        lineHeight: '0px',
-                        paddingTop:'10px'
+                        flexDirection: 'row',
+                        paddingTop: '2px',
+                        flexShrink: 1
                     }}>
-                        <div>
-                            <p style={{
-                                ...isMe ? {marginRight: '10px'} : {marginLeft: '10px'},
-                                color: 'white',
-                            }}>
-                                {item.sender_username}
-                            </p>
-                        </div>
-                        <div style={{
-                            marginRight: '7px',
-                            marginLeft: '7px',
-                            wordWrap: 'normal',
-                            display: 'block',
-                            wordBreak: 'break-all',
-                            whiteSpace: 'normal'
+                        <p style={{
+                            marginLeft: '10px',
+                            color: 'white',
                         }}>
-                            <p>
+                            {item.sender_username}
+                        </p>
+                        <p style={{
+                            overflowWrap: 'break-word',
+                            wordWrap: 'break-word',
+                            hyphens: 'auto',
+                            marginRight: '7px',
+                            marginLeft: '7px'
+                        }}>
                             {item.message}
-                            </p>
-                        </div>
+                        </p>
                     </div>
-                    <div style={{display: 'flex', flexDirection: isMe ? 'row-reverse' : 'row'}}>
+                    <div style={{display: 'flex', flexDirection: 'row', fontSize: 13}}>
                         <h6 style={{marginRight: '8px', marginLeft: '8px', color: 'white'}}>
                             {moment(item.timestamp).format(DATE_FORMAT)}
                         </h6>
                     </div>
                 </div>
-            </div>)
+            </div>
+        )
 
     }
 
@@ -136,7 +131,7 @@ class ChatRoom extends Component {
 
                 <div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <div style={{width: '90%',marginTop:'6px'}}>
+                        <div style={{width: '90%', marginTop: '6px'}}>
                             <Input
                                 onChange={(e) => this.setState({inputval: e.target.value})}
                                 value={this.state.inputval}
@@ -146,8 +141,8 @@ class ChatRoom extends Component {
 
                             </Input>
                         </div>
-                        <Button onClick={this.onPressEnterHandler} style={{marginTop:'6px'}}>
-                            <Icon type="notification" />
+                        <Button onClick={this.onPressEnterHandler} style={{marginTop: '6px'}}>
+                            <Icon type="notification"/>
                         </Button>
                     </div>
                 </div>
