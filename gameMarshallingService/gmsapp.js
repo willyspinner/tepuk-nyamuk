@@ -63,6 +63,7 @@ returns the following as json response (To appcs):
     gamesecret: "109rh2pqiwnaklwdmaw" // secret used to join room
 }
  */
+let Datadog = undefined;
 if( process.argv[2] === 'production.host'){
     const dd_options = {
         'response_code':true,
@@ -70,6 +71,8 @@ if( process.argv[2] === 'production.host'){
     }
     app.use(require('connect-datadog')(dd_options));
     logger.info(`appcs init`, `connecting to datadog monitor...`);
+
+    Datadog= require('node-dogstatsd').StatsD('gms service',8125)
 
 }
 app.get('/health',(req,res)=>{
@@ -207,6 +210,8 @@ io.use(function (socket, next) {
         // set connected to redis.
         
         console.log(`socket player connected for ${socket.username}`);
+        if (Datadog)
+            Datadog.increment('gms.on.connect');
         socket.join(socket.gamesessionid);
 
         redisdb.setPlayerConnected(socket.gamesessionid,socket.id,socket.username).then(()=>{
@@ -245,6 +250,8 @@ io.use(function (socket, next) {
     //What about to check if player is in sync?
     //remember that we have to authenticate the socket by looking up the id's username here.
     socket.on(events.PLAYER_THREW, (data, response) => {
+        if (Datadog)
+            Datadog.increment('gms.on.player_threw');
         let username;
 
         let gamesessionid = socket.gamesessionid;
@@ -344,6 +351,9 @@ io.use(function (socket, next) {
     // data is an object of the following:
     // {reactiontime: 0.2412 /*seconds */}
     socket.on(events.PLAYER_SLAPPED, (data, response) => {
+       if(Datadog){
+           Datadog.increment('gms.on.player_slapped');
+       }
         let username;
         let gamesessionid = socket.gamesessionid;
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
@@ -422,6 +432,9 @@ io.use(function (socket, next) {
                                                         });
                                                         redisdb.getLowToHighScoreSnapshot(gamesessionid).then((scoresnapshot)=>{
                                                             logger.info('gmsapp: match result',` emitting match result now, with scoresnapshot: ${scoresnapshot}`)
+                                                            if(Datadog){
+                                                                Datadog.increment('gms.emit.match_result');
+                                                            }
                                                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                                                 loser: loser,
                                                                 loserAddToPile: poppedpile.length,
@@ -458,6 +471,9 @@ io.use(function (socket, next) {
                                                                             io.to(gamesessionid).emit(events.GAME_FINISHED,
                                                                                 resultObj
                                                                             )
+                                                                            if(Datadog){
+                                                                                Datadog.increment('gms.emit.game_finished');
+                                                                            }
                                                                             response({success:true});
                                                                         }
                                                                     );
@@ -492,6 +508,9 @@ io.use(function (socket, next) {
                         const loserscore = parseInt(data[3]);
                         console.log(`gmsapp::events.PLAYER_SLAPPED: poppedpile : ${JSON.stringify(poppedpile)}`);
                         redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
+                            if(Datadog){
+                                Datadog.increment('gms.emit.match_result');
+                            }
                             io.to(gamesessionid).emit(events.MATCH_RESULT, {
                                 loser: loser,
                                 loserAddToPile: poppedpile ? poppedpile.length: 0,
