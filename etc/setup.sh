@@ -6,14 +6,17 @@ source functions.sh;
 
 if [ $EUID -ne 0 ];
 then
-println 'error' 'You need to run this script as root.'
+error_exit 'You need to run this script as root.'
 exit 1
 fi
 
 if [ "$(uname -s)" == 'Darwin' ];
 then
-println 'error' 'You cannot run this in MAC OSX. Need Ubuntu 16.04'
-exit 1
+error_exit 'You cannot run this in MAC OSX. Need Ubuntu 16.04'
+fi
+
+if [ -e setup.sh ]; then echo ' running setup .sh ...'; else
+    error_exit "Please run setup.sh in the same directory.";
 fi
 
 pushd .
@@ -33,7 +36,7 @@ git clone git://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutte
 git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 
 
-# create common folders, and initialize their use.
+# create common folders, copy common scripts..
 mkdir ~/.tepuknyamuk
 mkdir ~/willysServerBin
 mkdir ~/projects
@@ -43,6 +46,17 @@ cp tools/redis-daemon.conf ~/.tepuknyamuk
 cp tools/colors ~/willysServerBin
 cp tools/.aliases ~
 cp tools/.startup ~
+#//cp ../scripts/* ~/willysServerBin/
+scriptsdir="$(pwd)"
+
+
+# put willysServerBin as path.
+cd ~/willysServerBin;
+
+echo "export PATH=\"\$PATH:$PWD" >> ~/.bashrc
+echo "export PATH=\"\$PATH:$scriptsdir" >> ~/.bashrc
+echo "source ~/.aliases" >> ~/.bashrc
+echo "source ~/.startup" >> ~/.bashrc
 
 # install redis
 cd ~/applications
@@ -65,7 +79,7 @@ command -v node || ( curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bas
 # install npm packages
 sudo npm install -g forever
 sudo npm install -g httpster
-sudo npm install -g tldr
+#sudo npm install -g tldr # TLDR doesn't work lmao
 sudo npm install -g yarn
 
 
@@ -77,7 +91,6 @@ popd
 source ~/.aliases
 source ~/.startup
 println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure them. "
-println 'info' "Also, set up postgresql users, roles, dbs if needed."
-
+println 'info' "Also, set up postgresql users, roles, dbs if needed. "
 
 

@@ -2,7 +2,7 @@
 
 figlet "hello willyspinner"
 echo "$(hostname)" | toilet -f slant --metal;
-tepuknyamuk status;
+command -v tepuknyamuk > /dev/null 2>&1 && tepuknyamuk status;
 echo -e "\e[1;40;37m Time: \e[0m "| toilet -f term -F border
 echo -e "\e[0;40;34m Jakarta Time : $(TZ=Asia/Jakarta date) \e[0m";
 echo -e "\e[0;40;34m Los Angeles Time : $(TZ=America/Los_Angeles date) \e[0m";
