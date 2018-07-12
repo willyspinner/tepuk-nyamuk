@@ -199,7 +199,7 @@ app.get('/appcs/game', (req, res) => {
 /*
 
 AppCS Route.
- POST /appcs/game/create/:gameId : Create game
+ POST /appcs/game/create/ : Create game
 
 POST body:
 

@@ -3,7 +3,7 @@ const gamesReducer = (state = [], action) => {
   switch (action.type) {
       case 'ADD_GAME':
         //NOTEDIFF: check if game already there.
-        if( state && state.length > 0 && state.reduce(game=>game.uuid).includes(action.game.uuid))
+        if( state && state.length > 0 && state.map(game=>game.uuid).includes(action.game.uuid))
             return state;
         else
           return [...state, action.game];
