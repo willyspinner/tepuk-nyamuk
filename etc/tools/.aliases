@@ -1,0 +1,28 @@
+alias ae="vi ~/.aliases"
+alias aer="source ~/.aliases"
+alias tpk="tepuknyamuk"
+
+alias awr="source ~/.startup"
+alias aw="vi ~/.startup"
+
+alias gp="git push"
+alias gpl="git pull"
+alias gc="git commit"
+alias ga="git add -A"
+alias gau="git add -u"
+alias gd="git diff"
+alias gs="git status"
+alias gl="git log"
+alias gch="git checkout"
+alias cdtep="cd ~/projects/tepuk-nyamuk"
+alias az="vi ~/.bashrc"
+alias azr="source ~/.bashrc"
+
+# tpk
+alias vitpk="vi $(which tepuknyamuk)"
+alias truncdb="sudo -i -u postgres psql -d tepuknyamuk -c \"truncate table games; truncate table users;\""
+
+# spageti
+alias spageti="sudo apt-get install"
+
+alias svi="sudo vi"
