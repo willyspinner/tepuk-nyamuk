@@ -6,7 +6,6 @@ then echo -e "\e[1;41;37m $2 \e[0m"
 else
 if [ $1 == 'info' ];
 then echo -e "\e[0;49;32m $2 \e[0m"
-    echo "$1"
     fi
 fi
 }

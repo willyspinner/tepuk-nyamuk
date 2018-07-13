@@ -6,7 +6,6 @@ WORKDIR /app
 ENV ENABLE_DATADOG 0    # 1 or 0.
 ENV ENABLE_VIM 0             # 1 or 0
 
-
 RUN chmod +x bin/setup.bash
 RUN ["/bin/bash", "bin/setup.bash"]
 

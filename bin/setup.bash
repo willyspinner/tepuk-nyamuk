@@ -67,13 +67,12 @@ echo "source ~/.startup" >> ~/.bashrc
 
 cd ~/applications
 command -v curl || apt-get -y install  curl
-curl -O http://download.redis.io/redis-stable.tar.gz || error_exit "couldn't download redis. Check internet connection?"
+curl -O http://download.redis.io/redis-stable.tar.gz || (error_exit "couldn't download redis. Check internet connection?" && exit 1);
 tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
 cd redis-stable
 command -v gcc || apt-get -y  install gcc;
 command -v make || apt-get -y  install make;
 ( make &&  make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) ||(error_exit "redis installation error." && exit 1)
-
 
 # get postgres 10 ppa
  add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
@@ -90,8 +89,9 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |  apt-key 
 
 
 # install node js
-command -v node || ( curl -sL https://deb.nodesource.com/setup_8.x |  -E bash - &&  apt-get -y install  nodejs)
+command -v node || ( curl -sL https://deb.nodesource.com/setup_8.x | bash - &&  apt-get -y install  nodejs)
 
+command -v node || (error_exit "nodejs didn't install properly. exiting.." ; exit 1)
 # install npm packages
  npm install -g forever
  npm install -g httpster
