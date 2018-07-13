@@ -31,6 +31,4 @@ EOF
 
 error_exit () {
 println 'error' "$1";
-exit 1
-
 }

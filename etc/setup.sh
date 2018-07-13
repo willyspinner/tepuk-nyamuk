@@ -11,9 +11,11 @@ fi
 if [ "$(uname -s)" == 'Darwin' ];
 then
 error_exit 'You cannot run this in MAC OSX. Need Ubuntu 16.04'
+exit 1
 fi
 if [ -e setup.sh ]; then echo ' running setup .sh ...'; else
     error_exit "Please run setup.sh in the same directory.";
+    exit 1
 fi
 
 pushd .
@@ -69,7 +71,8 @@ cd ~/applications
 curl -O http://download.redis.io/redis-stable.tar.gz || error_exit "couldn't download redis. Check internet connection?"
 tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
 cd redis-stable
-make && sudo make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli
+command -v make || sudo apt-get install make;
+( make && sudo make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) ||(error_exit "redis installation error." && exit 1)
 
 
 # get postgres 10 ppa
@@ -102,6 +105,7 @@ popd # in etc folder
 if [ -a  ../shared/.DD_API_KEY.env ];
 then
 error_exit "DD_API_KEY not found"
+exit 1;
 fi
 DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
 echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
