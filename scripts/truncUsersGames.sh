@@ -5,7 +5,7 @@ if [ "$(uname -s)" == "Darwin" ]; then
 	psql -c "truncate games;" "tepuk-nyamuk";
 else 
 	# ubuntu
-	sudo -i -u postgres psql -c "truncate users;" "tepuknyamuk";
-	sudo -i -u postgres psql -c "truncate games;" "tepuknyamuk";
+	sudo -i -u postgres psql -c "truncate users;" "tepuk-nyamuk";
+	sudo -i -u postgres psql -c "truncate games;" "tepuk-nyamuk";
 fi
 redis-cli flushall;

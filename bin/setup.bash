@@ -23,10 +23,12 @@ then error_exit "Please tranfer environment files first before setting up.";
 exit 1
 fi
 
+ROOTDIR=$PWD;
 # check environment variables
 
 printenv ENABLE_DATADOG> /dev/null 2>&1 || (echo "$envnotset"; exit 1)
 printenv ENABLE_VIM> /dev/null 2>&1 || (echo "$envnotset"; exit 1)
+printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || (echo "$envnotset"; exit 1)
 
 pushd .
 #  apt-get -y update
@@ -103,7 +105,7 @@ popd; # in bin folder after popd.
 if [ "$ENABLE_DATADOG" == 1 ] ; then
 DD_API_KEY="$(cat shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
 echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
- cp -r datadog/conf.d /etc/datadog-agent
+ cp -r bin/datadog/conf.d /etc/datadog-agent
  else
  echo "not installing datadog."
  fi
@@ -124,8 +126,14 @@ git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javas
 fi;
 # done
 popd
+if [ "$ENABLE_AUTO_NPM_INSTALL" == '1' ];
+then
+cd $ROOTDIR/shared && npm install
+cd $ROOTDIR/appCentralService && npm install
+cd $ROOTDIR/gameMarshallingService && npm install;
+fi
 source ~/.bashrc
-println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure them. "
+println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure, npm install them. "
 println 'info' "Also, set up postgresql users, roles, dbs if needed. "
 
 
