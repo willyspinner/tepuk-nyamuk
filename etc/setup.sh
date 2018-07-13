@@ -71,7 +71,7 @@ command -v make || sudo apt-get install make;
 
 
 # get postgres 10 ppa
-sudo addpt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
+sudo add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
 command -v wget || sudo apt-get install wget
 
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
