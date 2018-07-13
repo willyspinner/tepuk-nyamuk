@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-if [[ "$(uname -s)" == "Darwin" ]]; then 
+if [ "$(uname -s)" == "Darwin" ]; then
 	# mac osx
 	psql -c "truncate users;" "tepuk-nyamuk";
 	psql -c "truncate games;" "tepuk-nyamuk";

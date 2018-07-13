@@ -42,11 +42,11 @@ if [[ $1 == 'start' ]]; then
 	case "$2" in 
 		(redis)
 		echo -e "\e[0;40;34m starting redis...\e[0m";
-		redis-server ~/.tepuknyamuk/redis-daemon.conf && echo -e '\e[32m >>>> redis-server daemon running'
+		redis-server ~/.tepuknyamuk/redis-daemon.conf && echo -e '\e[32m >>>> redis-server daemon running\e[0m'
 		;;
 		(postgresql)
 		echo -e "\e[0;40;34m starting postgresql...\e[0m";
-		sudo systemctl start postgresql && echo -e '\e[32m >>>> postgresql running .'
+		sudo systemctl start postgresql && echo -e '\e[32m >>>> postgresql running .\e[0m'
 		;;
 		(gms)
 		echo -e "\e[0;40;34m starting gms node service...\e[0m";
@@ -69,16 +69,16 @@ if [[ $1 == 'start' ]]; then
 
 		echo -e "\e[0;40;34m starting services...\e[0m";
 		SERVICES=0
-		redis-server ~/.tepuknyamuk/redis-daemon.conf && echo -e '\e[32m >>>> redis-server daemon running' && (( SERVICES+=1 ));
-		sudo systemctl start postgresql && echo -e '\e[32m >>>> postgresql running .'  && (( SERVICES+=1 ));
+		redis-server ~/.tepuknyamuk/redis-daemon.conf && echo -e '\e[32m >>>> redis-server daemon running\e[0m' && (( SERVICES+=1 ));
+		sudo systemctl start postgresql && echo -e '\e[32m >>>> postgresql running .\e[0m'  && (( SERVICES+=1 ));
 		forever start --pidFile ~/.tepuknyamuk/gms-daemon.pid ~/projects/tepuk-nyamuk/gameMarshallingService/gmsapp.js production.host && echo -e '\e[32m >>>> gms daemon running..'  && (( SERVICES+=1 ));
 		forever start --pidFile ~/.tepuknyamuk/appcs-daemon.pid ~/projects/tepuk-nyamuk/appCentralService/appcsapp.js production.host && echo -e '\e[32m >>>> appcs daemon running...'  && (( SERVICES+=1 ));
-		sudo systemctl start nginx && echo -e '\e[32m >>>> nginx web server running....'  && (( SERVICES+=1 ));
+		sudo systemctl start nginx && echo -e '\e[32m >>>> nginx web server running....\e[0m'  && (( SERVICES+=1 ));
 		echo -e "\e[0;40;34m starting datadog agent....\e[0m";
         sudo systemctl start datadog-agent   && echo -e "\e[32m >>>> datadog-agent running .....\e[0m" && (( SERVICES += 1));
 
-		echo -e "\e[36m [ $SERVICES/6 services up and running.]."
-		echo -e "\e[36m [serving on ec2-13-229-206-81.ap-southeast-1.compute.amazonaws.com]"
+		echo -e "\e[36m [ $SERVICES/6 services up and running.].\e[0m"
+		echo -e "\e[36m [serving on ec2-13-229-206-81.ap-southeast-1.compute.amazonaws.com] \e[0m"
 
     else
         echo -e "\e[1;41;97m Unknown service \"$2\" to start.\e[0m"

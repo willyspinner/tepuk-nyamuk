@@ -100,12 +100,9 @@ sudo npm install -g yarn
 
 # install datadog.
 popd; # in etc folder after popd.
-
-
 DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
 echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
-sudo cp -r datadog/conf.d /etc/datadog-agent/datadog.yaml
-
+sudo cp -r datadog/conf.d /etc/datadog-agent
 
 
 # install vim goodies
