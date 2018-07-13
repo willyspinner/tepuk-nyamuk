@@ -67,8 +67,8 @@ cd ~/applications
 curl -O http://download.redis.io/redis-stable.tar.gz || error_exit "couldn't download redis. Check internet connection?"
 tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
 cd redis-stable
-comand -v gcc || sudo apt-get install gcc;
-command -v make || sudo apt-get install make;
+comand -v gcc || yes| sudo apt-get install gcc;
+command -v make || yes| sudo apt-get install make;
 ( make && sudo make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) ||(error_exit "redis installation error." && exit 1)
 
 
@@ -99,10 +99,10 @@ sudo npm install -g yarn
 
 
 # install datadog.
-popd # in etc folder
+popd; # in etc folder
 
 DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadoggent/master/cmd/agent/install_script.sh)"
-echo "$datadogstr" >> /etc/datadoggent/datadog.yaml
+echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
 
 
 
@@ -111,9 +111,9 @@ mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vi
 echo "$vimrccontents" > ~/.vimrc;
 git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
 git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic
-git clone https://github.com/vimirline/vim-airline ~/.vim/bundle/vim-airline
-git clone https://github.com/vimirline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
-git clone git://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
+git clone https://github.com/vim-airline/vim-airline.git ~/.vim/bundle/vim-airline
+git clone https://github.com/vim-arline/vim-airline-themes.git ~/.vim/bundle/vim-airline-themes
+git clone https://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
 git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 # done
 popd
