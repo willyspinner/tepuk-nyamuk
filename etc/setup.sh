@@ -49,6 +49,7 @@ cd ~/.tepuknyamuk;
 # replace Pid file for redis daemonize.
 sed -i -e "s@REPLACE_PIDFILE@$(pwd)/redis-server-daemon.pid@g" ~/.tepuknyamuk/redis-daemon.conf
 popd;
+pushd .
 cd ../scripts;
 
 
@@ -71,30 +72,50 @@ cd redis-stable
 make && sudo make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli
 
 
-# install apt packages (htop, postgres, ncdu, nginx, toilet, figlet)
-yes | sudo apt-get install htop postgresql postgresql-contrib ncdu nginx figlet toilet || error_exit "couldn't download apt packages.";
-sudo systemctl start
+# get postgres 10 ppa
+sudo add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+
+
+
+# install apt packages (htop,  postgresql, ncdu, nginx, toilet, figlet)
+yes | sudo apt-get install htop ncdu nginx figlet toilet postgresql-10 || error_exit "couldn't download apt packages.";
+
 
 
 # install node js
 command -v node || ( curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && yes| sudo apt-get install -y nodejs)
+# NOTE: do we need to install npm?
+# sudo apt-get install npm
 
 
 # install npm packages
 sudo npm install -g forever
 sudo npm install -g httpster
-#sudo npm install -g tldr # TLDR doesn't work lmao
 sudo npm install -g yarn
 
 
-# install datadog. TODO.
+# install datadog.
+popd # in etc folder
+
+if [ -a  ../shared/.DD_API_KEY.env ];
+then
+error_exit "DD_API_KEY not found"
+fi
+DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
+echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
+
+
+
 
 # done
-
 popd
 source ~/.aliases
 source ~/.startup
 println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure them. "
 println 'info' "Also, set up postgresql users, roles, dbs if needed. "
+
+
 
 

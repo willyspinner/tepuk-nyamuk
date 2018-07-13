@@ -23,6 +23,11 @@ set expandtab
 EOF
 )"
 
+datadogstr="$( cat <<EOF
+use_dogstatsd: yes
+dogstatsd_port: 8125
+)"
+
 error_exit () {
 println 'error' "$1";
 exit 1
