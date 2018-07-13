@@ -17,7 +17,7 @@ if [ -e setup.sh ]; then echo ' running setup .sh ...'; else
     error_exit "Please run setup.sh in the same directory.";
     exit 1
 fi
-if [ ! -a ../shared/.DD_API_KEY.env ] || [ ! -a ../shared/.production.host.env ] || [ ! -a ../appCentralService/.appcs.test.env ] || [ ! -a ../gameMarshallingService/.gms.test.env ] ;
+if [ !  ../shared/.DD_API_KEY.env ] || [ ! -e ../shared/.production.host.env ] || [ ! -e ../appCentralService/.appcs.test.env ] || [ ! -e ../gameMarshallingService/.gms.test.env ] ;
 then error_exit "Please tranfer environment files first before setting up.";
 exit 1
 fi
@@ -34,8 +34,8 @@ mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vi
 echo "$vimrccontents" > ~/.vimrc;
 git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
 git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic
-git clone https://github.com/vim-airline/vim-airline ~/.vim/bundle/vim-airline
-git clone https://github.com/vim-airline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
+git clone https://github.com/vimirline/vim-airline ~/.vim/bundle/vim-airline
+git clone https://github.com/vimirline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
 git clone git://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
 git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 
@@ -81,7 +81,7 @@ command -v make || sudo apt-get install make;
 
 
 # get postgres 10 ppa
-sudo add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
+sudo addpt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
 command -v wget || sudo apt-get install wget
 
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
@@ -109,8 +109,8 @@ sudo npm install -g yarn
 # install datadog.
 popd # in etc folder
 
-DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
-echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
+DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadoggent/master/cmd/agent/install_script.sh)"
+echo "$datadogstr" >> /etc/datadoggent/datadog.yaml
 
 
 
