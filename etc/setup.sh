@@ -99,10 +99,12 @@ sudo npm install -g yarn
 
 
 # install datadog.
-popd; # in etc folder
+popd; # in etc folder after popd.
 
-DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadoggent/master/cmd/agent/install_script.sh)"
+
+DD_API_KEY="$(cat ../shared/.DD_API_KEY.env)" bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
 echo "$datadogstr" >> /etc/datadog-agent/datadog.yaml
+sudo cp -r datadog/conf.d /etc/datadog-agent/datadog.yaml
 
 
 
@@ -112,13 +114,12 @@ echo "$vimrccontents" > ~/.vimrc;
 git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
 git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic
 git clone https://github.com/vim-airline/vim-airline.git ~/.vim/bundle/vim-airline
-git clone https://github.com/vim-arline/vim-airline-themes.git ~/.vim/bundle/vim-airline-themes
+git clone https://github.com/vim-airline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
 git clone https://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
 git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 # done
 popd
-source ~/.aliases
-source ~/.startup
+source ~/.bashrc
 println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure them. "
 println 'info' "Also, set up postgresql users, roles, dbs if needed. "
 

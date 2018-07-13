@@ -23,8 +23,9 @@ fi
 find "$2" -name '.*.env' | while read file;
 do
 TRUNCFILE="$(echo $file | sed -e 's:^\.*\/:\/:g')"
- echo "transferring $file to : $3$TRUNCFILE";
-
- scp -i "$1" "$file" "$3$TRUNCFILE"
+echo "TRUNCFILE= $TRUNCFILE"
+echo "$(dirname "$TRUNCFILE")"
+ echo "transferring $file to : $3$(dirname "$TRUNCFILE")";
+ scp -i "$1" "$file" "$3$(dirname "$TRUNCFILE")"
 
  done
