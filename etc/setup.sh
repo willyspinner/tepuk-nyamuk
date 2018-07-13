@@ -17,7 +17,7 @@ if [ -e setup.sh ]; then echo ' running setup .sh ...'; else
     error_exit "Please run setup.sh in the same directory.";
     exit 1
 fi
-if [-a ../shared/.DD_API_KEY.env ] || [ -a ../shared/.production.host.env ];
+if [ -a ../shared/.DD_API_KEY.env ] || [ -a ../shared/.production.host.env ] || ;
 then error_exit "Please tranfer environment files first before setting up.";
 exit 1
 fi
