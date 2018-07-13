@@ -26,6 +26,7 @@ EOF
 datadogstr="$( cat <<EOF
 use_dogstatsd: yes
 dogstatsd_port: 8125
+EOF
 )"
 
 error_exit () {
