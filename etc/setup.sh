@@ -17,6 +17,11 @@ if [ -e setup.sh ]; then echo ' running setup .sh ...'; else
     error_exit "Please run setup.sh in the same directory.";
     exit 1
 fi
+if [-a ../shared/.DD_API_KEY.env ] || [ -a ../shared/.production.host.env ];
+then error_exit "Please tranfer environment files first before setting up.";
+exit 1
+fi
+
 
 pushd .
 #  apt-get update
@@ -77,6 +82,8 @@ command -v make || sudo apt-get install make;
 
 # get postgres 10 ppa
 sudo add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
+command -v wget || sudo apt-get install wget
+
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
 
