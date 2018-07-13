@@ -32,3 +32,10 @@ EOF
 error_exit () {
 println 'error' "$1";
 }
+
+envnotset="$( cat<<EOF
+Please enable the following environment variables to continue setup:
+ENABLE_DATADOG : 0 or 1
+ENABLE_VIM: 0 or 1
+EOF
+)"
