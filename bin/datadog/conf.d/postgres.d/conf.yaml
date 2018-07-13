@@ -5,7 +5,7 @@ instances:
     port: 5432
     username: datadog
     password: datadoge
-    dbname: tepuknyamuk
+    dbname: tepuk-nyamuk
 #    ssl: False
 #    use_psycopg2: False # Force using psycogp2 instead of pg8000 to connect. WARNING: psycopg2 doesn't support ssl mode.
 #    tags:
@@ -45,7 +45,6 @@ instances:
 # after an agent restart, look for errors in the output of "agent status" command, as well as
 # /var/log/datadog/collector.log file.
 #
-# TODO: I CANT DO THIS! HOW!?!?
     custom_metrics:
     - # number of games
         descriptors: []
