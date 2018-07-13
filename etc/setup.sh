@@ -29,16 +29,6 @@ sudo apt-get update
 yes |sudo apt-get upgrade
 
 
-# install vim goodies
-mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-echo "$vimrccontents" > ~/.vimrc;
-git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
-git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic
-git clone https://github.com/vimirline/vim-airline ~/.vim/bundle/vim-airline
-git clone https://github.com/vimirline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
-git clone git://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
-git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
-
 
 # create common folders, copy common scripts..
 mkdir ~/.tepuknyamuk
@@ -114,13 +104,22 @@ echo "$datadogstr" >> /etc/datadoggent/datadog.yaml
 
 
 
-
+# install vim goodies
+mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+echo "$vimrccontents" > ~/.vimrc;
+git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
+git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic
+git clone https://github.com/vimirline/vim-airline ~/.vim/bundle/vim-airline
+git clone https://github.com/vimirline/vim-airline-themes ~/.vim/bundle/vim-airline-themes
+git clone git://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
+git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 # done
 popd
 source ~/.aliases
 source ~/.startup
 println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure them. "
 println 'info' "Also, set up postgresql users, roles, dbs if needed. "
+
 
 
 
