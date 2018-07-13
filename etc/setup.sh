@@ -62,10 +62,12 @@ echo "source ~/.aliases" >> ~/.bashrc
 echo "source ~/.startup" >> ~/.bashrc
 
 # install redis
+
 cd ~/applications
 curl -O http://download.redis.io/redis-stable.tar.gz || error_exit "couldn't download redis. Check internet connection?"
 tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
 cd redis-stable
+comand -v gcc || sudo apt-get install gcc;
 command -v make || sudo apt-get install make;
 ( make && sudo make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) ||(error_exit "redis installation error." && exit 1)
 
