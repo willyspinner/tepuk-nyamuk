@@ -27,10 +27,10 @@ pushd .
 ROOTDIR=$PWD;
 # check environment variables
 
-printenv ENABLE_DATADOG> /dev/null 2>&1 || { echo "$envnotset" && exit 1 }
-printenv ENABLE_VIM> /dev/null 2>&1 || { echo "$envnotset" && exit 1 }
-printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || { echo "$envnotset" && exit 1 }
-printenv IS_DOCKER_INSTALLATION > /dev/null 2>&1 || { echo "$envnotset" && exit 1 }
+printenv ENABLE_DATADOG> /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
+printenv ENABLE_VIM> /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
+printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
+printenv IS_DOCKER_INSTALLATION > /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
 
 pushd $ROOTDIR;
 #  apt-get -y update
@@ -75,7 +75,7 @@ fi
 # install redis
 cd ~/applications
 command -v curl || apt-get -y install  curl
-curl -O http://download.redis.io/redis-stable.tar.gz || { error_exit "couldn't download redis. Check internet connection?" && exit 1 }
+curl -O http://download.redis.io/redis-stable.tar.gz || { error_exit "couldn't download redis. Check internet connection?" && exit 1; }
 tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
 cd redis-stable
 command -v gcc || apt-get -y  install gcc;
@@ -92,9 +92,9 @@ if [ "$IS_DOCKER_INSTALLATION" == '0' ] ; then
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |  apt-key add -
      apt-get -y update
     # install packages
-     apt-get -y install htop ncdu nginx figlet toilet postgresql-10 || { error_exit "couldn't download apt packages." && exit 1 }
+     apt-get -y install htop ncdu nginx figlet toilet postgresql-10 || { error_exit "couldn't download apt packages." && exit 1;};
 else
-     apt-get -y install htop nginx  || { error_exit "couldn't download apt packages." && exit 1 }
+     apt-get -y install htop nginx  || { error_exit "couldn't download apt packages." && exit 1; }
  # TODO: install postgresql here (docker version here since postgresql has diff instructions for docker)
 fi
 
@@ -102,7 +102,7 @@ fi
 # install node js
 command -v node || ( curl -sL https://deb.nodesource.com/setup_8.x | bash - &&  apt-get -y install  nodejs)
 
-command -v node || { error_exit "nodejs didn't install properly. exiting.."  && exit 1 }
+command -v node || { error_exit "nodejs didn't install properly. exiting.."  && exit 1; }
 # install npm packages
  npm install -g forever
  npm install -g yarn
