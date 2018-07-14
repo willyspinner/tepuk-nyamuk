@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# NOTE: This setup script assumes  privileges, an ubuntu 16.04 environment and gcc.
+# NOTE: This setup script assumes  privileges, an ubuntu 16.04 environment.
 
 if [ -e bin/setup.bash ]; then echo ' running setup .bash ...'; else
     echo "Please run setup.bash in the root directory of the app.";
@@ -18,7 +18,7 @@ then
     error_exit 'You cannot run this in MAC OSX. Need Ubuntu 16.04 (xenial)'
 exit 1
 fi
-if [ !  ./shared/.DD_API_KEY.env ] || [ ! -e ./shared/.production.host.env ] || [ ! -e ./appCentralService/.appcs.test.env ] || [ ! -e ./gameMarshallingService/.gms.test.env ] ;
+if [ ! -e  ./shared/.DD_API_KEY.env ] || [ ! -e ./shared/.production.host.env ] || [ ! -e ./appCentralService/.appcs.test.env ] || [ ! -e ./gameMarshallingService/.gms.test.env ] ;
     then error_exit "Please tranfer environment files first before setting up.";
     exit 1
 fi
@@ -27,10 +27,10 @@ pushd .
 ROOTDIR=$PWD;
 # check environment variables
 
-printenv ENABLE_DATADOG> /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
-printenv ENABLE_VIM> /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
-printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
-printenv IS_DOCKER_INSTALLATION > /dev/null 2>&1 || { echo "$envnotset" && exit 1; }
+printenv ENABLE_DATADOG> /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
+printenv ENABLE_VIM> /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
+printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
+printenv IS_DOCKER_INSTALLATION > /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
 
 pushd $ROOTDIR;
 #  apt-get -y update
@@ -73,14 +73,14 @@ if [ "$IS_DOCKER_INSTALLATION" == '0' ] ; then
 fi
 
 # install redis
-cd ~/applications
-command -v curl || apt-get -y install  curl
-curl -O http://download.redis.io/redis-stable.tar.gz || { error_exit "couldn't download redis. Check internet connection?" && exit 1; }
-tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz
-cd redis-stable
+cd ~/applications;
+command -v curl || apt-get -y install  curl;
+curl -O http://download.redis.io/redis-stable.tar.gz || { error_exit "couldn't download redis. Check internet connection?" && exit 1; };
+tar xzvf redis-stable.tar.gz && rm redis-stable.tar.gz;
+cd redis-stable;
 command -v gcc || apt-get -y  install gcc;
 command -v make || apt-get -y  install make;
-( make &&  make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) || { error_exit "redis installation error." && exit 1 }
+( make &&  make install && ln -s src/redis-server ~/willysServerBin/redis-server && ln -s src/redis-cli ~/willysServerBin/redis-cli) || { error_exit "redis installation error." && exit 1; }
 
 
 
@@ -94,7 +94,7 @@ if [ "$IS_DOCKER_INSTALLATION" == '0' ] ; then
     # install packages
      apt-get -y install htop ncdu nginx figlet toilet postgresql-10 || { error_exit "couldn't download apt packages." && exit 1;};
 else
-     apt-get -y install htop nginx  || { error_exit "couldn't download apt packages." && exit 1; }
+     apt-get -y install htop nginx  || { error_exit "couldn't download apt packages." && exit 1; };
  # TODO: install postgresql here (docker version here since postgresql has diff instructions for docker)
 fi
 
