@@ -31,6 +31,7 @@ printenv ENABLE_DATADOG> /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
 printenv ENABLE_VIM> /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
 printenv ENABLE_AUTO_NPM_INSTALL > /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
 printenv IS_DOCKER_INSTALLATION > /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
+printenv ENABLE_APP_DB_SETUP > /dev/null 2>&1 || { echo "$envnotset" && exit 1; };
 
 pushd $ROOTDIR;
 #  apt-get -y update
@@ -137,13 +138,24 @@ then
     git clone https://github.com/airblade/vim-gitgutter.git ~/.vim/bundle/vim-gitgutter
     git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
 fi;
-# done
 if [ "$ENABLE_AUTO_NPM_INSTALL" == '1' ];
 then
     cd $ROOTDIR/shared && npm install;
     cd $ROOTDIR/appCentralService && npm install;
     cd $ROOTDIR/gameMarshallingService && npm install;
     cd $ROOTDIR/frontend && yarn install;
+fi
+
+# TODO: to test:
+if [ "$ENABLE_APP_DB_SETUP" == '1' ]; then
+    if [ "$ENABLE_DATADOG" == '1' ]; then
+        sudo -i -u postgres psql -c "create user datadog with password datadoge; grant select on games, users to datadog;" "tepuk-nyamuk"
+    fi
+    source ~/projects/tepuk-nyamuk/appCentralService/.appcs.test.env;
+    sudo -i -u postgres psql -c "create user $PG_USER with password '$PG_PASSWORD';"
+    # initialize db.
+    node ~/projects/tepuk-nyamuk/appCentralService/db/initDb.js;
+
 fi
 source ~/.bashrc
 println 'info' "Installation is done. It would now be useful to clone your project repositories, and configure, npm install them. "

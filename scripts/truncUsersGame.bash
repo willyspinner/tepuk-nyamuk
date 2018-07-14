@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 if [ "$(uname -s)" == "Darwin" ]; then
 	# mac osx
 	psql -c "truncate users;" "tepuk-nyamuk";
