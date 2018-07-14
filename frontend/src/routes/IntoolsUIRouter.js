@@ -4,6 +4,7 @@ import {Router,Switch,Route } from 'react-router-dom';
 import ChatRoom from '../components/ui/ChatRoom';
 import ScoreRankings from "../components/ui/ScoreRankings";
 import {Button} from 'antd';
+import PlayingCard from "../components/ui/PlayingCard";
 export const history = createHistory();
 const sampleMessageFeed= [
     {
@@ -32,6 +33,9 @@ const IntoolsUIRouter =()=> (
             </Button>
                 <Button onClick={()=>history.push('/intoolsUI/ScoreRankings')} >
                 Score Rankings
+                </Button>
+                <Button onClick={()=>history.push('/intoolsUI/slap')} >
+                    gameplay slap
                 </Button>
             </div>
             <Switch>
@@ -66,6 +70,31 @@ const IntoolsUIRouter =()=> (
                     )
 
                     }
+                />
+                <Route
+                    path={"/intoolsUI/slap"}
+                    exact={true}
+                    render={()=>(
+                        <div style={{display:'flex',flexDirection:'row', justifyContent:'space-between'}}>
+                            <div style={{marginLeft:'15px'}}>
+                                <h2>has slapped:</h2>
+                            <PlayingCard
+                                suit={"H"}
+                                number={12}
+                                hasSlapped={true}
+                            />
+                            </div>
+                                <div style={{marginRight:'15px'}}>
+                                <h2>has not slapped:</h2>
+                            <PlayingCard
+                                suit={"H"}
+                                number={2}
+                                hasSlapped={false}
+                            />
+                            </div>
+
+                        </div>
+                    )}
                 />
 
                 <Route render={()=>(<h3> Please select a UI component to continue.</h3>)}/>

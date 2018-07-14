@@ -27,7 +27,8 @@ class GamePlayPage extends Component {
             showErrorModal: false,
             subject:'',
             message:''
-        }
+        },
+        slapped:false
     }
     throw = () => {
         if (this.props.gameplay.playerinturn === this.props.myusername) {
@@ -45,11 +46,15 @@ class GamePlayPage extends Component {
     };
     // method for me slapping.
     slap = () => {
+
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
             this.props.dispatch(startPlayerSlap(performance.now() - this.state.myreactiontime));
         }
+        this.setState({
+            slapped:true
+        })
     };
 
     constructor(props) {
@@ -75,6 +80,9 @@ class GamePlayPage extends Component {
                 result.streakUpdate,
                 result.scoreUpdate,
             ));
+            this.setState({
+                slapped:false
+            })
         };
         const onGameStart = (onrealgamestartobj)=>{
             this.props.dispatch(initializeGame(onrealgamestartobj.playerinturn,
@@ -192,7 +200,26 @@ class GamePlayPage extends Component {
         })
     }
     render() {
-
+            const num =this.props.gameplay && this.props.gameplay.counter?  ((parseInt(this.props.gameplay.counter) - 1) % 13) + 1 : undefined;
+            let realnum = undefined;
+            if (num){
+                switch (num){
+                    case 11:
+                        realnum = 'J';
+                        break;
+                    case 12:
+                        realnum = 'Q'
+                        break;
+                    case 13:
+                        realnum = 'K'
+                        break;
+                    case 1:
+                        realnum = 'A'
+                        break;
+                    default:
+                        realnum=num;
+                }
+            }
         return (
 
             <div>
@@ -209,12 +236,7 @@ class GamePlayPage extends Component {
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
-                        <h1> gameplay: prototype </h1>
-                        <h4>player turn : {this.props.gameplay.playerinturn}</h4>
-
-                        <h4>
-                            whoami : {this.props.myusername}
-                        </h4>
+                        <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
                         <div>
                             {/* Pile */}
                             <h2>Pile:</h2>
@@ -236,7 +258,7 @@ class GamePlayPage extends Component {
                                             <div key={idx}>
                                                 <h2>{player.username}</h2>
                                                 <p> cards in hand: {player.nhand} </p>
-                                                <p> score: {player.score} </p>
+                                                <p> score: {Math.round(player.score)} </p>
                                                 <Progress
                                                     type="circle"
                                                       status={player.streak >= 3? 'success': 'active'}
@@ -268,13 +290,16 @@ class GamePlayPage extends Component {
                                         <PlayingCard
                                             suit={"S"}
                                             number={this.props.gameplay.pile[this.props.gameplay.pile.length - 1]}
+                                            hasSlapped={this.state.slapped}
                                         />
                                     )
                                 }
                             </Col>
                             <Col span={8}>
                         <span className={"showCounter"}>
-                        <h1>counter: {((parseInt(this.props.gameplay.counter) - 1) % 13) + 1}</h1>
+                        <p className={"game_font"} style={{fontSize:'180px', textAlign:'center'}}> {
+                            realnum
+                        }</p>
                         </span>
                             </Col>
                         </Row>

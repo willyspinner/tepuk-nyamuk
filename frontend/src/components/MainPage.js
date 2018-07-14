@@ -355,9 +355,6 @@ class MainPage extends Component {
                         </Button>
                     ) : null}
                 <div style={{display: 'flex', flexDirection: "row", justifyContent: "center"}}>
-                    <Icon type="trophy" style={{fontSize: 50, marginRight: '15px'}}/>
-                    <h1 className="mainPageHeader"> Tepuk Nyamuk</h1>
-                    <Icon type="smile-o" style={{fontSize: 50, marginLeft: '15px'}}/>
                 </div>
                 {/* modals here */}
                 {createGameModal}

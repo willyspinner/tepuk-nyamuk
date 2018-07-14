@@ -6,10 +6,12 @@ import GameLobbyPage from '../components/GameLobbyPage';
 import GamePlayPage from '../components/GamePlayPage';
 import IntoolsUIRouter from './IntoolsUIRouter';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 export const history = createHistory();
 const AppRouter =()=> (
     <Router history={history}>
         <div>
+            <Header />
             <Switch>
                 <Route path="/" component={MainPage} exact = {true}/>
                 <Route path="/game/lobby/:uuid" component={GameLobbyPage} exact = {true}/>

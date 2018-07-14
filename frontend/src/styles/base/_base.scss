@@ -3,7 +3,8 @@ html {
   font-size: 62.5%;
 }
 body {
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: 'Wendy One', sans-serif;
+  //font-family: Helvetica, Arial, sans-serif;
   font-size : $m-size;
 }
 
@@ -22,4 +23,8 @@ button:disabled {
   width:100%;
   background:#6cf;
   margin: $module-spacing;
+}
+
+.game_font {
+  font-family: 'Press Start 2P', cursive;
 }

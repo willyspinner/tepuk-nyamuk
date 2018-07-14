@@ -12,7 +12,7 @@ number: 1 to 13, representing Ace to King respectively.
  */
 const PlayingCard = (props) => {
     let rank;
-    switch (props.number) {
+    switch (parseInt(props.number)) {
         case 1:
             rank = "A";
             break;
@@ -36,7 +36,19 @@ const PlayingCard = (props) => {
             <p> INVALID CARD. number not defined.</p>
         );
     return (
-        <Card rank={rank} suit={props.suit}/>
+        <div>
+            {props.hasSlapped?
+                (
+            <img src="/mosquito-zapper.png" style={{zIndex:2, position:'absolute', marginTop: '50px'}}
+                 width="550px"
+                 height={"550px"}
+            />
+                )
+                :null}
+                <div style={{position:'relative'}}>
+            <Card rank={rank} suit={props.suit}/>
+                </div>
+        </div>
     );
 };
 
