@@ -7,7 +7,7 @@ import PlayingCard from './ui/PlayingCard';
 import GameplayResultsModal from './GameplayResultsModal';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
-import {Row, Col,notification,Progress,Button} from 'antd';
+import {Row, Col, notification, Progress, Button, Tooltip} from 'antd';
 import socketclient from '../socket/socketclient';
 import {connectSocket, receiveInvitation} from "../actions/user";
 import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
@@ -258,9 +258,11 @@ class GamePlayPage extends Component {
                                     <Button onClick={this.slap} style={{margin:'5px 5px 5px 5px'}}>
                                     slap
                                 </Button>
+                                <Tooltip placement="top" title={"Press this button when your gameplay state is out of sync."}>
                                 <Button onClick={this.synchronize} style={{margin:'5px 5px 5px 5px'}}>
                                   synchronize
                                 </Button>
+                                </Tooltip>
                                 {this.props.gameplay.pile.length === 0 ? (<p>{this.props.gameplay.playerinturn}, throw the card to continue...`</p>) :
                                     (
                                         <PlayingCard
