@@ -31,7 +31,10 @@ class GamePlayPage extends Component {
     }
     throw = () => {
         if (this.props.gameplay.playerinturn === this.props.myusername) {
-            this.props.dispatch(startPlayerThrow());
+            this.props.dispatch(startPlayerThrow()).catch((e)=>{
+                //synchronize here.
+                this.props.dispatch(startSynchronizeGameplay());
+            });
         }else{
             notification.open({
                 message: "it isn't your turn!",
