@@ -159,12 +159,15 @@ class SocketClient {
         });
     }
     synchronizeGameplay(){
-        this.mysocket.emit(GMSEVENTS.SYNCHRONIZE,{},(res)=>{
-            if(res.success)
-                resolve(res);
-            else
-                reject(res);
-        })
+        console.log('emitting synchronize gameplay...');
+        return new Promise((resolve,reject)=>{
+            this.mysocket.emit(GMSEVENTS.SYNCHRONIZE,{},(res)=>{
+                if(res.success)
+                    resolve(res);
+                else
+                    reject(res);
+            })
+        });
 
     }
 

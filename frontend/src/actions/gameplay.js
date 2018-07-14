@@ -66,7 +66,7 @@ export const receiveMatchResult = (loser,loseraddtopile,nextplayer,streakUpdate,
     scoreUpdate:scoreupdate
 });
 
-synchronizeGameplay = (playerinturn,counter,match,pile)=>({
+const synchronizeGameplay = (playerinturn,counter,match,pile)=>({
     type: 'SYNCHRONIZE_GAMEPLAY',
     playerinturn,
     counter,
@@ -83,7 +83,7 @@ export const startSynchronizeGameplay = ()=> {
                     res.match,
                     res.pile
                 ))
-                resolve();
+                resolve(res);
             }).catch((e)=>{
                 reject(e);
             })

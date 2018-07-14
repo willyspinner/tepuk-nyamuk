@@ -256,6 +256,7 @@ io.use(function (socket, next) {
     }
     // synchronize so that when client's frontend fails, they can synchronize and adjust to be right.
     socket.on(events.SYNCHRONIZE, (data,response)=>{
+        logger.info("on SYNCHRONIZE", "trying to sync socket ",socket.id);
         if(Datadog){
             Datadog.increment('gms.on.player_synchronize');
         }
@@ -271,13 +272,15 @@ io.use(function (socket, next) {
                 redisdb.getPile(socket.gamesessionid) //TODO is getPile necessary? TODO TODO
             ]).then((data)=>{
                 const turnobj = data[0];
-                response({
+                let response_obj = {
                     success:true,
                     playerinturn:turnobj.playerinturn,
-                    currentcounter:turnobj.currentcounter,
-                    match:data[1],
+                    currentcounter:parseInt(turnobj.currentcounter),
+                    match:data[1] ===1,
                     pile: data[2]
-                })
+                };
+                logger.info('on SYNCHRONIZE',`resolving with : ${JSON.stringify(response_obj)}`);
+                response(response_obj);
                 }).catch((e)=>{
                     response({
                         success:false,

@@ -1,6 +1,6 @@
 // component that holds the game. This one connects to redux right away.
 import React, {Component} from 'react';
-import {startPlayerThrow, startPlayerSlap} from '../actions/gameplay';
+import {startPlayerThrow, startPlayerSlap, startSynchronizeGameplay} from '../actions/gameplay';
 import {connect} from 'react-redux';
 import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame,gameWinner} from "../actions/gameplay";
 import PlayingCard from './ui/PlayingCard';
@@ -172,6 +172,22 @@ class GamePlayPage extends Component {
             );
         })
 }
+    synchronize=()=>{
+        console.log('trying to synchronize gameplay...')
+        this.props.dispatch(startSynchronizeGameplay()).then((res)=>{
+            notification.open({
+                message: "synchronization successful.",
+                description:`${JSON.stringify(res)}`,
+                duration: '5'
+            })
+        }).catch((e)=>{
+            notification.open({
+                message: "synchronization failed.",
+                description:`${JSON.stringify(res)}`,
+                duration: '5'
+            })
+        })
+    }
     render() {
 
         return (
@@ -233,11 +249,14 @@ class GamePlayPage extends Component {
                                 </div>
                             </Col>
                             <Col span={8}>
-                                <Button onClick={this.throw} >
+                                <Button onClick={this.throw} style={{margin:'5px 5px 5px 5px'}}>
                                     throw
                                 </Button>
-                                <Button onClick={this.slap} >
+                                    <Button onClick={this.slap} style={{margin:'5px 5px 5px 5px'}}>
                                     slap
+                                </Button>
+                                <Button onClick={this.synchronize} style={{margin:'5px 5px 5px 5px'}}>
+                                  synchronize
                                 </Button>
                                 {this.props.gameplay.pile.length === 0 ? (<p>{this.props.gameplay.playerinturn}, throw the card to continue...`</p>) :
                                     (

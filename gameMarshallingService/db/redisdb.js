@@ -365,7 +365,7 @@ const self = module.exports = {
     },
     // get game card pile.
     getPile: (gamesessionid) => {
-        return redisclient.lrangeAsync(`${gamesessionid}/pile,` ,0 , -1);
+        return redisclient.lrangeAsync(`${gamesessionid}/pile` ,0 , -1);
     },
 
     // get snapshot of the game, i.e. everyone's cards.
