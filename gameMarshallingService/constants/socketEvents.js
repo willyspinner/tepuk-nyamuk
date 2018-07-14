@@ -6,5 +6,6 @@ module.exports=  {
     NEXT_TICK: 'gms_nextTick',
     MATCH_RESULT: "gms_matchResult",
     ADD_TO_HAND: "gms_addToHand", // for loser
-    GAME_FINISHED: 'gms_gameFinished'
+    GAME_FINISHED: 'gms_gameFinished',
+    SYNCHRONIZE: 'gms_synchronizeRequest'// for people to be in sync.
 };

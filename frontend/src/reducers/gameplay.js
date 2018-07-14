@@ -8,7 +8,15 @@ const gameplayReducer = (state= {},action)=>{
                 ...state,
                 winner: action.winner,
                 finalscores: action.finalscores // ELEGANT: the clients already have an updated score view. Do we really need this ?
-            }
+            };
+        case 'SYNCHRONIZE_GAMEPLAY':
+            return {
+                ...state,
+                playerinturn: action.playerinturn,
+                pile: action.pile,
+                counter: action.counter,
+                match:action.match
+            };
         case 'INIT_GAME':
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
             return {

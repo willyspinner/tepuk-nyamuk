@@ -66,5 +66,32 @@ export const receiveMatchResult = (loser,loseraddtopile,nextplayer,streakUpdate,
     scoreUpdate:scoreupdate
 });
 
+synchronizeGameplay = (playerinturn,counter,match,pile)=>({
+    type: 'SYNCHRONIZE_GAMEPLAY',
+    playerinturn,
+    counter,
+    match,
+    pile
+});
+export const startSynchronizeGameplay = ()=> {
+    return (reduxDispatch,getState)=> {
+        return new Promise((resolve,reject)=>{
+            mysocket.synchronizeGameplay().then((res)=>{
+                reduxDispatch(synchronizeGameplay(
+                    res.playerinturn,
+                    res.currentcounter,
+                    res.match,
+                    res.pile
+                ))
+                resolve();
+            }).catch((e)=>{
+                reject(e);
+            })
+        });
+    }
+    
+
+}
+
 
 

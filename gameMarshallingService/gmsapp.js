@@ -254,6 +254,45 @@ io.use(function (socket, next) {
         });
 
     }
+    // synchronize so that when client's frontend fails, they can synchronize and adjust to be right.
+    socket.on(events.SYNCHRONIZE, (data,response)=>{
+        if(Datadog){
+            Datadog.increment('gms.on.player_synchronize');
+        }
+        redisdb.getUsername(socket.gamesessionid, socket.id).then((un) => {
+            username = un;
+            if (username == undefined){
+                let responseobj = {success: false, error: `autherror: no such username or roomname: ${username}`};
+                response(responseobj);
+            }
+            Promise.all([
+                redisdb.getCurrentTurn(socket.gamesessionid),
+                redisdb.getMatch(socket.gamesessionid),
+                redisdb.getPile(socket.gamesessionid) //TODO is getPile necessary? TODO TODO
+            ]).then((data)=>{
+                const turnobj = data[0];
+                response({
+                    success:true,
+                    playerinturn:turnobj.playerinturn,
+                    currentcounter:turnobj.currentcounter,
+                    match:data[1],
+                    pile: data[2]
+                })
+                }).catch((e)=>{
+                    response({
+                        success:false,
+                        error:e
+                    })
+            })
+            }).catch((e)=>{
+                response({
+                    success:false,
+                    error:e
+                })
+        })
+        })
+
+
         //WARNING: no data from PLAYER_THREW?
     //What about to check if player is in sync?
     //remember that we have to authenticate the socket by looking up the id's username here.

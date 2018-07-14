@@ -158,6 +158,15 @@ class SocketClient {
             });
         });
     }
+    synchronizeGameplay(){
+        this.mysocket.emit(GMSEVENTS.SYNCHRONIZE,{},(res)=>{
+            if(res.success)
+                resolve(res);
+            else
+                reject(res);
+        })
+
+    }
 
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
         this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
