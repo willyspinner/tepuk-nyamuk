@@ -511,7 +511,7 @@ app.post(`/appcs/game/finish/:gameid`,authMiddleware,(req,res)=>{
 
 // health check
 app.get('/health', (req,res)=>{
-    logger.info("app.js: GET /health","Consul health checkup...");
+    logger.info("app.js: GET /health","health checkup...");
     res.sendStatus(200);
 })
 

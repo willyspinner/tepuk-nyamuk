@@ -368,6 +368,25 @@ const self = module.exports = {
         return redisclient.lrangeAsync(`${gamesessionid}/pile` ,0 , -1);
     },
 
+    // same as below, but just does 'llen'.
+    getSnapshotLlen: (gamesessionid)=>{
+        return new Promise((resolve, reject) => {
+            scanAsync("0", `${gamesessionid}/player/*/hand`, (handkeys) => {
+                let resultArr = [];
+                let chain = redisclient.multi();
+                handkeys.forEach(handkey=>{
+                    chain = chain.llen(handkey);
+                });
+                chain.execAsync().then((result)=>{
+                    handkeys.forEach((handkey,idx)=>{
+                        const username = handkey.split('/')[2];
+                        resultArr.push({username:username,nInHand: parseInt(result[idx])});
+                    });
+                    resolve(resultArr);
+                }).catch((e)=>reject(e));
+            }).catch((e)=>reject(e));
+        });
+    },
     // get snapshot of the game, i.e. everyone's cards.
     getSnapshot: (gamesessionid) => {
         return new Promise((resolve, reject) => {

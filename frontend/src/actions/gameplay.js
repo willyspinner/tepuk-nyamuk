@@ -66,12 +66,13 @@ export const receiveMatchResult = (loser,loseraddtopile,nextplayer,streakUpdate,
     scoreUpdate:scoreupdate
 });
 
-const synchronizeGameplay = (playerinturn,counter,match,pile)=>({
+const synchronizeGameplay = (playerinturn,counter,match,pile,snapshot)=>({
     type: 'SYNCHRONIZE_GAMEPLAY',
     playerinturn,
     counter,
     match,
-    pile
+    pile,
+    snapshot
 });
 export const startSynchronizeGameplay = ()=> {
     return (reduxDispatch,getState)=> {
@@ -81,8 +82,9 @@ export const startSynchronizeGameplay = ()=> {
                     res.playerinturn,
                     res.currentcounter,
                     res.match,
-                    res.pile
-                ))
+                    res.pile,
+                    res.snapshot
+                ));
                 resolve(res);
             }).catch((e)=>{
                 reject(e);

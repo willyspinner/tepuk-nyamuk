@@ -82,7 +82,7 @@ if( process.argv[2] === 'production.host'){
 
 }
 app.get('/health',(req,res)=>{
-    logger.info('app.js: GET /health','consul health check.');
+    logger.info('app.js: GET /health','health check.');
     res.sendStatus(200);
 })
 const authMiddleware = (req,res,next)=>{
@@ -269,15 +269,18 @@ io.use(function (socket, next) {
             Promise.all([
                 redisdb.getCurrentTurn(socket.gamesessionid),
                 redisdb.getMatch(socket.gamesessionid),
-                redisdb.getPile(socket.gamesessionid) //TODO is getPile necessary? TODO TODO
+                redisdb.getPile(socket.gamesessionid),
+                redisdb.getSnapshotLlen(socket.gamesessionid)
             ]).then((data)=>{
                 const turnobj = data[0];
+
                 let response_obj = {
                     success:true,
                     playerinturn:turnobj.playerinturn,
                     currentcounter:parseInt(turnobj.currentcounter),
                     match:data[1] ===1,
-                    pile: data[2]
+                    pile: data[2],
+                    snapshot:data[3]
                 };
                 logger.info('on SYNCHRONIZE',`resolving with : ${JSON.stringify(response_obj)}`);
                 response(response_obj);

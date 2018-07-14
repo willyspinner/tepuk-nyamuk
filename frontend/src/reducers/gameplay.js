@@ -15,7 +15,15 @@ const gameplayReducer = (state= {},action)=>{
                 playerinturn: action.playerinturn,
                 pile: action.pile,
                 counter: action.counter,
-                match:action.match
+                match:action.match,
+                players: state.players.map((player)=>{
+                    let newNHand =  action.snapshot.filter((obj)=>obj.username === player.username);
+                    newNHand = newNHand.length ===0 ? undefined: newNHand[0].nInHand;
+                    return {
+                        ...player,
+                        nhand: newNHand? newNHand: player.nhand
+                    }
+                })
             };
         case 'INIT_GAME':
             console.log(`gameplayReducer: init game with ${JSON.stringify(action.game)}`);
