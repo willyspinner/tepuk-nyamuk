@@ -297,7 +297,7 @@ class GamePlayPage extends Component {
                             </Col>
                             <Col span={8}>
                         <span className={"showCounter"}>
-                        <p className={"game_font"} style={{fontSize:'180px', textAlign:'center'}}> {
+                        <p className={"game_font"} style={{fontSize:'135px', textAlign:'center'}}> {
                             realnum
                         }</p>
                         </span>

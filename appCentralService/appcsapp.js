@@ -497,6 +497,7 @@ app.post(`/appcs/game/finish/:gameid`,authMiddleware,(req,res)=>{
                     gameuuid: req.params.gameid
                 }
             );
+
             res.json({
                 success:true,
             })

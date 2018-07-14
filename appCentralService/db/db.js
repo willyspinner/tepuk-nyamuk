@@ -422,24 +422,62 @@ const self = module.exports = {
     },
     // Called by GMS when a game finishes.
     gmsFinishGame : (gameid,resultObj)=>{
-      return new Promise((resolve,reject)=>{
-          const finishgamequery = {
-              text: `UPDATE ${fields.GAMES.TABLENAME} `+
-              `SET ${fields.GAMES.STATUS} `+
-              `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2 `+
-              `WHERE ${fields.GAMES.UUID} = $1;`,
-              values: [gameid,JSON.stringify(resultObj)]
-          };
-          client.query(finishgamequery,(err,res)=>{
-              if(err){
-                  reject(err);
-                  return;
+        return new Promise ((resolve,reject)=>{
+            const shouldAbort = (err) => {
+                if (err) {
+                    console.error('Error in transaction', err.stack);
+                    client.query('ROLLBACK', (err) => {
+                        if (err) {
+                            console.error('Error rolling back client', err.stack)
+                        }
+                        reject();
+                        return;
+                    })
+                }
+                return !!err;
+            };
+            client.query('BEGIN', (err) => {
+                if (shouldAbort(err)){
+                    reject(err);
+                    return;
+                }
+                const finishgamequery = {
+                    text: `UPDATE ${fields.GAMES.TABLENAME} `+
+                    `SET ${fields.GAMES.STATUS} `+
+                    `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2 `+
+                    `WHERE ${fields.GAMES.UUID} = $1;
+              `,
+                    values: [gameid,JSON.stringify(resultObj)]
+                };
+                const finishgameusersquery= {
+                    text: `UPDATE ${fields.USERS.TABLENAME}
+                        SET ${fields.USERS.GAMEID} = null
+                WHERE ${fields.USERS.GAMEID} = $1;`,
+                    values: [gameid]
+                }
+                client.query(finishgamequery, (err, res) => {
+                    if (shouldAbort(err)){
+                        reject(err);
+                        return;
+                    }
+                    client.query(finishgameusersquery, (err, res) => {
+                        if (shouldAbort(err)){
+                            reject(err);
+                            return;
+                        }
 
-              }
-              resolve(res);
-          })
-
-      });
+                        client.query('COMMIT', (err) => {
+                            if (err) {
+                                console.error('Error committing transaction', err.stack);
+                                reject(err);
+                                return;
+                            }
+                            resolve();
+                        })
+                    })
+                })
+            })
+        });
     },
     // called by GMS when someone leaves in a game (midway).
     gmsInterruptOngoingGame:  (gameid)=>{
