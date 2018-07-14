@@ -1,0 +1,10 @@
+# NOTE: with context of the nginx.conf, this is already inside the http block.
+server {
+    listen      80;        # listen directive - states which port nginx is listening on
+    server_name  willyserver.com;  # name of the server which will be the hostname in the client - so when the client requests willyserver.com, this will be stored.
+
+    location / {
+      root  /root/projects/tepuk-nyamuk/frontend/public;
+        index  index.html;
+    }
+}

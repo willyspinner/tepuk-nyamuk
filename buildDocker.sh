@@ -6,5 +6,5 @@ say_or_echo () {
 (command -v say >/dev/null 2>&1 && say -v daniel "$1") || echo "$1"
 }
 
-(docker build -t tepuknyamuk:latest . && say_or_echo "Docker build complete." ) || say_or_echo "Docker build failed."
+(docker build -t tepuk-nyamuk:latest . && say_or_echo "Docker build complete." ) || say_or_echo "Docker build failed."
 

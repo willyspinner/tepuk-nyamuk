@@ -36,5 +36,7 @@ envnotset="$( cat<<EOF
 Please enable the following environment variables to continue setup:
 ENABLE_DATADOG : 0 or 1
 ENABLE_VIM: 0 or 1
+ENABLE_AUTO_NPM_INSTALL: 0 or 1
+IS_DOCKER_INSTALLATION: 0 or 1
 EOF
 )"
