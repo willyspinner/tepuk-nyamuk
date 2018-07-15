@@ -31,12 +31,16 @@ class GamePlayPage extends Component {
         slapped:false
     }
     throw = () => {
+        console.log('pressed throw')
         if (this.props.gameplay.playerinturn === this.props.myusername) {
             this.props.dispatch(startPlayerThrow()).catch((e)=>{
                 //synchronize here.
                 this.props.dispatch(startSynchronizeGameplay());
             });
         }else{
+            console.log('it isn\'t your turn ting.');
+            console.log('playerinturn: ',this.props.gameplay.playerinturn,'myusername: ',this.props.myusername)
+
             notification.open({
                 message: "it isn't your turn!",
                 description:"you can't throw a card when it isn't your turn.",

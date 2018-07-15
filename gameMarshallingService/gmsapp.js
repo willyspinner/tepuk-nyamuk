@@ -351,7 +351,8 @@ io.use(function (socket, next) {
                                 // increment counter.
                                     // check match event.
                                     console.log(`gmsapp::events.PLAYER_THREW. checking match : counter ${nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
-                                    if (JSON.stringify(nextcounter.nextcounter % 13) === poppedcard) {
+                                    console.log('type of poppedcard:',typeof poppedcard, 'type of nextcounter: ',typeof nextcounter.nextcounter);
+                                    if (nextcounter.nextcounter % 13 === 0? 13:nextcounter.nextcounter % 13 === parseInt(poppedcard)) {
                                         // match event
                                         redisdb.setMatch(gamesessionid, true).then(() => {
                                             // go on with next tick as normal, waiting for people
