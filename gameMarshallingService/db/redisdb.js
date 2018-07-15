@@ -325,6 +325,18 @@ const self = module.exports = {
         return redisclient.incrAsync(`${gamesessionid}/player/${player}/streak`);
     },
 
+    massIncrementStreak: (gamesessionid,player_usernames)=>{
+        logger.info('redisdb::massIncrementStreak',`incrementing for players: ${JSON.stringify(player_usernames)}`);
+        //TODO execAsync not a function.
+        if (!player_usernames || player_usernames.length ===0 )
+            return new Promise((res,rej)=>res([]));
+        let chain = redisclient.multi();
+        player_usernames.forEach((player_username)=>{
+          chain = chain.incr(`${gamesessionid}/player/${player_username}/streak`);
+        });
+      //TODO: THIS ONE DOESNT WORK WHY IS IT NOT A FUNCTION.
+        return chain.execAsync();
+    },
     setZeroStreak: (gamesessionid, player) => {
         // we need for this promise thing to be here because 'set' returns 0.
         return new Promise((resolve, reject) => {

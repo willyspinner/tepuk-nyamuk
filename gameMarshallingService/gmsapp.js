@@ -316,6 +316,7 @@ io.use(function (socket, next) {
             if (username == undefined){
                 let responseobj = {success: false, error: `autherror: no such username or roomname: ${username}`};
                 response(responseobj);
+                return;
             }
 
             // find out if it already is a match event.
@@ -327,20 +328,19 @@ io.use(function (socket, next) {
                (since currentTurn will invalidate all but one player - the playerinturn).
             */
 
-            console.log(`gmsapp::events.PLAYER_THREW: getting current turn for game sesh id: ${gamesessionid}`);
             redisdb.getCurrentTurn(gamesessionid).then((turn) => {
                 console.log(`turn object: ${JSON.stringify(turn)}`);
                 let playerinturn = turn.playerinturn;
-                console.log(`gmsapp::events.PLAYER_THREW: ${username} THREW. ${playerinturn} was supposed to throw.`);
+                logger.info(`gmsapp::events.PLAYER_THREW: `,`${username} THREW. ${playerinturn} was supposed to throw.`);
                 if (playerinturn === username) {
                     // see if it is a match
                     redisdb.getMatch(gamesessionid).then((ismatch) => {
-                        console.log(`gmsapp::events.PLAYER_THREW. is match? ${ismatch}`);
-                        if (ismatch === 1)
+                        if (ismatch === 1){
                             response({
                                 success: false,
                                 error: "is currently in match"
                             });
+                        }
                         else{
                             Promise.all([
                                 redisdb.popHandToPile(gamesessionid, username),
@@ -352,7 +352,7 @@ io.use(function (socket, next) {
                                     // check match event.
                                     console.log(`gmsapp::events.PLAYER_THREW. checking match : counter ${nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
                                     console.log('type of poppedcard:',typeof poppedcard, 'type of nextcounter: ',typeof nextcounter.nextcounter);
-                                    if (nextcounter.nextcounter % 13 === 0? 13:nextcounter.nextcounter % 13 === parseInt(poppedcard)) {
+                                    if ((nextcounter.nextcounter % 13 === 0? 13:nextcounter.nextcounter % 13 )=== parseInt(poppedcard)) {
                                         // match event
                                         redisdb.setMatch(gamesessionid, true).then(() => {
                                             // go on with next tick as normal, waiting for people
@@ -394,7 +394,7 @@ io.use(function (socket, next) {
                 }
             }).catch((e)=>{
 
-                console.log(`FAIL TO GET CURENT TURN`);
+                logger.error(`on events.PLAYER_THREw`,`FAIL TO GET CURENT TURN`);
                 response({
                     success:false,
                     error:"FAIL TO GET CURRENT TURN"
@@ -417,9 +417,8 @@ io.use(function (socket, next) {
             username = un;
             // ok. now see if match event.
             redisdb.getMatch(gamesessionid).then((ismatch) => {
-                console.log(`gmsapp:events: registered PLAYER_SLAPPED: FOR ${username} ${gamesessionid}, `);
+                logger.info(`gmsapp:events: on PLAYER_SLAPPED`,`registered PLAYER_SLAPPED: FOR ${username} ${gamesessionid}. ismatch : ${ismatch}`);
                 
-                console.log(`is match? ${ismatch}, type: ${typeof ismatch}`);
                 if (ismatch === 1) {
                     // register slap.
                     redisdb.hasSlapped(gamesessionid,username).then((hasSlapped)=>{
@@ -446,9 +445,8 @@ io.use(function (socket, next) {
                                 let nplayers = parseInt(dataz[1]);
                                 let slappedplayers = dataz[0];
                                 io.to(gamesessionid).emit(events.PLAYER_SLAP_REGISTERED,{username: username,reactiontime:data.reactiontime});
-                                logger.info('data.reactiontime: ',`${data.reactiontime}`);
-                                console.log(`gmsapp::events: PLAYER_SLAPPED for ${username} registered.`);
-                                    console.log(`gmsapp::events: n of ppl slapped: ${slappedplayers.length}, out of ${nplayers}`);
+                                logger.info('gms::events: PLAYER_SLAPPED:  data.reactiontime:',`${data.reactiontime} registered for ${username}`);
+                                logger.info(`gmsapp::events:PLAYER_SLAPPED`,`n of ppl slapped: ${slappedplayers.length}, out of ${nplayers}`);
                                     if (slappedplayers.length === nplayers) {
                                         const loser = slappedplayers[slappedplayers.length - 1];
                                         Promise.all([
@@ -470,14 +468,18 @@ io.use(function (socket, next) {
                                                     //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
                                                     const zeroed_players = slappedplayers.filter((playerusername)=>
                                                         playerusername !== loser && !snapshot.map((playerobj)=>playerobj.username).includes(playerusername));
-                                                    Promise.all(
+                                                    /*Promise.all(
                                                         zeroed_players
                                                             .map((zeroed_player_username)=>redisdb.incrementStreak(gamesessionid,zeroed_player_username))
-                                                        ).then((zeroed_players_new_streaks)=>{
+                                                        )*/
+                                                    //NOTEDIFF: optimized redis access pattern.
+                                                    //TODO: WHY DOESN't THIS WORK!!
+                                                redisdb.massIncrementStreak(gamesessionid,zeroed_players)
+                                                    .then((zeroed_players_new_streaks)=>{
                                                         let winning_condition = false;
                                                         let winner = null
                                                         zeroed_players_new_streaks.forEach((score,idx)=>{
-                                                            logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}`);
+                                                            logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}.`);
                                                            if (score === 3){
                                                                logger.info(`WINNING CONDITION`,`streak 3 for player ${zeroed_players[idx]}`)
                                                                winning_condition = true;

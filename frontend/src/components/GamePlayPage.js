@@ -35,6 +35,7 @@ class GamePlayPage extends Component {
         if (this.props.gameplay.playerinturn === this.props.myusername) {
             this.props.dispatch(startPlayerThrow()).catch((e)=>{
                 //synchronize here.
+                console.log('NOTE: going tot synchronize because of :',e);
                 this.props.dispatch(startSynchronizeGameplay());
             });
         }else{
@@ -54,7 +55,9 @@ class GamePlayPage extends Component {
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
-            this.props.dispatch(startPlayerSlap(performance.now() - this.state.myreactiontime));
+            this.props.dispatch(startPlayerSlap(performance.now() - this.state.myreactiontime)).catch((e)=>{
+
+            })
         }
         this.setState({
             slapped:true
