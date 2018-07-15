@@ -1,10 +1,43 @@
 # NOTE: with context of the nginx.conf, this is already inside the http block.
+upstream appcs {
+    ip_hash;
+    server 127.0.0.1:3000;
+}
+upstream gms {
+    ip_hash;
+    server 127.0.0.1:4000;
+}
 server {
     listen      80;        # listen directive - states which port nginx is listening on
     server_name  willyserver.com;  # name of the server which will be the hostname in the client - so when the client requests willyserver.com, this will be stored.
 
-    location / {
       root  /root/projects/tepuk-nyamuk/frontend/public;
+    # index.html
+    location / {
         index  index.html;
+    }
+
+    # appcs
+    location /appcs {
+        proxy_pass http://appcs;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # NOTE: do we need the below:
+        # proxy_http_version 1.1;
+    }
+    # gms
+    location /gms {
+        proxy_pass http://gms;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # NOTE: do we need the below:
+        # proxy_http_version 1.1;
+
     }
 }
