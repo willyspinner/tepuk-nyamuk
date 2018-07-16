@@ -21,15 +21,14 @@ switch(process.argv[2]){
         throw new Error("INVALID environment mode.");
 }
 logger.info(`connection details`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
-require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
+require('dotenv').config({path: `${__dirname}/.appcs.test.env`})
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const moment = require('moment');
 const app = express();
-const io = require('socket.io')();
-require('dotenv').config({path: `${__dirname}/.appcs.test.env`});
+const ioserver = require('socket.io');
 const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
@@ -63,7 +62,12 @@ if( process.argv[2] === 'production.host'){
 // server listening.
 const server = app.listen(app.get('port'));
 
-io.attach(server);
+const io = ioserver(server,{
+    path: '/appcs-socketio'
+
+})
+logger.info('app.js', `socket io listening on ${process.env.APPCS_SOCKETIO_PORT}`);
+//NOTE: do we attach it to the server? really?
 logger.info('app.js',`app listening on ${app.get('port')}`);
 
 app.use(function(req, res, next) {
@@ -524,6 +528,7 @@ io.use(function (socket, next) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err)
                 return next(new Error('WS Auth Error'));
+            logger.info(`socket.io authentication middleware`,`verified token for user: ${decoded.username} `);
             socket.username = decoded.username;
             socket.token = socket.handshake.query.token;//TODO: is this needed?
             db.loginUserSocketId(socket.username, socket.id).then(() => {
@@ -536,7 +541,9 @@ io.use(function (socket, next) {
     } else {
         next(new Error('WS Authentication Error'));
     }
-}).on('connect', (socket) => {
+
+});
+io.on('connect', (socket) => {
     if (!socket.sentMydata) {
         logger.info('socket connect successful',`socket connected : ${socket.username}, id : ${socket.id}`);
 

@@ -70,8 +70,8 @@ class MainPage extends Component {
     }
 
     connectToGameUpdates = () => {
-        const connectionStr = `http://${process.env.APPCS_HOST}:${process.env.APPCS_PORT}`;
-        socketclient.connect(connectionStr, this.props.user.token).then((socketid) => {
+        const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
+        socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs').then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(() => {
@@ -92,13 +92,13 @@ class MainPage extends Component {
                 );
             }).catch((e) => {
                 this.alertError('server error. Sorry!',
-                    `couldn't get open games. Server error. Please try again later. ${e}`
+                    `couldn't get open games. Server error. Please try again later. ${JSON.stringify(e)}`
                 );
             });
         }).catch((e) => {
             this.alertError(
                 'server error. Sorry!',
-                `couldn't connect to socket for live updates. Server error. Please try again later. ${e}`
+                `couldn't connect to socket for live updates. Server error. Please try again later. ${JSON.stringify(e)}`
             );
         })
     }

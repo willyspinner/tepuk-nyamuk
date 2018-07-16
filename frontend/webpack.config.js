@@ -45,17 +45,12 @@ module.exports = (env) => {
         }
     }
     if(env.mode !== 'production.profile'){
-        if(!process.env.APPCS_HOST)
-            throw new Error("env.APPCS_HOST not defined.")
-        if(!process.env.APPCS_PORT)
-            throw new Error("env.APPCS_PORT not defined.")
-        if(!process.env.GMS_HOST)
-            throw new Error("env.GMS_HOST not defined.")
-        if(!process.env.GMS_PORT)
-            throw new Error("env.GMS_PORT not defined.")
+        if(!process.env.API_HOST)
+            throw new Error("env.API_HOST not defined.")
+        if(!process.env.API_PORT)
+            throw new Error("env.API_PORT not defined.")
     }
-    console.log(`APPCS_HOST: ${process.env.APPCS_HOST}`, 'APPCS_PORT:',process.env.APPCS_PORT);
-    console.log(`GMS_HOST: ${process.env.GMS_HOST}`, 'GMS_PORT:',process.env.GMS_PORT);
+    console.log(`API_HOST: ${process.env.API_HOST}`, 'GMS_PORT:',process.env.API_PORT);
 
   const isProduction = env.mode === 'production.local'|| env.mode === 'production.host' || env.mode === 'production.profile';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
@@ -129,10 +124,8 @@ return {
         CSSExtract,
         env.mode==='production.profile' ? new BundleAnalyzerPlugin():
             new webpack.DefinePlugin({
-                'process.env.APPCS_HOST':JSON.stringify(process.env.APPCS_HOST),
-                'process.env.APPCS_PORT':JSON.stringify(process.env.APPCS_PORT),
-                'process.env.GMS_HOST':JSON.stringify(process.env.GMS_HOST),
-                'process.env.GMS_PORT':JSON.stringify(process.env.GMS_PORT),
+                'process.env.API_HOST':JSON.stringify(process.env.API_HOST),
+                'process.env.API_PORT':JSON.stringify(process.env.API_PORT),
                 'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
             }),
 

@@ -5,15 +5,19 @@ import GMSEVENTS from '../../../gameMarshallingService/constants/socketEvents';
 const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
-    connect(connectionStr, token,extraquery){
+    connect(connectionStr, token,extraquery,type){
         this.token = token;
         let thatsocket = this.mysocket;
         return new Promise((resolve,reject)=>{
             console.log(`in connect method of SocketClient... trying to connect socket ;..`);
             console.log(`connectionStr: ${connectionStr}`);
             console.log(`socket connecting with token : ${token}`);
-
+            if (!( type === 'gms' || type === 'appcs')){
+                reject({error:'invalid type for connection!'})
+                return;
+            }
             thatsocket =  ioclient(`${connectionStr}`,{
+                path:`/${type}-socketio`, //NOTE: this is the endpoint that we declared for appcs socket io messages. our io server listens for this.
                     query: {
                         token:token,
                         ...extraquery

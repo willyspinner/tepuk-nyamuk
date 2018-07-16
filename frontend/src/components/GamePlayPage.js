@@ -153,8 +153,9 @@ class GamePlayPage extends Component {
         // TODO: maybe abstract both away?
         // e.g. make a socketclient method which is simpler for both to call?
         socketclient.close();
-        const connectionStr = `http://${process.env.APPCS_HOST}:${process.env.APPCS_PORT}`;
-        socketclient.connect(connectionStr, this.props.user.token).then((socketid) => {
+        const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
+        //TODO: differentiate between appcs and gms here.
+        socketclient.connect(connectionStr, this.props.user.token,'gms').then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
             this.props.dispatch(startGetOpenGames()).then(() => {
                 socketclient.subscribeToMainPage(

@@ -1,10 +1,7 @@
 // this creates the request object.
-const APPCS_PORT =3000;
 //NOTE: process.env below works because we have defined it as a webpack DefinePlugin in webpack.config.js.
-const ROOTURL = process.env.APPCS_HOST ? `http://${process.env.APPCS_HOST}:${APPCS_PORT}`:`http://localhost:${APPCS_PORT}`//`http://localhost:${APPCS_PORT}`;
+const ROOTURL=`http://${process.env.API_HOST}:${process.env.API_PORT}`;
 export const NEWUSER= (username,password)=>{
-// TODO process.env bindings so that we can do   "process.env.APPCS_PORT" etc.
-    //TODO: OR, implement some sort of service discovery feature.
   const obj =  {
     url : `${ROOTURL}/appcs/user/new`,
       form: {

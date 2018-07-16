@@ -54,7 +54,7 @@
     "yarn": "^1.5.1"
   },
   "scripts": {
-    "build:dev": "webpack --env.mode development --env.mode development-local",
+    "build:dev": "webpack  --env.mode development.local",
     "build:prod.local": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.local",
     "build:prod.host": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.host",
     "build:prod.profile": "webpack -p  --optimize-minimize --optimize-dedupe --env.mode production.profile",
