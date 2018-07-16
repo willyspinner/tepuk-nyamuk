@@ -154,7 +154,6 @@ class MainPage extends Component {
         this.setState({
             isJoiningGame: true,
         });
-        this.playSound(SOUNDTYPES.lobby.joined);
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
@@ -175,7 +174,6 @@ class MainPage extends Component {
         const onGameDeleted = (gameuuid) => {
             this.props.dispatch(startLeaveGame(gameuuid, this.props.user.username))
                 .then(() => {
-                    this.playSound(SOUNDTYPES.lobby.left);
                     this.props.history.push({
                         pathname: '/',
                         dialog: {
@@ -188,7 +186,6 @@ class MainPage extends Component {
         const onKickedOut =() =>{
             this.props.dispatch(startLeaveGame(gameId, this.props.user.username))
                 .then(() => {
-                    this.playSound(SOUNDTYPES.lobby.left);
                     this.props.history.push({
                         pathname: '/',
                         dialog: {
@@ -205,7 +202,6 @@ class MainPage extends Component {
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence
                 // in the reducer already.
             })
-            this.playSound(SOUNDTYPES.lobby.joined);
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
             this.alertError('Sorry! There was a server error', JSON.stringify(e));

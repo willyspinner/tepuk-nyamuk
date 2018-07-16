@@ -13,7 +13,8 @@ import {connectSocket, receiveInvitation} from "../actions/user";
 import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
 import {receiveMessage} from "../actions/chatroom";
 import AlertDialog from "./ui/AlertDialog";
-
+import Sound from 'react-sound';
+import SOUNDTYPES from '../constants/soundTypes';
 /*
 props:
 tutorialLevel= 1 to 10 (difficulty of tutorial - 1 is easy, 10 is difficult)
@@ -28,11 +29,20 @@ class GamePlayPage extends Component {
             subject:'',
             message:''
         },
-        slapped:false
+        slapped:false,
+        soundUrl:'',
+        soundPlayingStatus:Sound.status.STOPPED
+    }
+    playSound= (SOUNDTYPE)=> {
+        this.setState({
+            soundUrl: SOUNDTYPE,
+            soundPlayingStatus: Sound.status.PLAYING
+        })
     }
     throw = () => {
-        console.log('pressed throw')
+        console.log('pressed throw');
         if (this.props.gameplay.playerinturn === this.props.myusername) {
+        this.playSound(SOUNDTYPES.gameplay.threw);
             this.props.dispatch(startPlayerThrow()).catch((e)=>{
                 //synchronize here.
                 console.log('NOTE: going tot synchronize because of :',e);
@@ -51,7 +61,6 @@ class GamePlayPage extends Component {
     };
     // method for me slapping.
     slap = () => {
-
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
@@ -62,6 +71,7 @@ class GamePlayPage extends Component {
         this.setState({
             slapped:true
         })
+        this.playSound(SOUNDTYPES.gameplay.slapped);
     };
 
     constructor(props) {
@@ -133,6 +143,7 @@ class GamePlayPage extends Component {
             return;
         }
         */
+
         if (prevProps.gameplay.playerinturn !== this.props.gameplay.playerinturn) {
             if (this.props.gameplay.match) {
                 this.setState({myreactiontime: performance.now()})
@@ -237,6 +248,10 @@ class GamePlayPage extends Component {
                 handleClose={() => this.setState({error: {showErrorModal: false}})}
                 subject={this.state.error.subject}
                 message={this.state.error.message}
+                />
+                <Sound
+                    url={this.state.soundUrl}
+                    playStatus={this.state.soundPlayingStatus}
                 />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}
