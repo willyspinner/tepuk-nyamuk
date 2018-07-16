@@ -155,7 +155,7 @@ class GamePlayPage extends Component {
         socketclient.close();
         const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
         //TODO: differentiate between appcs and gms here.
-        socketclient.connect(connectionStr, this.props.user.token,'gms').then((socketid) => {
+        socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs').then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
             this.props.dispatch(startGetOpenGames()).then(() => {
                 socketclient.subscribeToMainPage(
