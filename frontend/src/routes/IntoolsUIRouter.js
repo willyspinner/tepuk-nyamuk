@@ -5,6 +5,8 @@ import ChatRoom from '../components/ui/ChatRoom';
 import ScoreRankings from "../components/ui/ScoreRankings";
 import {Button} from 'antd';
 import PlayingCard from "../components/ui/PlayingCard";
+import Sound from 'react-sound';
+import SOUNDTYPES from '../constants/soundTypes';
 export const history = createHistory();
 const sampleMessageFeed= [
     {
@@ -36,6 +38,9 @@ const IntoolsUIRouter =()=> (
                 </Button>
                 <Button onClick={()=>history.push('/intoolsUI/slap')} >
                     gameplay slap
+                </Button>
+                <Button onClick={()=>history.push('/intoolsUI/sound')} >
+                    Joined Game Lobby sound
                 </Button>
             </div>
             <Switch>
@@ -71,6 +76,28 @@ const IntoolsUIRouter =()=> (
 
                     }
                 />
+                <Route
+                    path={"/intoolsUI/sound"}
+                    exact={true}
+                    render={()=>(
+                        <div>
+                            <Sound
+                                url={SOUNDTYPES.lobby.joined}
+                                playStatus={Sound.status.PLAYING}
+                            />
+                            <p>
+                                These sounds are served from our frontend server. They are requested from the client, and loaded into the
+                                react-sound component ('Sound').
+
+                            </p>
+
+                            <p>
+                                TODO: make/configure caching for these sounds.
+                            </p>
+                        </div>
+
+                        )}
+                    />
                 <Route
                     path={"/intoolsUI/slap"}
                     exact={true}

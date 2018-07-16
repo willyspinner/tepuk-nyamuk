@@ -20,8 +20,9 @@ switch(process.argv[2]){
     default :
         throw new Error("INVALID environment mode.");
 }
-logger.info(`connection details`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`})
+logger.info(`connection details`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
+logger.info(`connection details`,`pub sub redis : ${process.env.APPCS_REDIS_PUBSUB_HOST}:${process.env.APPCS_REDIS_PUBSUB_PORT}`);
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -34,6 +35,7 @@ const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
 const request = require('request');
 const basicAuth=require('basic-auth');
+const socketioredis=  require('socket.io-redis');
 // appcs environment var.
 
 // constants
@@ -42,6 +44,9 @@ if (process.env.APPCS_PORT){
     app.set('port',process.env.APPCS_PORT);
 }else{
     app.set('port', process.env.APPCS_PORT || 3000);
+}
+if (process.argv.length > 3){
+    app.set('port',process.argv[3]);
 }
 // body parser
 const bodyParser = require('body-parser')
@@ -66,7 +71,7 @@ const io = ioserver(server,{
     path: '/appcs-socketio'
 
 })
-logger.info('app.js', `socket io listening on ${process.env.APPCS_SOCKETIO_PORT}`);
+io.adapter(socketioredis({host:process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
 //NOTE: do we attach it to the server? really?
 logger.info('app.js',`app listening on ${app.get('port')}`);
 

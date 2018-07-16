@@ -30,7 +30,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const logger = require('./log/gms_logger');
 const app = express();
-const io = require('socket.io')();
+const ioserver = require('socket.io');
 const uuidvalidate = require('uuid-validate');
 const crypto = require('crypto');
 const events = require('./constants/socketEvents');
@@ -44,7 +44,10 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 const server = app.listen(app.get('port'));
-io.attach(server);
+//io.attach(server);
+const io = ioserver(server,{
+    path:'/gms-socketio'
+});
 
 logger.info('app.js initialize',`GMS listening on ${app.get('port')}`);
 

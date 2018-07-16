@@ -8,11 +8,14 @@ class SocketClient {
     connect(connectionStr, token,extraquery,type){
         this.token = token;
         let thatsocket = this.mysocket;
+
         return new Promise((resolve,reject)=>{
             console.log(`in connect method of SocketClient... trying to connect socket ;..`);
             console.log(`connectionStr: ${connectionStr}`);
             console.log(`socket connecting with token : ${token}`);
+            console.log(` TYPE: ${type}, desired?? ${'gms' === type || 'appcs' === type}`)
             if (!( type === 'gms' || type === 'appcs')){
+                console.log(`REJECTING. TYPE: ${type}, wanted: gms. Equal? ${'gms' === type}`)
                 reject({error:'invalid type for connection!'})
                 return;
             }
@@ -118,8 +121,9 @@ class SocketClient {
     // or just close the socket?
     subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart,onGameFinished){
         return new Promise((resolve,reject)=>{
-            this.connect(`http://${process.env.GMS_HOST}:${process.env.GMS_PORT}`,gameStartObj.gametoken,
-                {gamesecret: gameStartObj.gamesecret, username: username}
+            this.connect(`http://${process.env.API_HOST}:${process.env.API_PORT}`,gameStartObj.gametoken,
+                {gamesecret: gameStartObj.gamesecret, username: username},
+                'gms'
             ).then(()=> {
                 this.mysocket.on(GMSEVENTS.PLAYER_SLAP_REGISTERED, (data) => {
                     onPlayerSlapRegistered(data);

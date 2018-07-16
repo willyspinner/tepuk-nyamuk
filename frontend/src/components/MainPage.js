@@ -16,7 +16,8 @@ import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
 import AlertDialog from './ui/AlertDialog';
 import InvitationDialog from './ui/InvitationDialog';
-
+import Sound from 'react-sound';
+import SOUNDTYPES from '../constants/soundTypes';
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -34,7 +35,9 @@ class MainPage extends Component {
             subject: '',
             message: '',
             showErrorModal: false
-        }
+        },
+        soundUrl:'',
+        soundPlayingStatus:Sound.status.STOPPED
     }
 
     componentDidMount() {
@@ -58,6 +61,14 @@ class MainPage extends Component {
             }
         })
     }
+    playSound= (SOUNDTYPE)=> {
+        this.setState({
+            soundUrl:SOUNDTYPE,
+            isPlaying:Sound.status.PLAYING
+        })
+
+
+}
 
     validateInput = () => {
         if (this.state.inputusername === '')
@@ -140,7 +151,10 @@ class MainPage extends Component {
     }
 
     onLeaderGameJoinHandler = (gameId) => {
-        this.setState({isJoiningGame: true});
+        this.setState({
+            isJoiningGame: true,
+        });
+        this.playSound(SOUNDTYPES.lobby.joined);
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
         // onGameJoinHandler needs to populate the game with the players .
@@ -161,6 +175,7 @@ class MainPage extends Component {
         const onGameDeleted = (gameuuid) => {
             this.props.dispatch(startLeaveGame(gameuuid, this.props.user.username))
                 .then(() => {
+                    this.playSound(SOUNDTYPES.lobby.left);
                     this.props.history.push({
                         pathname: '/',
                         dialog: {
@@ -173,6 +188,7 @@ class MainPage extends Component {
         const onKickedOut =() =>{
             this.props.dispatch(startLeaveGame(gameId, this.props.user.username))
                 .then(() => {
+                    this.playSound(SOUNDTYPES.lobby.left);
                     this.props.history.push({
                         pathname: '/',
                         dialog: {
@@ -189,6 +205,7 @@ class MainPage extends Component {
                 //NOTE:: calling joinGame multiple times on a single player doesn't affect him because we check for presence
                 // in the reducer already.
             })
+            this.playSound(SOUNDTYPES.lobby.joined);
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((e) => {
             this.alertError('Sorry! There was a server error', JSON.stringify(e));
@@ -345,6 +362,10 @@ class MainPage extends Component {
         return (
 
             <div className="mainPageContainer">
+                <Sound
+                    url={this.state.soundUrl}
+                    playStatus={this.state.soundPlayingStatus}
+                    />
                 {!!this.props.user.username ?
                     (
                         <Button
