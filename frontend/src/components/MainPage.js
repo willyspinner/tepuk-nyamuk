@@ -16,8 +16,6 @@ import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
 import AlertDialog from './ui/AlertDialog';
 import InvitationDialog from './ui/InvitationDialog';
-import Sound from 'react-sound';
-import SOUNDTYPES from '../constants/soundTypes';
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -36,8 +34,6 @@ class MainPage extends Component {
             message: '',
             showErrorModal: false
         },
-        soundUrl:'',
-        soundPlayingStatus:Sound.status.STOPPED
     }
 
     componentDidMount() {
@@ -61,14 +57,6 @@ class MainPage extends Component {
             }
         })
     }
-    playSound= (SOUNDTYPE)=> {
-        this.setState({
-            soundUrl:SOUNDTYPE,
-            isPlaying:Sound.status.PLAYING
-        })
-
-
-}
 
     validateInput = () => {
         if (this.state.inputusername === '')
@@ -358,10 +346,6 @@ class MainPage extends Component {
         return (
 
             <div className="mainPageContainer">
-                <Sound
-                    url={this.state.soundUrl}
-                    playStatus={this.state.soundPlayingStatus}
-                    />
                 {!!this.props.user.username ?
                     (
                         <Button

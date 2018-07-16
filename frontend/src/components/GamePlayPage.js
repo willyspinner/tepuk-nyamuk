@@ -42,7 +42,8 @@ class GamePlayPage extends Component {
     throw = () => {
         console.log('pressed throw');
         if (this.props.gameplay.playerinturn === this.props.myusername) {
-        this.playSound(SOUNDTYPES.gameplay.threw);
+            if(!this.props.gameplay.match)
+                this.playSound(SOUNDTYPES.gameplay.threw);
             this.props.dispatch(startPlayerThrow()).catch((e)=>{
                 //synchronize here.
                 console.log('NOTE: going tot synchronize because of :',e);
@@ -252,6 +253,7 @@ class GamePlayPage extends Component {
                 <Sound
                     url={this.state.soundUrl}
                     playStatus={this.state.soundPlayingStatus}
+                    onFinishedPlaying={()=>this.setState({soundPlayingStatus:Sound.status.STOPPED})}
                 />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}
