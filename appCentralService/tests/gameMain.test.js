@@ -50,6 +50,7 @@ describe(' gameMain.test: LOGIN AND REGISTER routes',function() {
                 console.log(`got token : ${token}`);
 
                 this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                    path:'/appcs-socketio',
                         query: {
                             token: token
                         }
@@ -130,6 +131,7 @@ describe(' gameMain.test: game creation and game deletion events (WS)',function(
                 let token =  JSON.parse(body).token;
                 this.token = token;
                 this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                    path:'/appcs-socketio',
                     query: {
                         token: token
                     }
@@ -220,6 +222,7 @@ describe(' gameMain.test: global chat ',function() {
                 let token = JSON.parse(body).token;
                 this.token = token;
                 this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                    path:'/appcs-socketio',
                     query: {
                         token: token
                     }
@@ -239,6 +242,7 @@ describe(' gameMain.test: global chat ',function() {
                             let token2 = JSON.parse(body).token;
                             this.token2 = token2;
                             this.socket2 = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                                path:'/appcs-socketio',
                                 query: {
                                     token: token2
                                 }

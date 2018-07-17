@@ -47,6 +47,7 @@ describe(' gameLobby.test: lobby joinning & leaving.',function() {
                 logger.info("beforeAll hook",`received body value : ${body}`)
                 this.token = token;
                 this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                    path:'/appcs-socketio',
                     query: {
                         token: token
                     }
@@ -129,6 +130,7 @@ describe('gameLobby.test: Lobby chat ',function (){
                 let token = JSON.parse(body).token;
                 this.token = token;
                 this.socket = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                    path:'/appcs-socketio',
                     query: {
                         token: token
                     }
@@ -149,6 +151,7 @@ describe('gameLobby.test: Lobby chat ',function (){
                             let token2 = JSON.parse(body).token;
                             this.token2 = token2;
                             this.socket2 = ioclient(`http://localhost:${process.env.APPCS_PORT}`, {
+                                path:'/appcs-socketio',
                                 query: {
                                     token: token2
                                 }
