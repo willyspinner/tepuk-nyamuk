@@ -115,6 +115,7 @@ const authMiddleware = (req,res,next)=>{
 
 app.post('/gms/game/create', authMiddleware,(req, res) => {
 
+    //TODO: make sure that there are no duplicate games!
         if (!uuidvalidate(req.body.gameid)) {
             res.json({
                 success: false,
@@ -133,7 +134,7 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
             });
             return;
         }
-        let cardsperplayer = process.env.GAMESETTING_CARDS_PER_PLAYER || 20; // this can be made a post body option (req.body) later if needed.
+        let cardsperplayer = parseInt(process.env.GAMESETTING_CARDS_PER_PLAYER) || 20; // this can be made a post body option (req.body) later if needed.
         let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
             .update(req.body.gameid, 'utf8').digest('hex');
         let gamesecret = crypto.createHmac('sha256', process.env.GAME_SECRET_2)
@@ -145,18 +146,24 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
         redisdb.initializeGame(req.body.gameid, gamesessionid, encryptedgamesecret,
             req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
             .then((result) => {
+                logger.info(`POST /gms/game/create`,`redisdb.initializeGame succeded. seting initial PM snapshot..`)
+                redisdb.setPostMatchSnapshot(gamesessionid,cardsperplayer,req.body.players,undefined).then(()=>{
+                    logger.info(`POST /gms/game/create`,`setting initial PM snapshot succeeded. Signing new gametoken..`)
+                    const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
+                    logger.info(`POST /gms/game/create`,`gmsapp: created new game: ${gamesessionid}`);
+                    if(Datadog)
+                        Datadog.increment('gms.game_created');
+                    res.status(200).json({
+                        success: true,
+                        gametoken: gametoken,
+                        gamesecret: gamesecret,
+                        gamesessionid: gamesessionid // this is to the appcs, so its ok.
+                    })
+                }).catch(e => res.status(500).json({
+                success: false,
+                error: "redis failed to initialise gme."
+                }));
                 // then with the created game, we generate JWT gametoken.
-                const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
-
-                console.log(`gmsapp: created new game: ${gamesessionid}`);
-                if(Datadog)
-                    Datadog.increment('gms.game_created');
-                res.status(200).json({
-                    success: true,
-                    gametoken: gametoken,
-                    gamesecret: gamesecret,
-                    gamesessionid: gamesessionid // this is to the appcs, so its ok.
-                })
             }).catch(e => res.status(500).json({
             success: false,
             error: "redis failed to initialise gme."
@@ -386,15 +393,62 @@ io.use(function (socket, next) {
                                         });
                                     } else {
                                         // just a normal throw.
-                                        io.to(gamesessionid).emit(events.NEXT_TICK, {
-                                            match: false,
-                                            piletop: poppedcard, // next top of pile.
-                                            nextplayer: nextcounter.nextplayer,
-                                            counter: nextcounter.nextcounter,
-                                            playerthrew : username
-                                        });
-                                        response({
-                                            success: true
+                                        //TODO
+                                        Promise.all(
+                                            [
+                                                redisdb.getTotalCards(gamesessionid),
+                                                redisdb.llenPile(gamesessionid)
+                                            ]
+                                        ).then((results)=>{
+                                            const nTotalCards = parseInt(results[0]);
+                                            const nPile = parseInt(results[1]);
+                                            if (nTotalCards === nPile){
+                                                logger.info('on PLAYER_THREW',`reshuffle event for gamesessionid ${gamesessionid}.`);
+                                                const cardsPerPlayer = 5;
+
+                                                    redisdb.getPostMatchSnapshot(gamesessionid).then((ss)=>{
+                                                        let snapshot = ss;
+                                                        logger.info(`on PLAYER_THREW`,`got non_zero_players snapshot : ${JSON.stringify(snapshot)}`)
+                                                        const non_zero_players = ss.map((playerobj)=>playerobj.username);
+                                                        redisdb.reshuffleFromPile(gamesessionid,cardsPerPlayer, non_zero_players).then(()=>{
+                                                            redisdb.getPile(gamesessionid).then((pile)=>{
+
+                                                                snapshot = snapshot.map((playerobj)=>({username:playerobj.username,nInHand : cardsPerPlayer}));
+                                                                io.to(gamesessionid).emit(events.NEXT_TICK, {
+                                                                    match: false,
+                                                                    piletop: poppedcard, // next top of pile.
+                                                                    nextplayer: nextcounter.nextplayer,
+                                                                    counter: nextcounter.nextcounter,
+                                                                    playerthrew : username,
+                                                                    reshuffle: snapshot,
+                                                                    newpile: pile
+                                                                        /*
+                                                                        remember snapshot format is:
+                                                                        [
+                                                                            {username: ___, nInHand: ___},
+                                                                            {username: ___, nInHand: ___},
+                                                                            {username: ___, nInHand: ___},
+                                                                        ]
+                                                                         */
+                                                                });
+                                                                response({
+                                                                    success: true
+                                                                })
+                                                        })
+                                                    })
+                                                })
+                                            }else{
+                                                io.to(gamesessionid).emit(events.NEXT_TICK, {
+                                                    match: false,
+                                                    piletop: poppedcard, // next top of pile.
+                                                    nextplayer: nextcounter.nextplayer,
+                                                    counter: nextcounter.nextcounter,
+                                                    playerthrew : username
+                                                });
+                                                response({
+                                                    success: true
+                                                })
+                                            }
                                         })
                                     }
                             })
@@ -469,18 +523,15 @@ io.use(function (socket, next) {
                                             redisdb.popAllPileToLoser(gamesessionid,loser),
                                             redisdb.resetSlaps(gamesessionid),
                                             redisdb.setCurrentCounter(gamesessionid, loser),
-                                            redisdb.setMatch(gamesessionid, false) //NOTEDIFF: put setMAtch false here.
+                                            redisdb.setMatch(gamesessionid, false), //NOTEDIFF: put setMAtch false here.
+                                            redisdb.setZeroStreak(gamesessionid,loser) //NOTEDIFF: put zero streak here.
                                         ]).then((data_l)=>{
                                             let poppedpile = data_l[0];
                                             console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
-                                            Promise.all(
-                                                [
-                                                    redisdb.setZeroStreak(gamesessionid,loser),
-                                                        redisdb.getSnapshot(gamesessionid)
-                                                ]
-                                            ).then((datas)=>{
-                                                        let  snapshot = datas[1];
-                                                    logger.info('SNAPSHOT GOT', JSON.stringify(snapshot));
+                                            redisdb.getSnapshot(gamesessionid)
+                                            .then((snapshot)=>{
+                                                redisdb.setPostMatchSnapshot(gamesessionid,undefined,undefined,snapshot).then(()=>{
+                                                    logger.info('match results: SNAPSHOT GOT', JSON.stringify(snapshot));
                                                     //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
                                                     const zeroed_players = slappedplayers.filter((playerusername)=>
                                                         playerusername !== loser && !snapshot.map((playerobj)=>playerobj.username).includes(playerusername));
@@ -490,72 +541,73 @@ io.use(function (socket, next) {
                                                         )*/
                                                     //NOTEDIFF: optimized redis access pattern.
                                                     //TODO: WHY DOESN't THIS WORK!!
-                                                redisdb.massIncrementStreak(gamesessionid,zeroed_players)
-                                                    .then((zeroed_players_new_streaks)=>{
-                                                        let winning_condition = false;
-                                                        let winner = null
-                                                        zeroed_players_new_streaks.forEach((score,idx)=>{
-                                                            logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}.`);
-                                                           if (score === 3){
-                                                               logger.info(`WINNING CONDITION`,`streak 3 for player ${zeroed_players[idx]}`)
-                                                               winning_condition = true;
-                                                               winner = zeroed_players[idx];
-                                                           }
-                                                        });
-                                                        redisdb.getLowToHighScoreSnapshot(gamesessionid).then((scoresnapshot)=>{
-                                                            logger.info('gmsapp: match result',` emitting match result now, with scoresnapshot: ${scoresnapshot}`)
-                                                            if(Datadog){
-                                                                Datadog.increment('gms.emit.match_result');
-                                                            }
-                                                            io.to(gamesessionid).emit(events.MATCH_RESULT, {
-                                                                loser: loser,
-                                                                loserAddToPile: poppedpile.length,
-                                                                nextplayer:loser,
-                                                                matchResult: slappedplayers,
-                                                                streakUpdate:
-                                                                [
-                                                                    ...zeroed_players_new_streaks.map((score,idx)=>{
-                                                                        return {username: zeroed_players[idx], streak: score}
-                                                                    }),
-                                                                    {username: loser, streak: 0} //NOTEDIFF: bugfix here. Our loser isn't a zero hand player anymore.
-                                                                    // So if he/she had a streak, ppl need to know that he doesn't have one anymore.
-                                                                ],
-                                                                scoreUpdate:scoresnapshot,
-                                                                isAccidental: false
+                                                    redisdb.massIncrementStreak(gamesessionid,zeroed_players)
+                                                        .then((zeroed_players_new_streaks)=>{
+                                                            let winning_condition = false;
+                                                            let winner = null
+                                                            zeroed_players_new_streaks.forEach((score,idx)=>{
+                                                                logger.info(`STREAK UPDATE`,`player ${zeroed_players[idx]} now has ${score} streak${score >1? 's':''}.`);
+                                                                if (score === 3){
+                                                                    logger.info(`WINNING CONDITION`,`streak 3 for player ${zeroed_players[idx]}`)
+                                                                    winning_condition = true;
+                                                                    winner = zeroed_players[idx];
+                                                                }
                                                             });
-                                                            if(winning_condition){
-                                                                const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
-                                                                const APPCS_PORT = process.env.APPCS_PORT || 3000;
-                                                                const resultObj = {winner : winner,finalscores:scoresnapshot};
-                                                                redisdb.getGameId(gamesessionid).then((gameid)=>{
-                                                                    request.post(
-                                                                        {
-                                                                            url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
-                                                                            headers:{
-                                                                                Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
-                                                                                    .toString('base64')
+                                                            redisdb.getLowToHighScoreSnapshot(gamesessionid).then((scoresnapshot)=>{
+                                                                logger.info('gmsapp: match result',` emitting match result now, with scoresnapshot: ${scoresnapshot}`)
+                                                                if(Datadog){
+                                                                    Datadog.increment('gms.emit.match_result');
+                                                                }
+                                                                io.to(gamesessionid).emit(events.MATCH_RESULT, {
+                                                                    loser: loser,
+                                                                    loserAddToPile: poppedpile.length,
+                                                                    nextplayer:loser,
+                                                                    matchResult: slappedplayers,
+                                                                    streakUpdate:
+                                                                        [
+                                                                            ...zeroed_players_new_streaks.map((score,idx)=>{
+                                                                                return {username: zeroed_players[idx], streak: score}
+                                                                            }),
+                                                                            {username: loser, streak: 0} //NOTEDIFF: bugfix here. Our loser isn't a zero hand player anymore.
+                                                                            // So if he/she had a streak, ppl need to know that he doesn't have one anymore.
+                                                                        ],
+                                                                    scoreUpdate:scoresnapshot,
+                                                                    isAccidental: false
+                                                                });
+                                                                if(winning_condition){
+                                                                    const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
+                                                                    const APPCS_PORT = process.env.APPCS_PORT || 3000;
+                                                                    const resultObj = {winner : winner,finalscores:scoresnapshot};
+                                                                    redisdb.getGameId(gamesessionid).then((gameid)=>{
+                                                                        request.post(
+                                                                            {
+                                                                                url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
+                                                                                headers:{
+                                                                                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                                                                        .toString('base64')
+                                                                                },
+                                                                                form :{
+                                                                                    resultObj:resultObj
+                                                                                }
                                                                             },
-                                                                            form :{
-                                                                                resultObj:resultObj
+                                                                            (err,resp,body)=>{
+                                                                                io.to(gamesessionid).emit(events.GAME_FINISHED,
+                                                                                    resultObj
+                                                                                )
+                                                                                if(Datadog){
+                                                                                    Datadog.increment('gms.emit.game_finished');
+                                                                                }
+                                                                                response({success:true});
                                                                             }
-                                                                        },
-                                                                        (err,resp,body)=>{
-                                                                            io.to(gamesessionid).emit(events.GAME_FINISHED,
-                                                                                resultObj
-                                                                            )
-                                                                            if(Datadog){
-                                                                                Datadog.increment('gms.emit.game_finished');
-                                                                            }
-                                                                            response({success:true});
-                                                                        }
-                                                                    );
+                                                                        );
 
-                                                                })
-                                                            }else{
-                                                                response({success:true});
-                                                            }
-                                                        })
-                                                    });
+                                                                    })
+                                                                }else{
+                                                                    response({success:true});
+                                                                }
+                                                            })
+                                                        });
+                                                })
                                                 })
                                         }).catch((e)=>{
                                             response({success:false, error:`${e.stack}`});

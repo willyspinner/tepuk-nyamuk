@@ -1,6 +1,6 @@
 // component that holds the game. This one connects to redux right away.
 import React, {Component} from 'react';
-import {startPlayerThrow, startPlayerSlap, startSynchronizeGameplay} from '../actions/gameplay';
+import {startPlayerThrow, startPlayerSlap, startSynchronizeGameplay, reshuffle} from '../actions/gameplay';
 import {connect} from 'react-redux';
 import {initializeGame,playerThrow,playerSlap,receiveMatchResult,finishGame,gameWinner} from "../actions/gameplay";
 import PlayingCard from './ui/PlayingCard';
@@ -88,6 +88,16 @@ class GamePlayPage extends Component {
                 nextTick.nextplayer,
                 nextTick.match
             ));
+            if (nextTick.reshuffle){
+                this.props.dispatch(reshuffle(nextTick.reshuffle,nextTick.newpile));
+                const description="All hands are 0. Reshuffling...";
+                notification.open({
+                    message:'reshuffle',
+                    description,
+                    duration: 3
+                })
+
+            }
         };
         const onMatchResult= (result)=>{
             this.determineLoser(result.loser,result.isAccidental);

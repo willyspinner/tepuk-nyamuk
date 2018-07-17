@@ -118,6 +118,7 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/playerinturn`,players[0]);
             chain= chain.set(`${gamesessionid}/turnoffset`,0); // player[0] has index 0.
             chain = chain.set(`${gamesessionid}/cardsperplayer`,`${cardsperplayer}`);
+            chain = chain.set(`${gamesessionid}/totalcards`,`${parseInt(cardsperplayer) * players.length}`);
             chain = chain.set(`${gamesessionid}/gameid`,gameid);
             // execute transaction.
             chain.execAsync().then((result)=>{
@@ -202,6 +203,62 @@ const self = module.exports = {
             }).catch((e) => reject(e));
         });
     },
+    llenPile: (gamesessionid)=>{
+        return redisclient.llenAsync(`${gamesessionid}/pile`);
+    },
+    //TODO: setPostMatchSnapshot still quite problematic..
+    setPostMatchSnapshot: (gamesessionid,cardsperplayer,playerusernames,snapshot)=>{
+        return new Promise((resolve,reject)=>{
+            if (cardsperplayer){
+                    const postmatchsnapshot = playerusernames.map((playerusername)=>({username:playerusername,nInHand:cardsperplayer }));
+                    redisclient.setAsync(`${gamesessionid}/postmatchsnapshot`,JSON.stringify(postmatchsnapshot))
+                        .then(()=>resolve()).catch((e)=>reject(e));
+            }else {
+                const snapshotLlen = snapshot.map((playerobj)=>({username:playerobj.username,nInHand: playerobj.hand.length}));
+                    redisclient.setAsync(`${gamesessionid}/postmatchsnapshot`, JSON.stringify(snapshotLlen)).then(() => {
+                        resolve()
+                    }).catch((e) => reject(e));
+            }
+        });
+    },
+    getPostMatchSnapshot: (gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.getAsync(`${gamesessionid}/postmatchsnapshot`).then((data)=>{
+                try{
+                    const parsed= JSON.parse(data);
+                    resolve(parsed);
+                }catch(e){
+                    reject(e);
+                }
+            }).catch((e)=>reject(e));
+        });
+
+
+    },
+    // we pop cardperplayer cards from pile to each non-streaking player's hand.
+    reshuffleFromPile: (gamesessionid,cardsperplayer,nonStreakPlayerUsernames) =>{
+        return new Promise((resolve,reject)=>{
+            let multi = redisclient.multi();
+            Array.from(Array(cardsperplayer*nonStreakPlayerUsernames.length)).forEach(m => {
+                multi = multi.rpop(`${gamesessionid}/pile`);
+            });
+            multi.execAsync().then((popped)=>{
+                logger.info(`redisdb::reshuffleFromPile:`,` popped: ${JSON.stringify(popped)}`);
+                let counter = 0;
+                let multi2 =  redisclient.multi();
+                nonStreakPlayerUsernames.forEach((nonZeroUsername)=>{
+                    const popy = popped.slice(counter, counter + cardsperplayer);
+                    logger.info(`redisdb::reshuffleFromPile`,`pushing ${JSON.stringify(popy)} to ${nonZeroUsername}`);
+                    multi2 = multi2.rpush(`${gamesessionid}/player/${nonZeroUsername}/hand`, ...popy);
+                    counter += cardsperplayer;
+                });
+                    multi2.execAsync().then(()=>{
+                        resolve();
+                    }).catch((e)=>reject(e));
+                }).catch((e)=>reject(e));
+        });
+
+    },
 
     popAllPileToLoser: (gamesessionid, loser) => {
         return new Promise((resolve, reject) => {
@@ -231,6 +288,9 @@ const self = module.exports = {
         });
     },
 
+    getTotalCards: (gamesessionid)=>{
+        return redisclient.getAsync(`${gamesessionid}/totalcards`);
+    },
     getPlayers: (gamesessionid)=>{
         return redisclient.lrangeAsync(`${gamesessionid}/players`,0,-1);
     },
@@ -402,7 +462,7 @@ const self = module.exports = {
             }).catch((e)=>reject(e));
         });
     },
-    // get snapshot of the game, i.e. everyone's cards.
+    // get snapshot of the game, i.e. everyone's cards (who didn't streak yet).
     getSnapshot: (gamesessionid) => {
         return new Promise((resolve, reject) => {
             scanAsync("0", `${gamesessionid}/player/*/hand`, (handkeys) => {

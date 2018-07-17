@@ -37,8 +37,14 @@ export const playerThrow = (username, card,nextplayer,isMatch)=>({
    username,
    card,
     nextplayer,
-    isMatch
+    isMatch,
+
 });
+export const reshuffle= (newSnapshot,newpile)=>({
+    type: 'RESHUFFLE',
+    snapshot : newSnapshot,
+    newpile
+})
 
 export const startPlayerThrow = ()=>{
     return (reduxDispatch,getState)=> {

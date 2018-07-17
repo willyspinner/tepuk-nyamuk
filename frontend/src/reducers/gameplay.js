@@ -34,9 +34,9 @@ const gameplayReducer = (state= {},action)=>{
                 playerinturn : action.game.playerinturn,
                 playerhand: action.game.playerhand,
                 pile: action.game.pile,
-                players : action.game.players.map((player)=>{
+                players : action.game.players.map((playerusername)=>{
                     return {
-                        username : player,
+                        username : playerusername,
                         nhand: action.game.nhand,
                         streak : 0,
                         hasslapped: false,
@@ -45,6 +45,22 @@ const gameplayReducer = (state= {},action)=>{
                     }
                 })
             };
+        case 'RESHUFFLE':
+            return {
+                ...state,
+                players: state.players? state.players.map((player)=>{
+                    let newnhand = action.snapshot.filter((playerobj)=>playerobj.username ===player.username);
+                    newnhand = newnhand.length === 1 ? newnhand[0].nInHand : player.nhand;
+                    return(
+                        {
+                            ...player,
+                            nhand: newnhand
+                        }
+                    );
+                },
+                    ): undefined,
+                pile: action.newpile
+            }
         case 'PLAYER_THREW':
             if(state.match === true)
                 return state;

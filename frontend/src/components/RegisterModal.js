@@ -70,7 +70,7 @@ const registerModal = (props)=>(
             {props.isLoggingIn ?
                 "First time here? Click me!"
                 :
-                "Already a registered user? Click me!"
+                "Already registered?!"
             }
         </Button>
     </Modal>
