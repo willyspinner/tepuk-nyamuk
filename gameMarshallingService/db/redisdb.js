@@ -231,6 +231,9 @@ const self = module.exports = {
         });
     },
 
+    getPlayers: (gamesessionid)=>{
+        return redisclient.lrangeAsync(`${gamesessionid}/players`,0,-1);
+    },
     //NOTE: only increments the counter AND player in turn.
     // doesn't pop or anything. Forthis, pophandtopile must be called.
     // this is because we don't want to couple pop hand and increment.

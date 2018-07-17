@@ -108,6 +108,7 @@ const authMiddleware = (req,res,next)=>{
             success:false,
             error:"Incorrect authentication information."
         });
+        return;
     }
 };
 
@@ -191,28 +192,40 @@ socket.handshake.query:
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-            if (err){
+            if (err) {
                 console.log(`gms::socketauth: socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
-                return next(new Error('WS Auth Error'));
+                next(new Error('WS Auth Error'));
+                return;
             }
-            redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
-                socket.username = socket.handshake.query.username;
-                if (bcrypt.compareSync(socket.handshake.query.gamesecret, encrpytedrealsecret)) {
-                    socket.gamesessionid = decoded.gamesessionid;
-                   next(); // authorized.
+            console.log(`TEST TING: got decoded object: ${JSON.stringify(decoded)}`)
+            redisdb.getPlayers(decoded.gamesessionid).then((players) => {
+                if(!players.includes(socket.handshake.query.username)){
+                    logger.warn(`socket io authentication middleware`, `socket authentication error: for ${socket.handshake.query.username}. . Player not in game.`);
+                    next(new Error("WS auth error: player not present in game"));
+                    return;
                 }
-                else {
-                    console.log(`socket authentication error: invalid gamesecret for ${socket.username} trying to go for ${socket.gamesessionid}`);
-                    return next(new Error('WS Auth Error'));
-                }
-            }).catch(e =>{
-                
-                console.log(`socket authentication error: for ${socket.username}. redis db couldnt get secret.`);
-                next(new Error("WS auth error: redisdb fail"))});
-        })
+                redisdb.getGameSecret(decoded.gamesessionid).then((encrpytedrealsecret) => {
+                    socket.username = socket.handshake.query.username;
+                    if (bcrypt.compareSync(socket.handshake.query.gamesecret, encrpytedrealsecret)) {
+                        socket.gamesessionid = decoded.gamesessionid;
+                        next(); // authorized.
+                    }
+                    else {
+                        console.log(`socket authentication error: invalid gamesecret for ${socket.handshake.query.username} trying to go for ${decoded.gamesessionid}`);
+                        next(new Error('WS Auth Error'));
+                    }
+                }).catch(e => {
+                    logger.warn(`socket io authentication middleware`, `socket authentication error: for ${socket.handshake.query.username}. redis db couldnt get secret.`);
+                    next(new Error("WS auth error: redisdb fail"));
+                });
+            }).catch(e => {
+                logger.warn(`socket io authentication middleware`, `socket authentication error: for ${socket.handshake.query.username}. . Redisdb getPlayers failed.`);
+                next(new Error("WS auth error: redisdb getPlayers failed."));
+            });
+        });
     } else {
         
-        console.log(`socket authentication error: no token provided by ${socket.username}`);
+        console.log(`socket authentication error: no token provided by ${socket.handshake.query.username}`);
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {

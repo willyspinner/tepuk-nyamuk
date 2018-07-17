@@ -52,7 +52,7 @@ describe('gmsapp.test: initial connection to game', function () {
 
                 const response = JSON.parse(body);
 
-                console.log(`Got response : ${JSON.stringify(response)}`);
+                console.log(`gmsapp::initial-connection-test::beforeEach: Got response : ${JSON.stringify(response)}`);
                 assert.equal(response.success, true);
                 this.gametoken = response.gametoken;
                 this.gamesecret = response.gamesecret;
@@ -77,7 +77,8 @@ describe('gmsapp.test: initial connection to game', function () {
                 token: this.gametoken + "goijwdoijawodijawd",
                 gamesecret: this.gamesecret,
                 username: "mallory"
-            }
+            },
+            path:'/gms-socketio'
         });
         this.player1socket.on('connect', () => {
             done(new Error("player 1 socket did connect even though wrong token!"));
@@ -85,13 +86,15 @@ describe('gmsapp.test: initial connection to game', function () {
         // player 1 socket should be denied.
         redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers) => {
             assert.equal(connectedPlayers.length, 0);
+            console.log('OK 1')
             this.player1socket.close();
             this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
                 query: {
                     token: this.gametoken,
                     gamesecret: this.gamesecret + "120eijdaoinklawd",
                     username: "malicious_user"
-                }
+                },
+                path:'/gms-socketio'
             });
             this.player2socket.on('connect', () => {
                 done(new Error("player 2 socket did connect even though wrong gamesecret!"));
@@ -99,8 +102,10 @@ describe('gmsapp.test: initial connection to game', function () {
             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers2) => {
                 // player 1 socket should be denied again.
                 assert.equal(connectedPlayers2.length, 0);
+                console.log('OK 2')
                 this.player2socket.close();
                 this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -110,7 +115,9 @@ describe('gmsapp.test: initial connection to game', function () {
                 this.player1socket.on('connect', () => {
                     redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers3) => {
                         assert.equal(connectedPlayers3.length, 1);
+                        console.log('OK 3')
                         this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                            path:'/gms-socketio',
                             query: {
                                 token: this.gametoken,
                                 gamesecret: this.gamesecret,
@@ -120,7 +127,9 @@ describe('gmsapp.test: initial connection to game', function () {
                         this.player2socket.on('connect', () => {
                             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers4) => {
                                 assert.equal(connectedPlayers4.length, 2);
+                                console.log('OK 4')
                                 this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                                    path:'/gms-socketio',
                                     query: {
                                         token: this.gametoken,
                                         gamesecret: this.gamesecret,
@@ -130,6 +139,7 @@ describe('gmsapp.test: initial connection to game', function () {
                                 this.player3socket.on('connect', () => {
                                     redisdb.getConnectedPlayers(this.gamesessionid).then(connectedPlayers5 => {
                                         assert.equal(connectedPlayers5.length, 3);
+                                        console.log('OK 5')
                                         dummydata.gameGMStest.players.forEach(player => {
                                             assert.notEqual(connectedPlayers5.indexOf(player), -1);
                                         });
@@ -144,9 +154,31 @@ describe('gmsapp.test: initial connection to game', function () {
         })
     });
 
+    it('should deny invalid usernames ', function(done) {
+        this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+            query: {
+                token: this.gametoken,
+                gamesecret: this.gamesecret,
+                username: "bicboi-mallory"
+            },
+            path: '/gms-socketio'
+        });
+        this.player1socket.on('connect', () => {
+            done(new Error("player 1 socket did connect even though wrong username!!"));
+        });
+        // player 1 socket should be denied.
+        redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers) => {
+            setTimeout(()=>{
+                assert.equal(connectedPlayers.length, 0);
+                done();
+            },1000);
+        });
+    });
+
     it('should only start when all sockets connect (receive game start event)', function (done) {
         let allConnected = false;
         this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+            path:'/gms-socketio',
             query: {
                 token: this.gametoken,
                 gamesecret: this.gamesecret,
@@ -162,6 +194,7 @@ describe('gmsapp.test: initial connection to game', function () {
             redisdb.getConnectedPlayers(this.gamesessionid).then((connectedPlayers3) => {
                 assert.equal(connectedPlayers3.length, 1);
                 this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -178,6 +211,7 @@ describe('gmsapp.test: initial connection to game', function () {
                         assert.equal(connectedPlayers4.length, 2);
                         allConnected = true;
                         this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                            path:'/gms-socketio',
                             query: {
                                 token: this.gametoken,
                                 gamesecret: this.gamesecret,
@@ -232,6 +266,7 @@ describe('gmsapp.test: registering throw', function () {
                 this.gamesessionid = response.gamesessionid;
 
                 this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -239,6 +274,7 @@ describe('gmsapp.test: registering throw', function () {
                     }
                 });
                 this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -246,6 +282,7 @@ describe('gmsapp.test: registering throw', function () {
                     }
                 });
                 this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -354,6 +391,7 @@ describe('gmsapp.test: match', function () {
                 this.gamesessionid = response.gamesessionid;
 
                 this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -361,6 +399,7 @@ describe('gmsapp.test: match', function () {
                     }
                 });
                 this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -368,6 +407,7 @@ describe('gmsapp.test: match', function () {
                     }
                 });
                 this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -519,6 +559,7 @@ describe('gmsapp.test: slaps', function () {
                 this.gamesessionid = response.gamesessionid;
 
                 this.player1socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -526,6 +567,7 @@ describe('gmsapp.test: slaps', function () {
                     }
                 });
                 this.player2socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
@@ -533,6 +575,7 @@ describe('gmsapp.test: slaps', function () {
                     }
                 });
                 this.player3socket = ioclient(`http://localhost:${process.env.GMS_PORT}`, {
+                    path:'/gms-socketio',
                     query: {
                         token: this.gametoken,
                         gamesecret: this.gamesecret,
