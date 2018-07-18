@@ -52,12 +52,15 @@ export const DELETEGAME= (gameid,token,socketid)=>{
     };
 };
 
-export const STARTGAMEFROMLOBBY=(gameid,token,socketid)=>{
+export const STARTGAMEFROMLOBBY=(gameid,token,socketid,cardsperplayer)=>{
     return {
         url: `${ROOTURL}/appcs/game/start/${gameid}`,
         form : {
             socketid: socketid,
-            token : token
+            token : token,
+            gameOptions: {
+                cardsperplayer
+            }
         }
     }
 }

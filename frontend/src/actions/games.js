@@ -164,26 +164,23 @@ export const startKickoutUser = (username,gameid)=>{
             return mysocket.kickoutUser(username,gameid)
     };
 };
-export const startStartGame = (gameid) => {
+export const startStartGame = (gameid,cardsperplayer) => {
     return (reduxDispatch,getState)=>{
         return new Promise((resolve,reject)=>{
            request.post(
-               STARTGAMEFROMLOBBY(gameid,getState().user.token,getState().user.socketid,
-                   (err,res,body)=>{
-                        const response = JSON.stringify(body);
-
-                        console.log(`error obj :`,err);
-                        if(err){
-                            reject(err);
-                            return;
-                        }
-                       alert(`start game from lobby result : ${response}`);
-                        if(response.success)
-                            resolve(response);
-                        else
-                            reject(response);
-                   })
-           )
+               STARTGAMEFROMLOBBY(gameid, getState().user.token, getState().user.socketid, cardsperplayer),
+                   (err,res,body)=> {
+                       const response = JSON.stringify(body);
+                       if (err) {
+                           reject(err);
+                           return;
+                           if (response.success)
+                               resolve(response);
+                           else
+                               reject(response);
+                       }
+                   }
+                   )
         });
     }
-}
+};

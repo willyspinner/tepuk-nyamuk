@@ -402,7 +402,8 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                             form: {
                                 gameid: req.params.gameid,
                                 gamename: "zz game", // NOTE:  we don't actually need the game name i think.
-                                players: game.players// an array of the usernames.
+                                players: game.players,// an array of the usernames.
+                                gameOptions:req.body.gameOptions
                             },
                         },
                         (err, resp, body) => {

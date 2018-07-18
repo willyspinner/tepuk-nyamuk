@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {List, Button, Icon, Input} from 'antd';
+import {List, Button, Icon, Input, Row, Col, Slider, InputNumber} from 'antd';
 import AlertDialog from './ui/AlertDialog';
 import ReactLoading from 'react-loading';
 import EVENTS from '../../../appCentralService/constants/socketEvents';
@@ -35,7 +35,8 @@ class GameLobbyPage extends Component {
                 showErrorModal: false,
                 subject: '',
                 message: ''
-            }
+            },
+            ncards: 20 // default.
         };
         setInterval(() => {
                 this.setState((prevState) => {
@@ -114,7 +115,7 @@ class GameLobbyPage extends Component {
     gameStartHandler = () => {
         this.setState({isStartingGame: true}, () => {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
-            this.props.dispatch(startStartGame(this.props.match.params.uuid)).then(() => {
+            this.props.dispatch(startStartGame(this.props.match.params.uuid, this.state.ncards)).then(() => {
                 // NOTE: we should receive the socket's GAME_START, from which we go to /game/play/:uuid.
                 // no need to push here.
                 // this.props.history.push(`/game/play/${this.state.uuid}`);
@@ -221,6 +222,30 @@ class GameLobbyPage extends Component {
                             onMessageSend={(msg) => this.props.dispatch(startSendMessage(msg, this.props.match.params.uuid))}
                             username={this.props.user.username}
                         />
+                        {
+                        currentgame.creator === this.props.user.username ?
+                            (<div>
+                                <h2>
+                                Game settings
+                            </h2>
+                                    <Row>
+                                        <h4>Cards per player:</h4>
+                                        <Col span={12}>
+                                            <Slider min={0} max={30} onChange={(val)=>{if (val >=5) this.setState({ncards:val})}} value={this.state.ncards} />
+                                        </Col>
+                                        <Col span={4}>
+                                            <InputNumber
+                                                min={5}
+                                                max={30}
+                                                style={{ marginLeft: 16 }}
+                                                value={this.state.ncards}
+                                                onChange={(val)=>this.setState({ncards:val})}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </div>
+                                ):null
+                        }
                     </div>
                 </div>
                 <div className="gameLobbyPage__module" style={{width:'40%'}}>

@@ -134,7 +134,7 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
             });
             return;
         }
-        let cardsperplayer = parseInt(process.env.GAMESETTING_CARDS_PER_PLAYER) || 20; // this can be made a post body option (req.body) later if needed.
+        let cardsperplayer =parseInt(req.body.gameOptions.cardsperplayer)|| parseInt(process.env.GAMESETTING_CARDS_PER_PLAYER);
         let gamesessionid = crypto.createHmac('sha256', process.env.GAME_SECRET)
             .update(req.body.gameid, 'utf8').digest('hex');
         let gamesecret = crypto.createHmac('sha256', process.env.GAME_SECRET_2)
