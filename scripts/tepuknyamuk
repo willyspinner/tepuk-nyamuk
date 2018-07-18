@@ -78,7 +78,6 @@ if [[ $1 == 'start' ]]; then
         sudo systemctl start datadog-agent   && echo -e "\e[32m >>>> datadog-agent running .....\e[0m" && (( SERVICES += 1));
 
 		echo -e "\e[36m [ $SERVICES/6 services up and running.].\e[0m"
-		echo -e "\e[36m [serving on ec2-13-229-206-81.ap-southeast-1.compute.amazonaws.com] \e[0m"
 
     else
         echo -e "\e[1;41;97m Unknown service \"$2\" to start.\e[0m"

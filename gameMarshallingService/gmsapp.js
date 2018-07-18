@@ -39,15 +39,32 @@ const basicAuth = require('basic-auth');
 const scoringFunction= require('./constants/scoringFunction');
 app.set('port', process.env.GMS_PORT || 4000);
 const bodyParser = require('body-parser');
+const redis = require('redis');
+const bluebird = require('bluebird');
+
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 const server = app.listen(app.get('port'));
-//io.attach(server);
 const io = ioserver(server,{
     path:'/gms-socketio'
 });
+
+// connect to redispubsub.
+bluebird.promisifyAll(redis.RedisClient.prototype);
+const redisconnectionobject = {
+        host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+};
+const redispubsubclient = redis.createClient(redisconnectionobject);
+redispubsubclient.configAsync("set","notify-keyspace-events","Ex").then(()=>{
+    logger.info(`gmsapp initial`,"set config Ex for notify keyspace events ok.");
+}).catch((e)=>{
+    logger.error("gmsapp",`redis pubsub connection error. ${JSON.stringify(e)}`);
+    process.exit(1);
+});
+
 
 logger.info('app.js initialize',`GMS listening on ${app.get('port')}`);
 
@@ -143,8 +160,9 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
         //  then we store the game secret in redis
         const salt = bcrypt.genSaltSync(10);
         const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
+        let gameCountdown = 60 * 5; // 5 mins.
         redisdb.initializeGame(req.body.gameid, gamesessionid, encryptedgamesecret,
-            req.body.players, cardsperplayer) // NO NEED TO JSON.parse(). It's already parsed.
+            req.body.players, cardsperplayer,gameCountdown) // NO NEED TO JSON.parse(). It's already parsed.
             .then((result) => {
                 logger.info(`POST /gms/game/create`,`redisdb.initializeGame succeded. seting initial PM snapshot..`)
                 redisdb.setPostMatchSnapshot(gamesessionid,cardsperplayer,req.body.players,undefined).then(()=>{
@@ -195,7 +213,36 @@ socket.handshake.query:
 }
 
  */
+/* onWinGame - called when a winning condition, or expiration of game, is detected.*/
+const onWinGame = (gamesessionid,winner,scoresnapshot,callback)=>{
+    const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
+    const APPCS_PORT = process.env.APPCS_PORT || 3000;
+    const resultObj = {winner : winner,finalscores:scoresnapshot};
+    redisdb.getGameId(gamesessionid).then((gameid)=>{
+        request.post(
+            {
+                url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
+                headers:{
+                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                        .toString('base64')
+                },
+                form :{
+                    resultObj:resultObj
+                }
+            },
+            (err,resp,body)=>{
+                io.to(gamesessionid).emit(events.GAME_FINISHED,
+                    resultObj
+                )
+                if(Datadog){
+                    Datadog.increment('gms.emit.game_finished');
+                }
+                callback({success:true});
+            }
+        );
 
+    })
+}
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
@@ -258,7 +305,8 @@ io.use(function (socket, next) {
                 if(totalplayers === connectedplayers.length) {
                     Promise.all([
                         redisdb.getCurrentTurn(socket.gamesessionid),
-                        redisdb.getCardsPerPlayer(socket.gamesessionid)
+                        redisdb.getCardsPerPlayer(socket.gamesessionid),
+                        redisdb.startGameCountdown(socket.gamesessionid)
 
                     ]).then((data)=>{
                         const gamestartObj = {
@@ -393,7 +441,6 @@ io.use(function (socket, next) {
                                         });
                                     } else {
                                         // just a normal throw.
-                                        //TODO
                                         Promise.all(
                                             [
                                                 redisdb.getTotalCards(gamesessionid),
@@ -575,33 +622,14 @@ io.use(function (socket, next) {
                                                                     isAccidental: false
                                                                 });
                                                                 if(winning_condition){
-                                                                    const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
-                                                                    const APPCS_PORT = process.env.APPCS_PORT || 3000;
-                                                                    const resultObj = {winner : winner,finalscores:scoresnapshot};
-                                                                    redisdb.getGameId(gamesessionid).then((gameid)=>{
-                                                                        request.post(
-                                                                            {
-                                                                                url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
-                                                                                headers:{
-                                                                                    Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
-                                                                                        .toString('base64')
-                                                                                },
-                                                                                form :{
-                                                                                    resultObj:resultObj
-                                                                                }
-                                                                            },
-                                                                            (err,resp,body)=>{
-                                                                                io.to(gamesessionid).emit(events.GAME_FINISHED,
-                                                                                    resultObj
-                                                                                )
-                                                                                if(Datadog){
-                                                                                    Datadog.increment('gms.emit.game_finished');
-                                                                                }
-                                                                                response({success:true});
-                                                                            }
-                                                                        );
-
-                                                                    })
+                                                                    /* START */
+                                                                    onWinGame(gamesessionid,winner,scoresnapshot,()=>{
+                                                                        redisdb.deleteGame(gamesessionid).then(()=>{
+                                                                            logger.info('wining_condition',`${gamesessionid} game deleted...`);
+                                                                            response({success:true});
+                                                                        });
+                                                                    });
+                                                                    /* END */
                                                                 }else{
                                                                     response({success:true});
                                                                 }
@@ -665,3 +693,49 @@ io.use(function (socket, next) {
     });
 
 });
+// subscription
+const determinePlacesByHandAndStreaks =  (handSnapshot,streakSnapshot)=>{
+    streakSnapshot.forEach((streaked_player)=>{
+        // streaked players have 'negative hands'.
+        handSnapshot.push({username: streaked_player.username,nInHand: -1 * parseInt(streaked_player.streak)});
+    });
+    //lowest 'hand' wins.
+    return handSnapshot.sort((a,b)=>a.nInHand > b.nInHand).map((obj)=>obj.username);
+
+};
+const onExpire = (gamesessionid)=>{
+    logger.info("gmsapp::onExpire",`${gamesessionid} expiring...`);
+    Promise.all([
+        redisdb.getSnapshotLlen(gamesessionid),
+        redisdb.getStreaksSnapshot(gamesessionid),
+        redisdb.getLowToHighScoreSnapshot(gamesessionid)
+    ]).then((data)=> {
+        let handSnapshot = data[0];
+        let streaksSnapshot = data[1];
+        let scoreSnapshot = data[2];
+        let ranks = determinePlacesByHandAndStreaks(handSnapshot,streaksSnapshot);
+            /*
+                rank[0] : 1st place,
+                rank[1] : 2nd place,
+                rank[2] : 3rd place,
+             */
+            let winner = ranks[0];
+            onWinGame(gamesessionid, winner, scoreSnapshot, () => {
+                redisdb.deleteGame(gamesessionid).then(() => {
+                    logger.info('expire: onWinGame.', `${gamesessionid} game deleted...`);
+                });
+            })
+        })
+    };
+
+
+redispubsubclient.psubscribeAsync("__keyevent@*__:expired").then(()=>{
+    redispubsubclient.on("pmessage",(pat, chan, msg)=>{
+        onExpire(msg.split('/')[0]);
+    });
+    logger.info("gmsapp::init" , `subscribing to EXPIRE events for games...`);
+}).catch((e)=>{
+    logger.error(`gmsapp::init`,`couldn't psubscribe to EXPIRE games.. error: ${JSON.stringify(e)}`);
+    process.exit(1);
+});
+

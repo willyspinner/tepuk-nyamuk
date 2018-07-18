@@ -20,6 +20,7 @@ logger.info("redisdb",`redis connection established @ ${redisconnectionobject.ho
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
+//NOTE: redisdb doesn't handle the pubsub... gmsapp does..
 // NOTE don't mix application logic. Keep this middleware dumb. Validation should happen
 // on the main gmsapp.js
 /*
@@ -42,6 +43,9 @@ we have:
 - GAMESESSIONID/match - 1 if is a match, or 0 if no match
 - GAMESESSIONID/connectedplayers - redis set of connected players.
 - GAMESESSIONID/scores - redis sorted set of players with scores (from lowest to highest)
+-GAMESESSIONID/isalive - whether the game is alive or not(hasn't expired) NOTEDIFF: THIS ONE HAS A TTL to indicate this. - value is set to 1
+
+
 
 for every player with username USERNAME in GAMESESSIONID, we have:
 -  GAMESESSIONID/player/USERNAME/hand - redis list of the user's hand.
@@ -92,7 +96,7 @@ const self = module.exports = {
             ...etc.
         }
     */
-    initializeGame: (gameid,gamesessionid, gamesecret, players, cardsperplayer) => {
+    initializeGame: (gameid,gamesessionid, gamesecret, players, cardsperplayer,timeLimitSeconds) => {
         //TODO: do we really need to be strict about card distribution here....
         return new Promise((resolve,reject)=>{
             let snapshotobj = {};
@@ -107,6 +111,7 @@ const self = module.exports = {
                    snapshotobj[player] = hand;
                    chain = chain.rpush(`${gamesessionid}/player/${player}/hand`, ...hand);
                     chain = chain.set(`${gamesessionid}/player/${player}/index`,idx);
+                   chain = chain.set(`${gamesessionid}/player/${player}/streak`,0);
                     let score = 0;
                     chain = chain.zadd(`${gamesessionid}/scores`,score, player);
            });
@@ -120,6 +125,8 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/cardsperplayer`,`${cardsperplayer}`);
             chain = chain.set(`${gamesessionid}/totalcards`,`${parseInt(cardsperplayer) * players.length}`);
             chain = chain.set(`${gamesessionid}/gameid`,gameid);
+            chain = chain.set(`${gamesessionid}/isalive`,1);
+            chain = chain.set(`${gamesessionid}/timelimit`,timeLimitSeconds);
             // execute transaction.
             chain.execAsync().then((result)=>{
                 console.log(`redisdb::initializeGame: playerinturn now : ${players[0]}`);
@@ -192,6 +199,16 @@ const self = module.exports = {
 
     setMatch : (gamesessionid,isMatch)=>{
         return redisclient.setAsync(`${gamesessionid}/match`,isMatch? 1: 0);
+    },
+    startGameCountdown : (gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.getAsync(`${gamesessionid}/timelimit`).then((timelimit)=>{
+                redisclient.expireAsync(`${gamesessionid}/isalive`,timelimit).then(()=>{
+                    resolve();
+                }).catch((e)=>reject(e))
+            }).catch((e)=>reject(e))
+        });
+
     },
 
     popHandToPile: (gamesessionid, player) => {
@@ -444,6 +461,25 @@ const self = module.exports = {
     },
 
     // same as below, but just does 'llen'.
+    getStreaksSnapshot: (gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            scanAsync("0",`${gamesessionid}/player/*/streak`,(keys)=>{
+                let chain = redisclient.multi();
+                keys.forEach((key)=>{
+                    chain = chain.get(key);
+                })
+                chain.execAsync().then((streaks)=>{
+                    let resultsArr = [];
+                    keys.forEach((key,idx)=>{
+                        const username = key.split('/')[2];
+                        resultsArr.push({username, streak:streaks[idx]});
+                    })
+                    resolve(resultsArr);
+            }).catch((e)=>reject(e));
+        }).catch((e)=>reject(e));
+        });
+
+    },
     getSnapshotLlen: (gamesessionid)=>{
         return new Promise((resolve, reject) => {
             scanAsync("0", `${gamesessionid}/player/*/hand`, (handkeys) => {
