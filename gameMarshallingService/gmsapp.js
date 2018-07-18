@@ -160,7 +160,7 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
         //  then we store the game secret in redis
         const salt = bcrypt.genSaltSync(10);
         const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
-        let gameCountdown = 60 * 5; // 5 mins.
+        let gameCountdown = req.body.gameOptions.timelimitsecs || 60 *5;
         redisdb.initializeGame(req.body.gameid, gamesessionid, encryptedgamesecret,
             req.body.players, cardsperplayer,gameCountdown) // NO NEED TO JSON.parse(). It's already parsed.
             .then((result) => {
@@ -306,14 +306,16 @@ io.use(function (socket, next) {
                     Promise.all([
                         redisdb.getCurrentTurn(socket.gamesessionid),
                         redisdb.getCardsPerPlayer(socket.gamesessionid),
-                        redisdb.startGameCountdown(socket.gamesessionid)
+                        redisdb.startGameCountdown(socket.gamesessionid),
+
 
                     ]).then((data)=>{
                         const gamestartObj = {
                             playerinturn:data[0].playerinturn,
                             counter: data[0].currentcounter,
                             players:connectedplayers,
-                            nhand: data[1]
+                            nhand: data[1],
+                            timelimitsecs:data[2]
                         }
                         logger.info("Socket on 'connect'", `game start emitting with ${JSON.stringify(gamestartObj)}`)
                         io.to(socket.gamesessionid).emit(events.GAME_START,
@@ -700,7 +702,7 @@ const determinePlacesByHandAndStreaks =  (handSnapshot,streakSnapshot)=>{
         handSnapshot.push({username: streaked_player.username,nInHand: -1 * parseInt(streaked_player.streak)});
     });
     //lowest 'hand' wins.
-    return handSnapshot.sort((a,b)=>a.nInHand > b.nInHand).map((obj)=>obj.username);
+    return handSnapshot.sort((a,b)=>a.nInHand < b.nInHand? -1:1).map((obj)=>obj.username);
 
 };
 const onExpire = (gamesessionid)=>{

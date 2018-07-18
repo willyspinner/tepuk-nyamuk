@@ -31,6 +31,7 @@ class GamePlayPage extends Component {
         },
         slapped:false,
         soundUrl:'',
+        timerblinking: false,
         soundPlayingStatus:Sound.status.STOPPED
     }
     playSound= (SOUNDTYPE)=> {
@@ -49,7 +50,7 @@ class GamePlayPage extends Component {
             if(!this.props.gameplay.match) {
                 this.props.dispatch(startPlayerThrow()).catch((e) => {
                     //synchronize here.
-                    console.log('NOTE: going tot synchronize because of :', e);
+                    console.log('NOTE: going to synchronize because of :', e);
                     this.props.dispatch(startSynchronizeGameplay());
                 });
             }
@@ -57,7 +58,7 @@ class GamePlayPage extends Component {
             console.log('it isn\'t your turn ting.');
             console.log('playerinturn: ',this.props.gameplay.playerinturn,'myusername: ',this.props.myusername)
 
-            notification.open({
+            notification.error({
                 message: "it isn't your turn!",
                 description:"you can't throw a card when it isn't your turn.",
                 duration: '2'
@@ -66,6 +67,13 @@ class GamePlayPage extends Component {
     };
     // method for me slapping.
     slap = () => {
+        if(this.props.gameplay.pile.length === 0){
+            notification.error({
+                message:'What are you slapping for?',
+                description:"there aren't any cards on the pile...",
+                duration: 3
+            })
+        }
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
@@ -118,12 +126,25 @@ class GamePlayPage extends Component {
             })
         };
         const onGameStart = (onrealgamestartobj)=>{
-            this.props.dispatch(initializeGame(onrealgamestartobj.playerinturn,
+            this.props.dispatch(initializeGame(
+                onrealgamestartobj.playerinturn,
                 onrealgamestartobj.players,
-                onrealgamestartobj.nhand));
+                onrealgamestartobj.nhand,
+            ));
+            //initiate timer.
+            this.setState({timelimitsecs: onrealgamestartobj.timelimitsecs, initialtimelimitsecs: onrealgamestartobj.timelimitsecs});
+            const timer =setInterval(()=>{this.setState((prevState)=>{
+                if (prevState.timelimitsecs < (1/3) * prevState.initialtimelimitsecs){
+                    return{timelimitsecs: prevState.timelimitsecs - 1, timerblinking: !prevState.timerblinking}
+                }
+                else
+                return{timelimitsecs: prevState.timelimitsecs - 1};
+            })},1000);
+            this.setState({countdowntimer : timer});
         };
         const onGameWinnerAnnounced = (gameFinishedObj)=>{
             this.props.dispatch(gameWinner(gameFinishedObj));
+            clearInterval(this.state.countdowntimer);
             this.setState({isShowingResultsModal:true});
         }
         socketclient.subscribeToGameplay(this.props.location.gamestartobj,
@@ -144,7 +165,7 @@ class GamePlayPage extends Component {
     determineLoser = (loserusername,isaccidental) => {
         const description = isaccidental? `Loser is: ${loserusername}, who slapped accidentally!! :(`:
              `Loser is : ${loserusername}, who slapped in time: ${this.props.gameplay.players.filter((player)=>player.username === loserusername)[0].slapreactiontime}`;
-        notification.open({
+        notification.info({
             message:'Match results',
             description,
             duration: 3
@@ -221,13 +242,13 @@ class GamePlayPage extends Component {
     synchronize=()=>{
         console.log('trying to synchronize gameplay...')
         this.props.dispatch(startSynchronizeGameplay()).then((res)=>{
-            notification.open({
+            notification.success({
                 message: "synchronization successful.",
                 description:`${JSON.stringify(res)}`,
                 duration: '5'
             })
         }).catch((e)=>{
-            notification.open({
+            notification.error({
                 message: "synchronization failed.",
                 description:`${JSON.stringify(res)}`,
                 duration: '5'
@@ -276,6 +297,7 @@ class GamePlayPage extends Component {
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
+                        <h2 className="game_font" style={{color:this.state.timerblinking? 'red':'black'}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</h2>
                         <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
                         <div>
                             {/* Pile */}

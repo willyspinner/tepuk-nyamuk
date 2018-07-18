@@ -164,11 +164,11 @@ export const startKickoutUser = (username,gameid)=>{
             return mysocket.kickoutUser(username,gameid)
     };
 };
-export const startStartGame = (gameid,cardsperplayer) => {
+export const startStartGame = (gameid,cardsperplayer,timelimitsecs) => {
     return (reduxDispatch,getState)=>{
         return new Promise((resolve,reject)=>{
            request.post(
-               STARTGAMEFROMLOBBY(gameid, getState().user.token, getState().user.socketid, cardsperplayer),
+               STARTGAMEFROMLOBBY(gameid, getState().user.token, getState().user.socketid, cardsperplayer,timelimitsecs),
                    (err,res,body)=> {
                        const response = JSON.stringify(body);
                        if (err) {

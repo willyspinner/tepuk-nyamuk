@@ -36,7 +36,8 @@ class GameLobbyPage extends Component {
                 subject: '',
                 message: ''
             },
-            ncards: 20 // default.
+            ncards: 20, // default.
+            timelimitmins:5
         };
         setInterval(() => {
                 this.setState((prevState) => {
@@ -115,7 +116,7 @@ class GameLobbyPage extends Component {
     gameStartHandler = () => {
         this.setState({isStartingGame: true}, () => {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
-            this.props.dispatch(startStartGame(this.props.match.params.uuid, this.state.ncards)).then(() => {
+            this.props.dispatch(startStartGame(this.props.match.params.uuid, this.state.ncards,this.state.timelimitmins * 60)).then(() => {
                 // NOTE: we should receive the socket's GAME_START, from which we go to /game/play/:uuid.
                 // no need to push here.
                 // this.props.history.push(`/game/play/${this.state.uuid}`);
@@ -231,7 +232,7 @@ class GameLobbyPage extends Component {
                                     <Row>
                                         <h4>Cards per player:</h4>
                                         <Col span={12}>
-                                            <Slider min={0} max={30} onChange={(val)=>{if (val >=5) this.setState({ncards:val})}} value={this.state.ncards} />
+                                            <Slider min={5} max={30} onChange={(val)=>{ this.setState({ncards:val})}} value={this.state.ncards} />
                                         </Col>
                                         <Col span={4}>
                                             <InputNumber
@@ -240,6 +241,21 @@ class GameLobbyPage extends Component {
                                                 style={{ marginLeft: 16 }}
                                                 value={this.state.ncards}
                                                 onChange={(val)=>this.setState({ncards:val})}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <h4>time limit:</h4>
+                                        <Col span={12}>
+                                            <Slider min={3} max={8} onChange={(val)=>{this.setState({timelimitmins:val})}} value={this.state.timelimitmins} />
+                                        </Col>
+                                        <Col span={4}>
+                                            <InputNumber
+                                                min={3}
+                                                max={8}
+                                                style={{ marginLeft: 16 }}
+                                                value={this.state.timelimitmins}
+                                                onChange={(val)=>this.setState({timelimitmins:val})}
                                             />
                                         </Col>
                                     </Row>

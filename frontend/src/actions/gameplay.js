@@ -20,7 +20,7 @@ export const initializeGame = (playerinturn, players ,nhand)=> ({
         nhand,
         playerinturn,
         pile : [],
-        players
+        players,
     }
 });
 export const gameWinner = (gameFinishObj)=>({

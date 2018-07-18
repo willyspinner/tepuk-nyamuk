@@ -204,7 +204,7 @@ const self = module.exports = {
         return new Promise((resolve,reject)=>{
             redisclient.getAsync(`${gamesessionid}/timelimit`).then((timelimit)=>{
                 redisclient.expireAsync(`${gamesessionid}/isalive`,timelimit).then(()=>{
-                    resolve();
+                    resolve(timelimit);
                 }).catch((e)=>reject(e))
             }).catch((e)=>reject(e))
         });
