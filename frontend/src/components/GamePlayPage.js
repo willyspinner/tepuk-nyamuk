@@ -36,19 +36,23 @@ class GamePlayPage extends Component {
     playSound= (SOUNDTYPE)=> {
         this.setState({
             soundUrl: SOUNDTYPE,
+            soundPlayingStatus: Sound.status.STOPPED
+        });
+        this.setState({
+            soundUrl: SOUNDTYPE,
             soundPlayingStatus: Sound.status.PLAYING
         })
     }
     throw = () => {
         console.log('pressed throw');
         if (this.props.gameplay.playerinturn === this.props.myusername) {
-            if(!this.props.gameplay.match)
-                this.playSound(SOUNDTYPES.gameplay.threw);
-            this.props.dispatch(startPlayerThrow()).catch((e)=>{
-                //synchronize here.
-                console.log('NOTE: going tot synchronize because of :',e);
-                this.props.dispatch(startSynchronizeGameplay());
-            });
+            if(!this.props.gameplay.match) {
+                this.props.dispatch(startPlayerThrow()).catch((e) => {
+                    //synchronize here.
+                    console.log('NOTE: going tot synchronize because of :', e);
+                    this.props.dispatch(startSynchronizeGameplay());
+                });
+            }
         }else{
             console.log('it isn\'t your turn ting.');
             console.log('playerinturn: ',this.props.gameplay.playerinturn,'myusername: ',this.props.myusername)
@@ -88,6 +92,7 @@ class GamePlayPage extends Component {
                 nextTick.nextplayer,
                 nextTick.match
             ));
+            this.playSound(SOUNDTYPES.gameplay.threw);
             if (nextTick.reshuffle){
                 this.props.dispatch(reshuffle(nextTick.reshuffle,nextTick.newpile));
                 const description="All hands are 0. Reshuffling...";

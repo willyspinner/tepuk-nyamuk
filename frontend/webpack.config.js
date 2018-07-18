@@ -50,7 +50,7 @@ module.exports = (env) => {
         if(!process.env.API_PORT)
             throw new Error("env.API_PORT not defined.")
     }
-    console.log(`API_HOST: ${process.env.API_HOST}`, 'GMS_PORT:',process.env.API_PORT);
+    console.log(`API_HOST: ${process.env.API_HOST}`, 'API_PORT:',process.env.API_PORT);
 
   const isProduction = env.mode === 'production.local'|| env.mode === 'production.host' || env.mode === 'production.profile';
   const CSSExtract = new MiniCSSExtractPlugin({filename:'styles.css'});
