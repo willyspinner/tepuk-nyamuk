@@ -7,7 +7,8 @@ module.exports = {
     `${CONSTANTS.STATUS} char(3),` +
     `${CONSTANTS.RESULT} json,` +
     `${CONSTANTS.CREATEDAT} bigint,` +
-    `${CONSTANTS.CREATOR} text`+
+    `${CONSTANTS.CREATOR} text,`+
+    `${CONSTANTS.GAMEOPTIONS} json` +
     `);`
 
 };

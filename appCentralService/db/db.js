@@ -59,13 +59,17 @@ const self = module.exports = {
         	“Username1”, “username2”, ….
         ],
         uuid: "12dakxwa", // Lobby ID to join.
-        result: {} // JSON.
+        result: {} // JSON.,
+        numberOfPlayers: ___
       }
          */
         return new Promise ((resolve,reject)=>{
             const table_uuid = uuid();
+            const gameoptions  = {
+                numberOfMaxPlayers:gameObj.numberOfMaxPlayers
+            }
             const queryObj = {
-                text:`INSERT INTO ${fields.GAMES.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7)`,
+                text:`INSERT INTO ${fields.GAMES.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
                 values: [
                     gameObj.name,
                     `{}`, // players - 0 players.
@@ -75,14 +79,17 @@ const self = module.exports = {
                     dbconstants.GAMES.STATUS.LOBBY, // status
                     "{}", // result
                     gameObj.createdat, //createdat
-                    gameObj.creator // creator
+                    gameObj.creator, // creator
+                    JSON.stringify(gameoptions)
                 ]
             };
             //console.log(`PG text: ${queryObj.text}`);
-            //console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
+            console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
+                console.log('ting 0');
                 if(err)
                 {
+                    console.log(`errting 1. err: ${JSON.stringify(err)}`);
                     reject(err);
                     return;
                 }
@@ -92,7 +99,7 @@ const self = module.exports = {
                 gameObj.status = dbconstants.GAMES.STATUS.LOBBY;
                 gameObj.result={};
                 
-                console.log(`DB: createGame: returning: ${JSON.stringify(gameObj)}`);
+                logger.info(`DB: createGame:`,`Successful. returning: ${JSON.stringify(gameObj)}`);
 
                 resolve(gameObj);
             })
@@ -164,7 +171,8 @@ const self = module.exports = {
                         ${fields.GAMES.STATUS},
                         ${fields.GAMES.RESULT},
                         ${fields.GAMES.CREATEDAT},
-                        ${fields.GAMES.CREATOR}
+                        ${fields.GAMES.CREATOR},
+                        ${fields.GAMES.GAMEOPTIONS}
                     FROM ${fields.GAMES.TABLENAME}
                     WHERE 
                             ${fields.GAMES.UUID} = $1        

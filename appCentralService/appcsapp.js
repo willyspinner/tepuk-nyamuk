@@ -236,6 +236,8 @@ app.post('/appcs/game/create', (req, res) => {
         }
         let game = req.body.game; //NOTEDIFF: from frontend, game is already json.
         game.creator = decoded.username;
+        if (!game.numberOfMaxPlayers)
+            game.numberOfMaxPlayers = 8;
         db.createGame(game).then((newgame) => {
             // link used to go to the lobby page.
             io.emit(EVENTS.GAME_CREATED, {
@@ -594,6 +596,11 @@ io.on('connect', (socket) => {
                     if (game == undefined) {
                         logger.warn('on CLIENT_ATTEMPT_JOIN',`the game referred to by data.gameid is not real.`);
                         response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                        return;
+                    }
+                    console.log(`got game: ${JSON.stringify(game)}`);
+                    if( game.players.length + 1 >game.gameoptions.numberOfMaxPlayers){
+                        response({success: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error: `Already ${game.gameoptions.numberOfMaxPlayers } people in lobby .Sorry..`});
                         return;
                     }
                     else{

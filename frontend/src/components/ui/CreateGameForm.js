@@ -4,14 +4,14 @@ import React from 'react';
 
 class NormalLoginForm extends React.Component {
     state = {
-        numberOfPlayers :2,
+        numberOfMaxPlayers :2,
     }
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                this.props.onGameFormSubmit({...values,numberOfPlayers: this.state.numberOfPlayers});
-                console.log('Received values of form: ', {...values,numberOfPlayers: this.state.numberOfPlayers});
+                this.props.onGameFormSubmit({...values,numberOfMaxPlayers: this.state.numberOfMaxPlayers});
+                console.log('Received values of form: ', {...values,numberOfMaxPlayers: this.state.numberOfMaxPlayers});
             }
         });
     };
@@ -32,15 +32,15 @@ class NormalLoginForm extends React.Component {
                     <Row>
                         <h3>Number of players:</h3>
                         <Col span={12}>
-                            <Slider min={2} max={8} onChange={(val)=>this.setState({numberOfPlayers:val})} value={this.state.numberOfPlayers} />
+                            <Slider min={2} max={8} onChange={(val)=>this.setState({numberOfMaxPlayers:val})} value={this.state.numberOfMaxPlayers} />
                         </Col>
                         <Col span={4}>
                             <InputNumber
                                 min={2}
                                 max={8}
                                 style={{ marginLeft: 16 }}
-                                onChange={(val)=>this.setState({numberOfPlayers:val})}
-                                value={this.state.numberOfPlayers}
+                                onChange={(val)=>this.setState({numberOfMaxPlayers:val})}
+                                value={this.state.numberOfMaxPlayers}
                             />
                         </Col>
                     </Row>
