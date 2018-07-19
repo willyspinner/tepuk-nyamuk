@@ -33,9 +33,13 @@ const GameListItem = (props)=> (
                 <h5>
                     Creator: {props.game.creator}
                 </h5>
-                <h4>
-                    Players:
-                </h4>
+                {props.game.gameoptions && props.game.gameoptions.numberOfMaxPlayers?
+                    (
+                        <h4>
+                        Players: {props.game.players.length}/{props.game.gameoptions.numberOfMaxPlayers}
+                        </h4>
+                    )
+                    : (<h4>Players:</h4>)}
                 <List
                     size="small"
                     bordered

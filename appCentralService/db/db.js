@@ -86,10 +86,8 @@ const self = module.exports = {
             //console.log(`PG text: ${queryObj.text}`);
             console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
-                console.log('ting 0');
                 if(err)
                 {
-                    console.log(`errting 1. err: ${JSON.stringify(err)}`);
                     reject(err);
                     return;
                 }

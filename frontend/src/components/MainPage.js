@@ -191,8 +191,8 @@ class MainPage extends Component {
                 // in the reducer already.
             })
             this.props.history.push(`/game/lobby/${gameId}`);
-        }).catch((e) => {
-            this.alertError('Sorry! There was a server error', JSON.stringify(e));
+        }).catch((errormsg) => {
+            this.alertError('Sorry!',errormsg);
             this.setState({isJoiningGame: false});
         })
         // we render a modal for loading until the promise is returned.
@@ -386,11 +386,31 @@ class MainPage extends Component {
                         />
                     </div>
                     <div style={{width: "65%"}} className="mainPage__module">
+                        <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
                         <h2>Games</h2>
+                            <div style={{display:'flex',flexDirection:'row'}}>
+                                {this.props.games.length > 0?
+                                    (
+                                < Button
+                                    onClick={() => this.setState({isCreatingGame: true})}
+                                    >
+                                    <Icon type="plus" />
+                                    </Button>
+                                    )
+                                    :
+                                    null
+                                }
+                        <Button
+                            onClick={()=>this.props.dispatch(startGetOpenGames(true))}>
+                                <Icon type="reload" />
+                        </Button>
+                            </div>
+                    </div>
                         <GameList
                             onJoin={this.onGameJoinHandler}
                             games={this.props.games}
                             onCreateGame={() => this.setState({isCreatingGame: true})}
+                            showCreateGame={this.props.games.length ===0}
                         />
                     </div>
                 </div>

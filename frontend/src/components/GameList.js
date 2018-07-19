@@ -9,19 +9,22 @@ import {Icon,Card}from 'antd';
     render(){
         return (
     <div className="gameList__container">
-        <div className="gameList__item"
-             onClick={this.props.onCreateGame}
-        >
-            <Card
-            hoverable={true}>
-                <div
-                    style={{display:'flex',flexFlow:'center',alignItems:'center', role:'button'}}
-                >
-                <Icon type="plus" style={{fontSize:40}} />
-                    <p style={{marginLeft:'15px'}}>click to create</p>
-                </div>
-            </Card>
-        </div>
+        {this.props.showCreateGame ?
+            <div className="gameList__item"
+                 onClick={this.props.onCreateGame}
+            >
+                <Card
+                    hoverable={true}>
+                    <div
+                        style={{display: 'flex', flexFlow: 'center', alignItems: 'center', role: 'button'}}
+                    >
+                        <Icon type="plus" style={{fontSize: 40}}/>
+                        <p style={{marginLeft: '15px'}}>click to create</p>
+                    </div>
+                </Card>
+            </div>
+            : (null)
+        }
         {this.props.games.map((game,idx)=>(
             <GameListItem
                 key={idx}

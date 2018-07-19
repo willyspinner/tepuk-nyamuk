@@ -595,12 +595,11 @@ io.on('connect', (socket) => {
                 db.getGame(data.gameid).then((game)=>{
                     if (game == undefined) {
                         logger.warn('on CLIENT_ATTEMPT_JOIN',`the game referred to by data.gameid is not real.`);
-                        response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                        response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error:'no such game.'});
                         return;
                     }
-                    console.log(`got game: ${JSON.stringify(game)}`);
                     if( game.players.length + 1 >game.gameoptions.numberOfMaxPlayers){
-                        response({success: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error: `Already ${game.gameoptions.numberOfMaxPlayers } people in lobby .Sorry..`});
+                        response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error: `Already ${game.gameoptions.numberOfMaxPlayers } people in lobby. Sorry..`});
                         return;
                     }
                     else{
@@ -616,20 +615,19 @@ io.on('connect', (socket) => {
                                 players:game.players});
                         }).catch((e) => {
                             logger.error('ON CLIENT_ATTEMPT_JOIN',`ACK ERROR for ${clientUsername}`)
-                            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                            response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
                         });
                     }
                 }).catch((e)=>{
-                    console.log(`ERROR getGame`);
-                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                    logger.error(`on CLIENT_ATTEMPT_JOIN`,`ERROR db.getGame()`);
+                    response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
                 });
             }
             else {
-                console.log(`user game id already defined..`);
-                response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
             }
         }).catch((e)=>{
-            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+            response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
         });
         });
     });

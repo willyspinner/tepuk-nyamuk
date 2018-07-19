@@ -100,7 +100,7 @@ class SocketClient {
                         })
                         resolve(ackResponse.players);
                     }else{
-                        reject();
+                        reject(ackResponse.error);
                         //No ack.
                     }
                 });

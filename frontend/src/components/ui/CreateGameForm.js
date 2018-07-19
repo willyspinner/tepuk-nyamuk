@@ -4,7 +4,7 @@ import React from 'react';
 
 class NormalLoginForm extends React.Component {
     state = {
-        numberOfMaxPlayers :2,
+        numberOfMaxPlayers :4,
     }
     handleSubmit = (e) => {
         e.preventDefault();
