@@ -13,13 +13,15 @@ const GameplayResultsModal  = (props)=>{
         >
             <div style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
       <h1> Game results</h1>
-        <h3> {props.gameplay.winner} WON THE GAME!</h3>
+        <p style={{fontSize:'30px'}}> {props.gameplay.winner} WON THE GAME!</p>
             <Icon type="trophy" style={{fontSize:60}}/>
+                <div className="gameplayPage__module">
                 <ScoreRankings
                     winner={props.gameplay.winner}
                     finalscores={props.gameplay.finalscores}
                 />
-            <Button onClick={props.onGoBackToHome}>
+                </div>
+            <Button onClick={props.onGoBackToHome} style={{marginTop:'15px'}}>
                <Icon type="home" style={{fontSize:30}}/>
                 Go to home
             </Button>

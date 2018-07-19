@@ -45,8 +45,8 @@ const ScoreRankings = (props) => {
                                             <h3>
                                                 {player_obj.username}
                                             </h3>
-                                            {player_obj.idx === 0 ? <Icon type="trophy" style={{fontSize: 35,color:'white'}}/> : null}
-                                                <h3 style={{color: 'white'}}>
+                                            {player_obj.username === props.winner? <Icon type="trophy" style={{fontSize: 35,color:'white'}}/> : null}
+                                                <h3 >
                                                 {player_obj.score}
                                             </h3>
                                     </div>

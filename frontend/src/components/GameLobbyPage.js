@@ -136,12 +136,23 @@ class GameLobbyPage extends Component {
     render() {
         const currentgame = this.props.games.filter(g => g.uuid === this.props.match.params.uuid
         )[0];
+        let msg= undefined;
         if (!this.props.user.username)
-            return (<h2>ERROR: GAME LOBBY</h2>);
+            msg = "Please log in first.";
+        else
         if (!currentgame) {
-            console.log(`GameLobbyPage: currentgame undefined.`);
-            return (<h2> ERROR: GAME LOBBY</h2>);
+            msg = "No such game lobby found. ";
         }
+        const errorGameLobbyContent = (
+            <div>
+                <h2>
+                    {msg}
+                </h2>
+                <Button onClick={()=>this.props.history.push('/')}>Go back to Main page</Button>
+            </div>
+        );
+        if(msg)
+            return errorGameLobbyContent;
 
         return (
             <div>
@@ -225,7 +236,8 @@ class GameLobbyPage extends Component {
                         />
                         {
                         currentgame.creator === this.props.user.username ?
-                            (<div>
+                            (
+                                <div className="gameLobbyPage__module">
                                 <h2>
                                 Game settings
                             </h2>

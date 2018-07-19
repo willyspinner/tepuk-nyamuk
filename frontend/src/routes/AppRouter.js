@@ -7,6 +7,7 @@ import GamePlayPage from '../components/GamePlayPage';
 import IntoolsUIRouter from './IntoolsUIRouter';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import {Button} from "antd";
 export const history = createHistory();
 const AppRouter =()=> (
     <Router history={history}>
@@ -21,7 +22,12 @@ const AppRouter =()=> (
                     (<Route path="/IntoolsUI" component={IntoolsUIRouter} exact={false}/>)
                     : null
                 }
-                <Route render={()=>(<h1> ROUTE NOT FOUND</h1>)}/>
+                <Route render={()=>(
+                    <div>
+                    <h1> ROUTE NOT FOUND</h1>
+                        <Button onClick={()=>history.push('/')}>Go back to Main page</Button>
+                    </div>
+                )}/>
             </Switch>
             <Footer className="appFooter"/>
         </div>
