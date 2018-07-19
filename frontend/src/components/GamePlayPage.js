@@ -32,7 +32,9 @@ class GamePlayPage extends Component {
         slapped:false,
         soundUrl:'',
         timerblinking: false,
-        soundPlayingStatus:Sound.status.STOPPED
+        soundPlayingStatus:Sound.status.STOPPED,
+        cardsuit :'S',
+        cardsuitoptions: ['S','H','C','D']
     }
     playSound= (SOUNDTYPE)=> {
         this.setState({
@@ -100,6 +102,7 @@ class GamePlayPage extends Component {
                 nextTick.nextplayer,
                 nextTick.match
             ));
+            this.setState(prevState=>({ cardsuit: prevState.cardsuitoptions[this.props.gameplay.pile.length % prevState.cardsuitoptions.length ] }))
             this.playSound(SOUNDTYPES.gameplay.threw);
             if (nextTick.reshuffle){
                 this.props.dispatch(reshuffle(nextTick.reshuffle,nextTick.newpile));
@@ -135,10 +138,10 @@ class GamePlayPage extends Component {
             this.setState({timelimitsecs: onrealgamestartobj.timelimitsecs, initialtimelimitsecs: onrealgamestartobj.timelimitsecs});
             const timer =setInterval(()=>{this.setState((prevState)=>{
                 if (prevState.timelimitsecs < (1/3) * prevState.initialtimelimitsecs){
-                    return{timelimitsecs: prevState.timelimitsecs - 1, timerblinking: !prevState.timerblinking}
+                    return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0: prevState.timelimitsecs - 1, timerblinking: !prevState.timerblinking}
                 }
                 else
-                return{timelimitsecs: prevState.timelimitsecs - 1};
+                return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0:  prevState.timelimitsecs - 1};
             })},1000);
             this.setState({countdowntimer : timer});
         };
@@ -297,7 +300,7 @@ class GamePlayPage extends Component {
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
-                        <h2 className="game_font" style={{color:this.state.timerblinking? 'red':'black'}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</h2>
+                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px'}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
                         <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
                         <div>
                             {/* Pile */}
@@ -350,7 +353,7 @@ class GamePlayPage extends Component {
                                 {this.props.gameplay.pile.length === 0 ? (<p>{this.props.gameplay.playerinturn}, throw the card to continue...`</p>) :
                                     (
                                         <PlayingCard
-                                            suit={"S"}
+                                            suit={this.state.cardsuit}
                                             number={this.props.gameplay.pile[this.props.gameplay.pile.length - 1]}
                                             hasSlapped={this.state.slapped}
                                         />
