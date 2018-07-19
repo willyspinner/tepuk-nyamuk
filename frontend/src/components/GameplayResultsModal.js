@@ -16,6 +16,7 @@ const GameplayResultsModal  = (props)=>{
         <h3> {props.gameplay.winner} WON THE GAME!</h3>
             <Icon type="trophy" style={{fontSize:60}}/>
                 <ScoreRankings
+                    winner={props.gameplay.winner}
                     finalscores={props.gameplay.finalscores}
                 />
             <Button onClick={props.onGoBackToHome}>

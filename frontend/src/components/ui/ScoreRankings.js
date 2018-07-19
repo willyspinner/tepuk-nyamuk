@@ -18,33 +18,39 @@ const ScoreRankings = (props) => {
                         <List
                             size="small"
                             bordered
-                            style={{background: '#279cff'}}
+                            style={{background: '#279cff', borderRadius: '20px'}}
                             dataSource={
                                 sorted_scores
                                     .map((player, idx) => ({...player, idx}))
                             }
                             renderItem={player_obj => (
-                                <List.Item>
                                     <div
                                         style={{
-                                            background: '#27ccff',
-                                            border: ' 5px solid #27acff',
+                                            background: player_obj.username=== props.winner? '#33ff00':'#27ccff',
+                                            borderBottom: player_obj.username === props.winner? '10px solid #33e000':'10px solid #27acff',
                                             width: `300px`,
                                             display: 'flex',
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
-                                            padding:'10px'
+                                            padding:'10px',
+                                            borderRadius: '15px',
+                                            //marginBottom: '15px'
+                                            marginLeft:'20px',
+                                            marginRight:'20px',
+                                            marginTop:'10px',
+                                            marginBottom:'10px',
+
                                         }}
                                     >
                                             <h3>
                                                 {player_obj.username}
                                             </h3>
-                                            {player_obj.idx === 0 ? <Icon type="trophy" style={{fontSize: 35}}/> : null}
-                                            <h3>
+                                            {player_obj.idx === 0 ? <Icon type="trophy" style={{fontSize: 35,color:'white'}}/> : null}
+                                                <h3 style={{color: 'white'}}>
                                                 {player_obj.score}
                                             </h3>
                                     </div>
-                                </List.Item>)}
+                                )}
                         />
                     </div>
                     : null

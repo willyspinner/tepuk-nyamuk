@@ -71,6 +71,7 @@ const IntoolsUIRouter =()=> (
                     render={()=>(
                         <ScoreRankings
                             finalscores={sampleFinalScores}
+                            winner={sampleFinalScores[5].username}
                         />
                     )
 
