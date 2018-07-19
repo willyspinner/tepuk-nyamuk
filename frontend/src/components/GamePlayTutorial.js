@@ -39,6 +39,10 @@ class GamePlayTutorial extends Component{
     slap = (username,reactiontime)=>{
         this.props.dispatch(playerSlap(username, reactiontime))
     };
+    componentWillUnmount(){
+        key.unbind('t');
+        key.unbind('space');
+    }
     constructor(props){
         super(props);
         //state

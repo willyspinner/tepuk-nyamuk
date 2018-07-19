@@ -7,14 +7,19 @@ export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
 });
 
-export const addGame = ( game,isUpdate )=> ({
+
+export const addGame = ( game )=> ({
   type: 'ADD_GAME',
     game:{
         ...game,
         players: game.players? game.players: []
     },
-    isUpdate
+
 });
+export const refreshGames= (refreshedGames)=>({
+    type:'REFRESH_GAME',
+    refreshedGames
+})
 export const startGetOpenGames = (isUpdate=false)=>{
     return (reduxDispatch) =>{
         return new Promise((resolve,reject)=>{
@@ -28,8 +33,14 @@ export const startGetOpenGames = (isUpdate=false)=>{
                         reject(`couldn't get open games. resobj err: ${resobj.error}`);
                         return;
                     }
-                    resobj.games.forEach((game)=>reduxDispatch(addGame(game,isUpdate)));
-                    resolve();
+                    if(isUpdate){
+
+                       reduxDispatch(refreshGames(resobj.games));
+                    }
+                    else{
+                        resobj.games.forEach((game)=>reduxDispatch(addGame(game)));
+                        resolve();
+                    }
                 })
         });
     }

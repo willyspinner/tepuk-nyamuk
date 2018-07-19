@@ -1,5 +1,5 @@
 import React from 'react';
-import {Input,Button} from 'antd';
+import {Input,Button,Icon} from 'antd';
 import Modal from 'react-modal';
 
 /*
@@ -15,11 +15,17 @@ const registerModal = (props)=>(
         className="mainPage__registerModal"
         ariaHideApp={false}
     >
+        <div style={{display:'flex',flexDirection:'column', }}>
         <h2
-            style={{marginTop: "20px"}}
+            style={{marginTop: "10px",color:'white',textAlign:'center'}}
         >
             Welcome.
         </h2>
+            <img src="/fly-image-white.png"
+                 style={{alignSelf:'center', marginBottom: '15px'}}
+            width="75px"
+                 height="75px"
+            />
 
         <Input size="large"
                placeholder="name"
@@ -62,17 +68,17 @@ const registerModal = (props)=>(
         </Button>
 
         <Button
-            type="dashed"
             ghost
             style={{marginTop:"4px", marginBottom: "12px"}}
             onClick={props.onTypeChange}
         >
             {props.isLoggingIn ?
-                "First time here? Click me!"
+                    "Need to register?"
                 :
                 "Already registered?!"
             }
         </Button>
+        </div>
     </Modal>
 );
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card,Icon,List} from 'antd';
+import {Card, Icon, List, Tooltip} from 'antd';
 import {DATE_FORMAT} from "../constants/dates";
 import moment from 'moment';
 const GameListItem = (props)=> (
@@ -11,13 +11,23 @@ const GameListItem = (props)=> (
                 <div onClick={props.game.isStarted? null:props.onJoin}>
                     {
                         props.game.isStarted? null:(
-                            <div className={"gameList__item__joinButton"}>
+
+                            <div className={props.game && props.game.gameoptions&&props.game.gameoptions.numberOfMaxPlayers === props.game.players.length? "":"gameList__item__joinButton"}>
+                                {props.game && props.gameoptions && props.game.gameoptions.numberOfMaxPlayers === props.game.players.length? (
+                                    <Tooltip title="Sorry! The game is full.">
+                                <Icon
+                                    type="rocket"
+                                />
+                                <h6>Join</h6>
+                                    </Tooltip>
+                                    ):
+                                    (<div>
                             <Icon
                                 type="rocket"
                             />
-                            <h6>
-                            Join
-                            </h6>
+                            <h6>Join</h6>
+                                        </div>
+                                    )}
                             </div>
                         )
                     }
