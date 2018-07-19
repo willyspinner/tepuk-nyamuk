@@ -31,7 +31,7 @@ const registerModal = (props)=>(
                placeholder="name"
                value={props.inputUsernameValue}
                onPressEnter={props.onPressEnter}
-               style={{marginBottom: "4px"}}
+               style={{marginBottom: "6px"}}
                onChange={(e) => {
                    props.onInputUsernameChange(e);
                }}
@@ -40,7 +40,7 @@ const registerModal = (props)=>(
                placeholder="password"
                type={"password"}
                value={props.inputPasswordValue}
-               style={{marginBottom: "4px"}}
+               style={{marginBottom: "6px"}}
                onPressEnter={props.onPressEnter}
                onChange={(e) => {
                    props.onInputPasswordChange(e);
@@ -52,7 +52,7 @@ const registerModal = (props)=>(
                    placeholder="repeat password"
                    type={"password"}
                    value={props.inputRepeatPasswordValue}
-                   style={{marginBottom: "4px"}}
+                   style={{marginBottom: "6px"}}
                    onPressEnter={props.onPressEnter}
                    onChange={(e) => {
                        props.onInputRepeatPasswordChange(e);
@@ -61,7 +61,7 @@ const registerModal = (props)=>(
         }
         <Button
             type="primary"
-            style={{marginBottom:"4px", marginTop: "4px"}}
+            style={{marginBottom:"10px"}}
             onClick={props.onPressEnter}
         >
             {props.isLoggingIn ? "login" : "register"}
