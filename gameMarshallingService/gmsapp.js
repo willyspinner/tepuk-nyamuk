@@ -250,7 +250,6 @@ io.use(function (socket, next) {
                 next(new Error('WS Auth Error'));
                 return;
             }
-            console.log(`TEST TING: got decoded object: ${JSON.stringify(decoded)}`)
             redisdb.getPlayers(decoded.gamesessionid).then((players) => {
                 if(!players.includes(socket.handshake.query.username)){
                     logger.warn(`socket io authentication middleware`, `socket authentication error: for ${socket.handshake.query.username}. . Player not in game.`);
@@ -264,7 +263,7 @@ io.use(function (socket, next) {
                         next(); // authorized.
                     }
                     else {
-                        console.log(`socket authentication error: invalid gamesecret for ${socket.handshake.query.username} trying to go for ${decoded.gamesessionid}`);
+                        logger.warn(`socket authentication error:`,` invalid gamesecret for ${socket.handshake.query.username} trying to go for ${decoded.gamesessionid}`);
                         next(new Error('WS Auth Error'));
                     }
                 }).catch(e => {
@@ -278,7 +277,7 @@ io.use(function (socket, next) {
         });
     } else {
         
-        console.log(`socket authentication error: no token provided by ${socket.handshake.query.username}`);
+        logger.warn(`socket authentication error:`,` no token provided by ${socket.handshake.query.username}`);
         next(new Error('WS Authentication Error'));
     }
 }).on('connect', (socket) => {
@@ -286,7 +285,7 @@ io.use(function (socket, next) {
         socket.sentInit = true;
         // set connected to redis.
         
-        console.log(`socket player connected for ${socket.username}`);
+        logger.info(`socket.on('connect'):`,`socket player connected. Username: ${socket.username}`);
         if (Datadog)
             Datadog.increment('gms.on.connect');
         socket.join(socket.gamesessionid);
@@ -381,7 +380,6 @@ io.use(function (socket, next) {
 
         let gamesessionid = socket.gamesessionid;
 
-        console.log(`gmsapp::events.PLAYER_THREW: socket ${socket.username} in room: ${JSON.stringify(gamesessionid)} `);
         redisdb.getUsername(gamesessionid, socket.id).then((un) => {
             // see if it is match event.
             username = un; // hmget returns an array, because we hmget can be used to get values for several keys.
@@ -401,7 +399,6 @@ io.use(function (socket, next) {
             */
 
             redisdb.getCurrentTurn(gamesessionid).then((turn) => {
-                console.log(`turn object: ${JSON.stringify(turn)}`);
                 let playerinturn = turn.playerinturn;
                 logger.info(`gmsapp::events.PLAYER_THREW: `,`${username} THREW. ${playerinturn} was supposed to throw.`);
                 if (playerinturn === username) {
@@ -588,11 +585,11 @@ io.use(function (socket, next) {
                                             redisdb.setZeroStreak(gamesessionid,loser) //NOTEDIFF: put zero streak here.
                                         ]).then((data_l)=>{
                                             let poppedpile = data_l[0];
-                                            console.log(`popped pile given to ${username}: ${JSON.stringify(poppedpile)}`);
+                                            logger.info(`gms::events::PLAYER_SLAPPED`,`popped pile given to the loser ${username}: ${JSON.stringify(poppedpile)}`);
                                             redisdb.getSnapshot(gamesessionid)
                                             .then((snapshot)=>{
                                                 redisdb.setPostMatchSnapshot(gamesessionid,undefined,undefined,snapshot).then(()=>{
-                                                    logger.info('match results: SNAPSHOT GOT', JSON.stringify(snapshot));
+                                                    logger.info(`gms::events::PLAYER_SLAPPED: `,`match results: SNAPSHOT GOT ${JSON.stringify(snapshot)}`);
                                                     //NOTE: zeroed players don't have their key. So they are absent from the snapshot.
                                                     const zeroed_players = slappedplayers.filter((playerusername)=>
                                                         playerusername !== loser && !snapshot.map((playerobj)=>playerobj.username).includes(playerusername));
@@ -672,7 +669,7 @@ io.use(function (socket, next) {
                     ]).then((data)=>{
                         const poppedpile = data[0];
                         const loserscore = parseInt(data[3]);
-                        console.log(`gmsapp::events.PLAYER_SLAPPED: poppedpile : ${JSON.stringify(poppedpile)}`);
+                        logger.info(`gmsapp::events.PLAYER_SLAPPED:`,` poppedpile : ${JSON.stringify(poppedpile)}`);
                         redisdb.setZeroStreak(gamesessionid,loser).then(()=>{
                             if(Datadog){
                                 Datadog.increment('gms.emit.match_result');
@@ -694,7 +691,7 @@ io.use(function (socket, next) {
                         })
                     }).catch((e)=>{
 
-                        console.error(`gmsapp::events.PLAYER_SLAPPED: pop pile to loser, reset slaps set current counter failed promise`);
+                        logger.error(`gmsapp::events.PLAYER_SLAPPED: `,`pop pile to loser, reset slaps set current counter failed promise`);
                         console.error(e.stack);
                         response({
                             success:false,
