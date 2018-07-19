@@ -323,12 +323,13 @@ const self = module.exports = {
                 .incr(`${gamesessionid}/counter`)
                 .get(`${gamesessionid}/turnoffset`)
                 .lrange(`${gamesessionid}/players`,0,-1)
+                .get(`${gamesessionid}/playerinturn`)
             chain.execAsync().then((data)=>{
                 const newcounter = parseInt(data[0]);
                 const offset = parseInt(data[1]);
                 const player_array = data[2];
                 const nplayers = player_array.length;
-                let newindex = (offset + newcounter) % nplayers;
+                const currentplayerinturn = data[3];
                     //NOTE: check for empty hands.
                     /* Check empty hands here */
                     let chain_hands = redisclient.multi();
@@ -338,18 +339,16 @@ const self = module.exports = {
                     chain_hands.execAsync().then((result)=>{
                         // every index in result corresponds to its player_array.
                         // i is the final index we will go with.
-                        let i = newindex;
-                        let n_zero_hands = 0;
+                        const currentplayerinturnidx = player_array.indexOf(currentplayerinturn);
+                        let nextidx = (currentplayerinturnidx + 1) % nplayers;
                         // start from index newindex, and determine how much we have to skip due to them having no cards (default is 0)
                         do{
-                            if(result[i] ===0){
-                                n_zero_hands++;
-                            }else{
+                            if(parseInt(result[nextidx]) !==0){
                                 break;
                             }
-                            i = (i + 1) % nplayers ;
-                        } while (i !== newindex);
-                        const nextplayer = player_array[(newindex + n_zero_hands) % nplayers];
+                            nextidx = (nextidx + 1) % nplayers ;
+                        } while (nextidx !== currentplayerinturnidx);
+                        const nextplayer = player_array[nextidx];
                         console.log(`redisdb::incrementCurrentCounter: got next player: ${nextplayer}`);
                         redisclient.setAsync(`${gamesessionid}/playerinturn`, nextplayer).then(() => {
                             resolve({nextplayer: nextplayer,nextcounter: newcounter});

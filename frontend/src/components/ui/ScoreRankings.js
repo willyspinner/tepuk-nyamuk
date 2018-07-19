@@ -14,7 +14,7 @@ const ScoreRankings = (props) => {
             {
                 sorted_scores ?
                     <div>
-                        <h2>Rankings </h2>
+                        <h2>Score Rankings </h2>
                         <List
                             size="small"
                             bordered
