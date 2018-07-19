@@ -36,7 +36,11 @@ class MainPage extends Component {
         },
     }
 
+    componentWillUnmount(){
+        console.log('COMPONENT WILL UNMOUNT.');
+    }
     componentDidMount() {
+        console.log('MAIN PAGE COMPONENT DID MOUNT')
         Modal.setAppElement('#app');
         /*
         check if we have any error dialog messages when going to mainpage.

@@ -14,9 +14,9 @@ const AppRouter =()=> (
         <div>
             <Header />
             <Switch>
-                <Route path="/" component={MainPage} exact = {true}/>
-                <Route path="/game/lobby/:uuid" component={GameLobbyPage} exact = {true}/>
-                <Route path="/game/play/:uuid" component={GamePlayPage} exact = {true}/>
+                <Route path="/" render={(props)=><MainPage {...props}/>} exact = {true}/>
+                <Route path="/game/lobby/:uuid" render={(props)=><GameLobbyPage key={props.match.params.uuid} {...props}/>} e exact = {true}/>
+                <Route path="/game/play/:uuid" render={(props)=><GamePlayPage key={props.match.params.uuid} {...props}/>} exact = {true}/>
                 { /* NOTE: only show intools in development.*/
                    process.env.NODE_ENV !== 'production'?
                     (<Route path="/IntoolsUI" component={IntoolsUIRouter} exact={false}/>)

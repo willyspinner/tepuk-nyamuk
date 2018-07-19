@@ -148,8 +148,13 @@ class GamePlayPage extends Component {
         const onGameWinnerAnnounced = (gameFinishedObj)=>{
             this.props.dispatch(gameWinner(gameFinishedObj));
             clearInterval(this.state.countdowntimer);
+            key.unbind('t');
+            key.unbind('space');
+            notification.destroy();
             this.setState({isShowingResultsModal:true});
-        }
+        };
+        //clear previous gameplay object.
+        this.props.dispatch(finishGame());
         socketclient.subscribeToGameplay(this.props.location.gamestartobj,
             this.props.myusername,
             onPlayerSlapRegistered,
