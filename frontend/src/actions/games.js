@@ -17,7 +17,7 @@ export const addGame = ( game )=> ({
 
 });
 export const refreshGames= (refreshedGames)=>({
-    type:'REFRESH_GAME',
+    type:'REFRESH_GAMES',
     refreshedGames
 })
 export const startGetOpenGames = (isUpdate=false)=>{
