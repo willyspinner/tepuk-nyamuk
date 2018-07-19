@@ -39,7 +39,7 @@ export const startCreateGame = (gameObj) => {
     return (reduxDispatch, getState) =>{
         return new Promise((resolve,reject)=>{
         gameObj.createdat = moment.now();
-        gameObj.creator = getState().user.username;
+        //gameObj.creator = getState().user.username;
             request.post(CREATEGAME(gameObj ,getState().user.token),
                 (err,res,body)=>{
                     if(err){

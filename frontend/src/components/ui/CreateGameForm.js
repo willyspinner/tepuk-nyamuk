@@ -1,14 +1,17 @@
-import {Form, Icon, Input, Button} from 'antd';
+import {Form, Icon, Input, Button,Row,Col,Slider,InputNumber} from 'antd';
 import React from 'react';
 
 
 class NormalLoginForm extends React.Component {
+    state = {
+        numberOfPlayers :2,
+    }
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                this.props.onGameFormSubmit(values);
-                console.log('Received values of form: ', values);
+                this.props.onGameFormSubmit({...values,numberOfPlayers: this.state.numberOfPlayers});
+                console.log('Received values of form: ', {...values,numberOfPlayers: this.state.numberOfPlayers});
             }
         });
     };
@@ -23,6 +26,25 @@ class NormalLoginForm extends React.Component {
                     })(
                         <Input prefix={<Icon type="smile-o" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="Gameroom name"/>
                     )}
+                </Form.Item>
+                <Form.Item>
+                    <div>
+                    <Row>
+                        <h3>Number of players:</h3>
+                        <Col span={12}>
+                            <Slider min={2} max={8} onChange={(val)=>this.setState({numberOfPlayers:val})} value={this.state.numberOfPlayers} />
+                        </Col>
+                        <Col span={4}>
+                            <InputNumber
+                                min={2}
+                                max={8}
+                                style={{ marginLeft: 16 }}
+                                onChange={(val)=>this.setState({numberOfPlayers:val})}
+                                value={this.state.numberOfPlayers}
+                            />
+                        </Col>
+                    </Row>
+                    </div>
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit" className="login-form-button">

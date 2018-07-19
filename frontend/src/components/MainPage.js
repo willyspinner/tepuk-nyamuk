@@ -252,7 +252,7 @@ class MainPage extends Component {
     }
 
     onGameCreateHandler = (valuesObj) => {
-        this.props.dispatch(startCreateGame({name: valuesObj.name})).then((obj) => {
+        this.props.dispatch(startCreateGame(valuesObj)).then((obj) => {
             console.log(`game creation response: ${JSON.stringify(obj)}`);
             this.setState({isCreatingGame: false});
             this.onLeaderGameJoinHandler(obj.game.uuid);
