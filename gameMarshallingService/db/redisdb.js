@@ -257,7 +257,8 @@ const self = module.exports = {
         return new Promise((resolve,reject)=>{
             let multi = redisclient.multi();
             Array.from(Array(cardsperplayer*nonStreakPlayerUsernames.length)).forEach(m => {
-                multi = multi.rpop(`${gamesessionid}/pile`);
+                multi = multi.lpop(`${gamesessionid}/pile`);
+                //NOTEDIFF: changed to lpop so that the piletop is the same.
             });
             multi.execAsync().then((popped)=>{
                 logger.info(`redisdb::reshuffleFromPile:`,` popped: ${JSON.stringify(popped)}`);

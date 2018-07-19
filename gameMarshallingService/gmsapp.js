@@ -2,8 +2,7 @@
 initialize our environment.
  */
 if (process.argv.length < 3){
-    console.error("ERROR. Environment not set.");
-    console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+    logger.error(`ENVIRONMENT NOT SET. please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
     process.exit(1);
 }
 switch(process.argv[2]){
@@ -247,7 +246,7 @@ io.use(function (socket, next) {
     if (socket.handshake.query.token) {
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err) {
-                console.log(`gms::socketauth: socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
+                logger.warn(`gms::socketauth middleware`,` socket authentication error: jwt token invalid for attempting to login as ${socket.handshake.query.username}`);
                 next(new Error('WS Auth Error'));
                 return;
             }
@@ -423,9 +422,9 @@ io.use(function (socket, next) {
                                 const nextcounter= data_pop_inc[1];
                                 // increment counter.
                                     // check match event.
-                                    console.log(`gmsapp::events.PLAYER_THREW. checking match : counter ${nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
-                                    console.log('type of poppedcard:',typeof poppedcard, 'type of nextcounter: ',typeof nextcounter.nextcounter);
+                                    logger.info(`gmsapp::events.PLAYER_THREW`,` checking match : counter ${nextcounter.nextcounter % 13 === 0 ? 13: nextcounter.nextcounter % 13} ===  poppedcard ${poppedcard}?`);
                                     if ((nextcounter.nextcounter % 13 === 0? 13:nextcounter.nextcounter % 13 )=== parseInt(poppedcard)) {
+                                        logger.info(`gmsapp::events.PLAYER_THREW`, `MATCH! `);
                                         // match event
                                         redisdb.setMatch(gamesessionid, true).then(() => {
                                             // go on with next tick as normal, waiting for people
@@ -439,7 +438,7 @@ io.use(function (socket, next) {
                                             });
                                             response({
                                                 success: true,
-                                            })
+                                            });
                                         });
                                     } else {
                                         // just a normal throw.
@@ -462,10 +461,23 @@ io.use(function (socket, next) {
                                                         redisdb.reshuffleFromPile(gamesessionid,cardsPerPlayer, non_zero_players).then(()=>{
                                                             redisdb.getPile(gamesessionid).then((pile)=>{
 
+                                                                /*
+                                                                NOTE: we identified the error.
+                                                                Here we are issuing a nextTick matah false based on the old one. but the pile is renewed. So it might be fked.
+                                                                so the card that is thrown needs to be hp.
+                                                                The pile must be renewed, but not the piletop. The piletop needs to be the same as before.
+                                                                Thus, we use lpop instead of lpop when getting the cards
+
+                                                                step by step:
+                                                                STATE: player THREW the last card already, everyone is on 0.
+                                                                reshuffle -  (pop 5 * nplayers cards from pilebottom, and reassign)
+
+                                                                 */
                                                                 snapshot = snapshot.map((playerobj)=>({username:playerobj.username,nInHand : cardsPerPlayer}));
                                                                 io.to(gamesessionid).emit(events.NEXT_TICK, {
                                                                     match: false,
-                                                                    piletop: poppedcard, // next top of pile.
+                                                                    //piletop: poppedcard, // next top of pile.
+                                                                    //NOTEDIFF: pile top isn't used here. we use newpile.
                                                                     nextplayer: nextcounter.nextplayer,
                                                                     counter: nextcounter.nextcounter,
                                                                     playerthrew : username,

@@ -47,7 +47,7 @@ const ScoreRankings = (props) => {
                                             </h3>
                                             {player_obj.username === props.winner? <Icon type="trophy" style={{fontSize: 35,color:'white'}}/> : null}
                                                 <h3 >
-                                                {player_obj.score}
+                                                {Math.round(player_obj.score)}
                                             </h3>
                                     </div>
                                 )}

@@ -434,10 +434,11 @@ class MainPage extends Component {
                             </Button>
                         </div>
                     </div>
-                    <div className="mainPage__module">
+                    <div className="mainPage__module"style={{minHeight: '120px',minWidth: '120px'}}>
                         <img src="/fly-image.png"
                              height="40%"
                              width="30%"
+                             style={{maxWidth:'100%'}}
                         />
                     </div>
                 </div>
