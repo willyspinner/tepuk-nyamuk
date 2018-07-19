@@ -697,12 +697,16 @@ io.use(function (socket, next) {
 });
 // subscription
 const determinePlacesByHandAndStreaks =  (handSnapshot,streakSnapshot)=>{
+    let finalSnapshot = [];
     streakSnapshot.forEach((streaked_player)=>{
-        // streaked players have 'negative hands'.
-        handSnapshot.push({username: streaked_player.username,nInHand: -1 * parseInt(streaked_player.streak)});
+        // streaked players have 'negative hands'. NOTE: they can either have 0 streaks or more.
+        // streakSnapshot contains all streaks.
+        let hand = handSnapshot.find((hand)=>hand.username === streaked_player.username);
+        hand = hand? hand.nInHand : 0;
+        finalSnapshot.push({username: streaked_player.username,nInHand: hand === 0 ?  -1 * parseInt(streaked_player.streak) : hand});
     });
     //lowest 'hand' wins.
-    return handSnapshot.sort((a,b)=>a.nInHand < b.nInHand? -1:1).map((obj)=>obj.username);
+    return finalSnapshot.sort((a,b)=>a.nInHand < b.nInHand? -1:1).map((obj)=>obj.username);
 
 };
 const onExpire = (gamesessionid)=>{
