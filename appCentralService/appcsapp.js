@@ -625,20 +625,19 @@ io.on('connect', (socket) => {
                 response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                 return;
             }
-        const clientUsername = data.username;
+        const clientUsername = decoded.username;
         const roomName = data.gameid;
-        if(socket.username !== clientUsername || clientUsername !== decoded.username){
+        if(socket.username !== decoded.username){
             response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
             return;
         }
         db.getUser(clientUsername).then((user)=>{
-            if(user.gameid == null){
+            if(user && user.gameid == null){
                 if(! uuidvalidate(data.gameid)){
                     logger.warn('on CLIENT_ATTEMPT_JOIN',`got invalid uuid here.`);
                     response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                     return;
                 }
-                    
                 db.getGame(data.gameid).then((game)=>{
                     if (game == undefined) {
                         logger.warn('on CLIENT_ATTEMPT_JOIN',`the game referred to by data.gameid is not real.`);

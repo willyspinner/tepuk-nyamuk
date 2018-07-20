@@ -16,11 +16,11 @@ const registerModal = (props)=>(
         ariaHideApp={false}
     >
         <div style={{display:'flex',flexDirection:'column', }}>
-        <h2
+        <h1
             style={{marginTop: "20px",color:'white',textAlign:'center'}}
         >
             Welcome.
-        </h2>
+        </h1>
             <img src="/fly-image-white.png"
                  style={{alignSelf:'center', marginBottom: '15px'}}
             width="75px"
@@ -61,7 +61,7 @@ const registerModal = (props)=>(
         }
         <Button
             type="primary"
-            style={{marginBottom:"10px"}}
+            style={{marginBottom:"6px"}}
             onClick={props.onPressEnter}
         >
             {props.isLoggingIn ? "login" : "register"}
@@ -69,7 +69,7 @@ const registerModal = (props)=>(
 
         <Button
             ghost
-            style={{marginTop:"4px", marginBottom: "24px"}}
+            style={{ marginBottom: "24px"}}
             onClick={props.onTypeChange}
         >
             {props.isLoggingIn ?
