@@ -1,9 +1,9 @@
 /*
 initialize our environment.
  */
-const logger = require('./log/appcs_logger');
+const logger = require('./log/gms_logger');
 if (process.argv.length < 3){
-    logger.error(`ENVIRONMENT NOT SET. please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+    logger.error(`ENVIRONMENT NOT SET.`,` please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
     process.exit(1);
 }
 switch(process.argv[2]){
