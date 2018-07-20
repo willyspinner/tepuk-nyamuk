@@ -126,7 +126,7 @@ return {
             new webpack.DefinePlugin({
                 'process.env.API_HOST':JSON.stringify(process.env.API_HOST),
                 'process.env.API_PORT':JSON.stringify(process.env.API_PORT),
-                'process.env.NODE_ENV': isProduction? JSON.stringify('production'): null
+                'process.env.NODE_ENV': isProduction? 'production': null
             }),
 
         // Ignore all locale files of moment.js

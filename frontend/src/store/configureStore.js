@@ -5,7 +5,7 @@ import gameplayReducer from '../reducers/gameplay';
 import chatroomReducer from '../reducers/chatroom';
 import thunk from 'redux-thunk';
 import userReducer from "../reducers/user";
- const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||compose ;
+ const composeEnhancers =process.env.NODE_ENV === 'production' ? compose: window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||compose ;
 export default () => {
   const store = createStore(
     combineReducers({
