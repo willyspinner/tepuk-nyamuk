@@ -240,7 +240,7 @@ class GamePlayPage extends Component {
                 //remove our gameplay object.
                 this.props.dispatch(finishGame());
 
-                if (errormsg)
+                if (errormsg === 'error')
                 this.props.history.push({
                     pathname: '/',
                     dialog: {
