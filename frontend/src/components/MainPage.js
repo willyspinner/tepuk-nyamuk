@@ -136,10 +136,12 @@ class MainPage extends Component {
     }
 
     onGameLobbyStart = (gamestartobj) => {
-        this.props.history.push({
-            pathname: `/game/play/${gamestartobj.gamesessionid}`,
-            gamestartobj: gamestartobj
-        })
+       // socketclient.emitMovingToGms().then(()=>{
+            this.props.history.push({
+                pathname: `/game/play/${gamestartobj.gamesessionid}`,
+                gamestartobj: gamestartobj
+            })
+        //})
     }
 
     onLeaderGameJoinHandler = (gameId) => {

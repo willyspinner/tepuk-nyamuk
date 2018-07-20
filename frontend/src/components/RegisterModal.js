@@ -17,7 +17,7 @@ const registerModal = (props)=>(
     >
         <div style={{display:'flex',flexDirection:'column', }}>
         <h2
-            style={{marginTop: "10px",color:'white',textAlign:'center'}}
+            style={{marginTop: "20px",color:'white',textAlign:'center'}}
         >
             Welcome.
         </h2>
@@ -69,7 +69,7 @@ const registerModal = (props)=>(
 
         <Button
             ghost
-            style={{marginTop:"4px", marginBottom: "12px"}}
+            style={{marginTop:"4px", marginBottom: "24px"}}
             onClick={props.onTypeChange}
         >
             {props.isLoggingIn ?

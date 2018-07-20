@@ -84,7 +84,7 @@ const self = module.exports = {
                 ]
             };
             //console.log(`PG text: ${queryObj.text}`);
-            console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
+            //console.log(`PG entering values: ${JSON.stringify(queryObj.values)}`);
             client.query(queryObj,(err,res)=>{
                 if(err)
                 {
@@ -113,14 +113,11 @@ const self = module.exports = {
                     ${fields.GAMES.STATUS} = '${dbconstants.GAMES.STATUS.LOBBY}'
                     ;`
             };
-            console.log(`query open games doing : ${JSON.stringify(query)}`);
             client.query(query,(err,res)=>{
                 if (err){
                 
-                console.log(`opengames query rejected..`);
                     reject(err);
                 }
-                console.log(`opengames query resolved..`);
                 resolve(res.rows);
             })
         })
@@ -227,7 +224,7 @@ const self = module.exports = {
                     reject(err);
                     return;
                 }
-                logger.info('db.js::getUser()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
+                //logger.info('db.js::getUser()',`get users res.rows :  ${JSON.stringify(res.rows)}`);
                 
                 resolve(res.rows.length === 0? undefined: res.rows[0]);
             })

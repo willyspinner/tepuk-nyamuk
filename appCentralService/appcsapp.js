@@ -68,7 +68,10 @@ if( process.argv[2] === 'production.host'){
 const server = app.listen(app.get('port'));
 
 const io = ioserver(server,{
-    path: '/appcs-socketio'
+    path: '/appcs-socketio',
+    pingTimeout: 15000, // ms
+    pingInterval: 10000 // ms
+
 
 })
 io.adapter(socketioredis({host:process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
@@ -140,7 +143,7 @@ POST BODY:
 
  */
 app.post('/appcs/user/auth', (req, res) => {
-    console.log(`POST to /appcs/user/auth. body: ${JSON.stringify(req.body)}`);
+    logger.info(`POST /appcs/user/auth.`,`Post body: ${JSON.stringify(req.body)}`);
     if(!req.body.username){
         res.status(400).json({
             success: false,
@@ -190,9 +193,9 @@ TESTED . OK.
  */
 
 app.get('/appcs/game', (req, res) => {
-    console.log(` appCS::app.js: querying open games...`);
+    logger.info(`GET /appcs/game`,`querying open games...`);
     db.queryOpenGames().then((games) => {
-        console.log(`responding with games: ${JSON.stringify(games)}`);
+        //logger.info(`GET /appcs/game`,`responding with games: ${JSON.stringify(games)}`);
         res.status(200).json({
             success: true,
             games
@@ -238,6 +241,7 @@ app.post('/appcs/game/create', (req, res) => {
         game.creator = decoded.username;
         if (!game.numberOfMaxPlayers)
             game.numberOfMaxPlayers = 8;
+        logger.info('POST /appcs/game/create',`Creating game : ${JSON.stringify(game)}`)
         db.createGame(game).then((newgame) => {
             // link used to go to the lobby page.
             io.emit(EVENTS.GAME_CREATED, {
@@ -540,7 +544,7 @@ io.use(function (socket, next) {
             socket.username = decoded.username;
             socket.token = socket.handshake.query.token;//TODO: is this needed?
             db.loginUserSocketId(socket.username, socket.id).then(() => {
-                socket.sentMydata = true;
+                socket.sentMydata = false;
                  return next();
             }).catch((e)=>{
                 return next(new Error("WS auth: Appcs internal DB error"));
@@ -554,19 +558,62 @@ io.use(function (socket, next) {
 io.on('connect', (socket) => {
     if (!socket.sentMydata) {
         logger.info('socket connect successful',`socket connected : ${socket.username}, id : ${socket.id}`);
-
-        //NOTE: I don't know if this will work or not.
-        //NOTEDIFF: PUTTING THE BELOW IS A RACE CONDition fOR THE TEST! WE NEED TO LOG THE SOCKET ID FIRST BEFORE
-        //NOTEDIFF: IT IS ACTUALLY CONNECTED..
-        /*
-        db.loginUserSocketId(socket.username, socket.id).then(() => {
-            socket.sentMydata = true;
-        });
-        */
+        socket.sentMydata =true;
     }
-    /*
-    /*
+    socket.on('pong',()=>{
+       logger.info(`socket.on PONG`,`${socket.username} ponged.`);
+    });
+    socket.on('disconnect', () => {
+        if(!socket.movingToGms){
+            logger.info(`socket.on DISCONNECT`,`${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
+            //TODO: DISCONNECT EVENT? e.g. delete games that they're in.
+            //TODO make the db access pattern more efficient?
+            //TODO: MAKE SURE WHEN CLIENTS GO TO GMS, THAT THEY ARE CALLING the moving to GMS ROUTE.
+            db.getUser(socket.username).then((userObj)=>{
+                if(userObj.gameid){
+                    db.getGame(userObj.gameid).then((game)=>{
+                        if (game.creator === userObj.username){
+                            logger.info(`socket.on DISCONNECT`,`${userObj.username} is a game lobby creator. Deleting game ${game.uuid}...`)
+                            //delete game
+                            db.leaveGame(userObj).then(()=>{
+                                db.deleteGame(game.uuid).then(() => {
+                                    io.emit(EVENTS.GAME_DELETED, {
+                                        gameuuid: game.uuid
+                                    });
+                                    io
+                                        .to(game.uuid)
+                                        .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
+                                });
+                            })
+                        }else{
+                            //TODO: leaving game.
+                            logger.info(`socket.on DISCONNECT`,`${userObj.username} is in a game. Leaving the game ${game.uuid}...`)
+                            db.leaveGame(userObj).then(() => {
+                                //note: .to() is the one for room in the main namespace.
+                                let joinedRoom = userObj.gameid;
+                                socket.leave(`${joinedRoom}`);
+                                io.to(`${joinedRoom}`).emit(EVENTS.LOBBY.USER_LEFT, userObj.username);
+                            }).catch((e) => {
+                                logger.error(`leaving game on disconnect`,`error: ${JSON.stringify(e)}`)
+                            });
 
+
+
+                        }
+                    })
+                }else{
+                    logger.info(`socket.on DISCONNECT`,`${userObj.username} not in any game. Doing nothing...`)
+                }
+            })
+        }
+    });
+
+    socket.on(EVENTS.LOBBY.MOVING_TO_GMS, (data,response)=>{
+        logger.info(`on MOVING_TO_GMS`,`${socket.username} moving to gms.. ok.`);
+        socket.movingToGms = true;
+        response({success:true});
+    });
+    /*
     AppCS Route.
     WS player Join game lobby (room)
     TODO: this socket route here is very costly (expensive).

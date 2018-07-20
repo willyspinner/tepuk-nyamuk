@@ -36,6 +36,9 @@ class SocketClient {
                 console.log(`got id: ${thatsocket.id}`);
                 resolve(thatsocket.id);
             });
+            thatsocket.on('disconnect',()=>{
+                console.log('RIPP GOT DISCONNECTED SOCKET! oh noes..');
+            })
             //NOTEDIFF: setTimeout is placed here
             //setTimeout(()=>{reject("time out . more than 6000 ms")},6000);
         });
@@ -92,7 +95,6 @@ class SocketClient {
                             onLobbyGameDeleted(gameid);
                         });
                         this.mysocket.on(EVENTS.LOBBY.GAME_START,(gameStartObj)=>{
-                            this.mysocket.close();
                             onLobbyGameStart(gameStartObj);
                         });
                         this.mysocket.on(EVENTS.LOBBY.KICKED_OUT,(kickoutobj)=>{
@@ -117,31 +119,54 @@ class SocketClient {
             })
         });
     }
+    emitMovingToGms (){
+return new Promise((resolve,reject)=>{
+    this.mysocket.emit(EVENTS.LOBBY.MOVING_TO_GMS,{}, (ack)=>{
+       if(ack.success)resolve()
+        else
+            reject();
+    });
+});
+    }
     //TODO: make unsubscribefromgameplay?
     // or just close the socket?
-    subscribeToGameplay (gameStartObj,username,onPlayerSlapRegistered,onNextTick,onMatchResult,onGameStart,onGameFinished){
+    // first sends 'MOVING_TO_GMS', then disconnects, then connect to gameplay.
+    disconnectAppcsAndConnectToGameplay (gameStartObj, username, onPlayerSlapRegistered, onNextTick, onMatchResult, onGameStart, onGameFinished){
+        let mysocket = this.mysocket;
         return new Promise((resolve,reject)=>{
-            this.connect(`http://${process.env.API_HOST}:${process.env.API_PORT}`,gameStartObj.gametoken,
-                {gamesecret: gameStartObj.gamesecret, username: username},
-                'gms'
-            ).then(()=> {
-                this.mysocket.on(GMSEVENTS.PLAYER_SLAP_REGISTERED, (data) => {
-                    onPlayerSlapRegistered(data);
-                })
-                this.mysocket.on(GMSEVENTS.NEXT_TICK, (data) => {
-                    onNextTick(data);
-                });
-                this.mysocket.on(GMSEVENTS.MATCH_RESULT,(data)=>{
-                    onMatchResult(data);
-                })
-                this.mysocket.on(GMSEVENTS.GAME_START,(data)=>{
-                    onGameStart(data);
-                })
-                this.mysocket.on(GMSEVENTS.GAME_FINISHED,(data)=>{
-                    onGameFinished(data);
-                })
-                resolve();
-            }).catch((e)=>reject(e));
+            //TODO: THIS EMIT doesn't work.
+            console.log('trying to subscribe to gameplay... Emitting moving to GMS...')
+            mysocket.emit(EVENTS.LOBBY.MOVING_TO_GMS,{}, (ack)=>{
+                console.log(`SUBSCRIBE TO GAMEPLAY:ack object ${JSON.stringify(ack)}`)
+                if(ack.success){
+                    mysocket.close();
+                    console.log('connectToGameplay : ack succes.')
+                    this.connect(`http://${process.env.API_HOST}:${process.env.API_PORT}`,gameStartObj.gametoken,
+                        {gamesecret: gameStartObj.gamesecret, username: username},
+                        'gms'
+                    ).then(()=> {
+                        this.mysocket.on(GMSEVENTS.PLAYER_SLAP_REGISTERED, (data) => {
+                            onPlayerSlapRegistered(data);
+                        })
+                        this.mysocket.on(GMSEVENTS.NEXT_TICK, (data) => {
+                            onNextTick(data);
+                        });
+                        this.mysocket.on(GMSEVENTS.MATCH_RESULT,(data)=>{
+                            onMatchResult(data);
+                        })
+                        this.mysocket.on(GMSEVENTS.GAME_START,(data)=>{
+                            onGameStart(data);
+                        })
+                        this.mysocket.on(GMSEVENTS.GAME_FINISHED,(data)=>{
+                            onGameFinished(data);
+                        })
+                        resolve();
+                    }).catch((e)=>reject(e));
+
+                }else{
+                    reject();
+                }
+            });
         });
 
     }
@@ -195,6 +220,7 @@ class SocketClient {
 
 
     close(){
+        console.log('CLOSED SOCKET TING');
         if(this.mysocket)
             this.mysocket.close();
     }

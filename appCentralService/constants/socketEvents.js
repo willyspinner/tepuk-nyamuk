@@ -19,7 +19,8 @@ module.exports=  {
         INVITE_USER_SUCCESS:'inviteUserSuccess',
         LOBBY_INVITATION:'lobbyInvitation',
         KICK_OUT_USER:'kickOutUser',
-        KICKED_OUT:'iHaveBeenKickedOut'
+        KICKED_OUT:'iHaveBeenKickedOut',
+    MOVING_TO_GMS: 'movingToGms'// used when the client is going to disconnect to the server.
     },
     // these are just some helper tings that will query the socket's room information.
     UTILS:{

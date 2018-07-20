@@ -8,7 +8,6 @@ import {startKickoutUser, startLeaveGame, startRemoveGame, startStartGame} from 
 import {startInviteToLobby} from "../actions/user";
 import ChatRoom from './ui/ChatRoom';
 import {message} from 'antd';
-import Beforeunload from 'react-beforeunload';
 import {startSendMessage} from "../actions/chatroom";
 
 class GameLobbyPage extends Component {
@@ -39,14 +38,15 @@ class GameLobbyPage extends Component {
             ncards: 20, // default.
             timelimitmins:5
         };
-        setInterval(() => {
+        const interval =()=> {
                 this.setState((prevState) => {
                     return {
 
                         loadingidx: (prevState.loadingidx + 1) % prevState.loadingtypes.length
                     };
                 })
-            },
+            };
+        this.intervalObj = setInterval(interval,
             3000);
 
     }
@@ -62,8 +62,13 @@ class GameLobbyPage extends Component {
     }
 
     componentWillUnmount() {
+        console.log(`GAME lobby page componentwill unmount called`)
+        clearInterval(this.intervalObj);
+
+        /*
         if (!this.state.hasLeft)
             this.onLeaveHandler();
+            */
     }
 
     onLeaveHandler = () => {
@@ -154,9 +159,12 @@ class GameLobbyPage extends Component {
         if(msg)
             return errorGameLobbyContent;
 
+        /*
+
+                <Beforeunload onBeforeunload={e => this.onLeaveHandler()}/>
+                */
         return (
             <div>
-                <Beforeunload onBeforeunload={e => this.onLeaveHandler()}/>
                 <Button onClick={this.onLeaveHandler}
                 >
                     {/* Invitation faillure modal */}

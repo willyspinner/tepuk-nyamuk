@@ -155,7 +155,7 @@ class GamePlayPage extends Component {
         };
         //clear previous gameplay object.
         this.props.dispatch(finishGame());
-        socketclient.subscribeToGameplay(this.props.location.gamestartobj,
+        socketclient.disconnectAppcsAndConnectToGameplay(this.props.location.gamestartobj,
             this.props.myusername,
             onPlayerSlapRegistered,
             onNextTick,
