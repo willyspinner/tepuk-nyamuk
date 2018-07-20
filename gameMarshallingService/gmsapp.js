@@ -1,6 +1,7 @@
 /*
 initialize our environment.
  */
+const logger = require('./log/appcs_logger');
 if (process.argv.length < 3){
     logger.error(`ENVIRONMENT NOT SET. please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
     process.exit(1);
@@ -27,7 +28,6 @@ const redisdb = require('./db/redisdb');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const logger = require('./log/gms_logger');
 const app = express();
 const ioserver = require('socket.io');
 const uuidvalidate = require('uuid-validate');
