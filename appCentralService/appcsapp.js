@@ -566,9 +566,6 @@ io.on('connect', (socket) => {
     socket.on('disconnect', () => {
         if(!socket.movingToGms){
             logger.info(`socket.on DISCONNECT`,`${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
-            //TODO: DISCONNECT EVENT? e.g. delete games that they're in.
-            //TODO make the db access pattern more efficient?
-            //TODO: MAKE SURE WHEN CLIENTS GO TO GMS, THAT THEY ARE CALLING the moving to GMS ROUTE.
             db.getUser(socket.username).then((userObj)=>{
                 if(userObj.gameid){
                     db.getGame(userObj.gameid).then((game)=>{
@@ -605,6 +602,9 @@ io.on('connect', (socket) => {
                     logger.info(`socket.on DISCONNECT`,`${userObj.username} not in any game. Doing nothing...`)
                 }
             })
+        }else{
+            logger.info(`socket.on DISCONNECT`,`${socket.username} Disconnected but going to gms...`);
+
         }
     });
 

@@ -218,7 +218,7 @@ return new Promise((resolve,reject)=>{
         })
     }
 
-
+    // This is a private method. DOn't call this outside.
     close(){
         console.log('CLOSED SOCKET TING');
         if(this.mysocket)
