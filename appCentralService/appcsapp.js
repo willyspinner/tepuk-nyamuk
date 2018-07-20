@@ -483,10 +483,10 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 
 GMS to APPCS route. Finish game.
  */
-const authMiddleware = (req,res,next)=>{
+const GMSAuthMiddleware = (req,res,next)=>{
     const user = basicAuth(req);
     if(!user || !user.name || !user.pass){
-        logger.warn('POST /appcs/game/finish/:gameid', `no auth provided.`);
+        logger.warn('GMS AUTH Middleware', `no auth provided.`);
         res.status(401).json({
             success:false,
             error:"No authentication information provided."
@@ -497,14 +497,32 @@ const authMiddleware = (req,res,next)=>{
         && user.pass === process.env.INTERNAL_SECRET_PW) {
         next();
     }else{
-        logger.warn('POST /appcs/game/finish/:gameid', `incorrect auth provided.`);
+        logger.warn('GMS AUTH Middleware', `incorrect auth provided.`);
         res.status(401).json({
             success:false,
             error:"Incorrect authentication information."
         });
     }
 };
-app.post(`/appcs/game/finish/:gameid`,authMiddleware,(req,res)=>{
+app.post(`/appcs/game/stop/:gameid`,GMSAuthMiddleware,(req,res)=>{
+    db.deleteGame(req.params.gameid).then(()=>{
+        io.emit(EVENTS.GAME_DELETED,
+            {
+                gameuuid: req.params.gameid
+            }
+        );
+        res.status(200).json({
+            success:true
+        });
+    }).catch((e)=>{
+        res.status(500).json({
+            success:false,
+            error:e
+        })
+    })
+
+});
+app.post(`/appcs/game/finish/:gameid`,GMSAuthMiddleware,(req,res)=>{
 
         db.gmsFinishGame(req.params.gameid,req.body.resultObj).then(()=>{
             // emit to main lobby that the game is finished (deleted)

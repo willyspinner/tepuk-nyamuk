@@ -482,8 +482,4 @@ const self = module.exports = {
             })
         });
     },
-    // called by GMS when someone leaves in a game (midway).
-    gmsInterruptOngoingGame:  (gameid)=>{
-
-    }
 };
