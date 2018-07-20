@@ -36,6 +36,7 @@ const uuidvalidate = require('uuid-validate');
 const request = require('request');
 const basicAuth=require('basic-auth');
 const socketioredis=  require('socket.io-redis');
+const cookieParser = require('cookie-parser');
 // appcs environment var.
 
 // constants
@@ -54,6 +55,7 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
+app.use(cookieParser());
 if( process.argv[2] === 'production.host'){
     const dd_options = {
         'response_code':true,
@@ -82,8 +84,10 @@ app.use(function(req, res, next) {
     //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
     //TODO: load these configs in runtime in consul.
     res.header("Access-Control-Allow-Origin", process.env.TEPKENV === 'production' ? process.env.DOMAINNAME: '*');
+    //res.header("Access-Control-Allow-Origin",'*');
     res.header("Access-Control-Allow-Methods","POST, GET, OPTIONS, DELETE, ")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    //res.header('berdoge','ehehe');
     next();
 });
 /*
@@ -111,14 +115,18 @@ app.post('/appcs/user/new', (req, res) => {
                 password: bcrypt.hashSync(req.body.password, salt)
             };
             db.registerUser(userObj).then(() => {
+                const expiresIn = 7200;
                 let token = jwt.sign({username: userObj.username},
                     process.env.AUTH_TOKEN_SECRET, {
-                        expiresIn: 43200 // secs, so 12 hours.
+                        expiresIn // secs, so 2 hours.
                     });
-                res.status(201).json({
-                    success: true,
-                    token: token
-                })
+
+                res
+                    .cookie('tpk_app_token',token, {expiresIn })
+                    .status(201).json({
+                        success: true,
+                        token: token
+                    })
             }).catch((e) => {
                 res.status(500).json({
                     success: false
@@ -161,10 +169,13 @@ app.post('/appcs/user/auth', (req, res) => {
         }
         const passwordValid = bcrypt.compareSync(req.body.password, user.password);
         if (passwordValid) {
+            const expiresIn = 7200;
             let token = jwt.sign({username: user.username },
                 process.env.AUTH_TOKEN_SECRET,
-                {expiresIn: 43200});
-            res.status(200).json({
+                {expiresIn});
+            res
+                .cookie('tpk_app_token',token, {expiresIn })
+                .status(200).json({
                 success: true,
                 token: token
             });
@@ -241,7 +252,7 @@ app.post('/appcs/game/create', (req, res) => {
         game.creator = decoded.username;
         if (!game.numberOfMaxPlayers)
             game.numberOfMaxPlayers = 8;
-        logger.info('POST /appcs/game/create',`Creating game : ${JSON.stringify(game)}`)
+        logger.info('POST /appcs/game/create',`Creating game : ${JSON.stringify(game)}. Cookies: ${JSON.stringify(req.cookies)}`)
         db.createGame(game).then((newgame) => {
             // link used to go to the lobby page.
             io.emit(EVENTS.GAME_CREATED, {

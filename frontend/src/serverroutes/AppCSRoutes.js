@@ -9,6 +9,7 @@ export const NEWUSER= (username,password)=>{
           password
       },
       timeout: 16000, // 16 sec timeout
+      jar: true
   };
   
   return obj;
@@ -17,6 +18,7 @@ export const GETOPENGAMES= ()=>{
     return   {
         url : `${ROOTURL}/appcs/game`,
         timeout: 16000, // 16 sec timeout
+        jar: true
     }
 };
 export const LOGINUSER = (username,password)=>{
@@ -29,6 +31,7 @@ export const LOGINUSER = (username,password)=>{
             password
         },
         timeout: 16000, // 16 sec timeout
+        jar: true
     }
 };
 
@@ -40,6 +43,7 @@ export const CREATEGAME=(game,token)=>{
             token
         },
         timeout: 16000, // 16 sec timeout
+        jar: true
     }
 };
 export const DELETEGAME= (gameid,token,socketid)=>{
@@ -49,6 +53,7 @@ export const DELETEGAME= (gameid,token,socketid)=>{
             socketid: socketid,
             token: token,
         },
+        jar: true
     };
 };
 
@@ -56,6 +61,7 @@ export const STARTGAMEFROMLOBBY=(gameid,token,socketid,cardsperplayer,timelimits
     return {
         url: `${ROOTURL}/appcs/game/start/${gameid}`,
         form : {
+            jar: true,
             socketid: socketid,
             token : token,
             gameOptions: {

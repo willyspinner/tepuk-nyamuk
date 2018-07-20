@@ -1,4 +1,5 @@
 import request from 'request';
+//const request = requester.defaults({jar:true});
 import {NEWUSER,LOGINUSER} from "../serverroutes/AppCSRoutes";
 import socketclient from '../socket/socketclient';
 
@@ -22,6 +23,7 @@ export const startRegisterUser = (username,password)=> {
                         return;
                     }
                     let resobj = JSON.parse(body);
+
                     if (resobj.success) {
                         reduxDispatch(userLoggedIn(username, resobj.token));
                         resolve(resobj);
@@ -42,11 +44,13 @@ export const startLoginUser = (username,password)=>{
                     }
 
                     console.log(`! body: ${!body}`);
+
                    if(!body){
                        reject({error: "server error"});
                        return;
                    }
 
+                    console.log(`startLoginUSer got headers : ${JSON.stringify(res.headers)}`)
                     let resobj = JSON.parse(body);
                     
                     if (resobj.success) {
