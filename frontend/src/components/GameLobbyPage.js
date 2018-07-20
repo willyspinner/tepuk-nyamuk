@@ -65,10 +65,10 @@ class GameLobbyPage extends Component {
         console.log(`GAME lobby page componentwill unmount called`)
         clearInterval(this.intervalObj);
 
-        /*
+
         if (!this.state.hasLeft)
             this.onLeaveHandler();
-            */
+
     }
 
     onLeaveHandler = () => {
