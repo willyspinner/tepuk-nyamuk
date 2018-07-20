@@ -8,7 +8,6 @@ upstream gms {
     server 127.0.0.1:4000;
 }
   limit_req_zone $binary_remote_addr zone=frontend:10m rate=40r/m;
-  limit_req_zone $binary_remote_addr zone=appcs:10m rate=60r/m;
 server {
     listen      80;        # listen directive - states which port nginx is listening on
     server_name  willyserver.com;  # name of the server which will be the hostname in the client - so when the client requests willyserver.com, this will be stored.
@@ -22,7 +21,6 @@ server {
 
     # appcs
     location /appcs {
-      limit_req zone=appcs;
         proxy_pass http://appcs;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $host;
