@@ -19,7 +19,7 @@ class NormalLoginForm extends React.Component {
     render() {
         const {getFieldDecorator} = this.props.form;
         return (
-            <Form onSubmit={this.handleSubmit} className="login-form" style={{marginTop:"12px"}}>
+            <Form onSubmit={this.handleSubmit} className="login-form" style={{marginTop:"4px"}}>
                 <Form.Item>
                     {getFieldDecorator('name', {
                         rules: [{required: true, message: 'Please input your GameRoom name!'}],
@@ -28,9 +28,8 @@ class NormalLoginForm extends React.Component {
                     )}
                 </Form.Item>
                 <Form.Item>
-                    <div>
                     <Row>
-                        <h3>Number of players:</h3>
+                        <h3 style={{color:'white'}}>Number of players:</h3>
                         <Col span={12}>
                             <Slider min={2} max={8} onChange={(val)=>this.setState({numberOfMaxPlayers:val})} value={this.state.numberOfMaxPlayers} />
                         </Col>
@@ -44,7 +43,6 @@ class NormalLoginForm extends React.Component {
                             />
                         </Col>
                     </Row>
-                    </div>
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit" className="login-form-button">

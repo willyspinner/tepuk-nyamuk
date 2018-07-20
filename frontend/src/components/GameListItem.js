@@ -46,7 +46,7 @@ const GameListItem = (props)=> (
                 {props.game.gameoptions && props.game.gameoptions.numberOfMaxPlayers?
                     (
                         <h4>
-                        Players: {props.game.players.length}/{props.game.gameoptions.numberOfMaxPlayers}
+                        Players: {props.game.players.length} / {props.game.gameoptions.numberOfMaxPlayers}
                         </h4>
                     )
                     : (<h4>Players:</h4>)}
