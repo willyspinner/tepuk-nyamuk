@@ -345,6 +345,61 @@ const self = module.exports = {
         });
     },
 
+    bulkLeaveGameAndDelete: (gameid)=>{
+        return new Promise((resolve,reject)=>{
+            const shouldAbort = (err) => {
+                if (err) {
+                    console.error('Error in transaction', err.stack);
+                    client.query('ROLLBACK', (err) => {
+                        if (err) {
+                            console.error('Error rolling back client', err.stack)
+                        }
+                        // release the client back to the pool
+                        reject();
+                    })
+                }
+                return !!err;
+            };
+            client.query('BEGIN', (err) => {
+                if (shouldAbort(err)){
+                    reject(err);
+                    return;
+                }
+                const deleteGameQuery = {
+                    text: `DELETE FROM ${fields.GAMES.TABLENAME} `+
+                    `WHERE ${fields.GAMES.UUID} = $1;`,
+                    values: [gameid]
+                };
+                client.query(deleteGameQuery, (err, res) => {
+                    if (shouldAbort(err)){
+                        reject(err);
+                        return;
+                    }
+                    const updateUsersLeaveQuery = {
+                        text: `UPDATE ${fields.USERS.TABLENAME} `+
+                        `SET ${fields.USERS.GAMEID} = $1 `+
+                        `WHERE ${fields.USERS.GAMEID} = $2;`,
+                        values: [null, gameid]
+                    };
+                    client.query(updateUsersLeaveQuery, (err, res) => {
+                        if (shouldAbort(err)){
+                            reject(err);
+                            return;
+                        }
+                        client.query('COMMIT', (err) => {
+                            if (err) {
+                                console.error('Error committing transaction', err.stack);
+                                reject(err);
+                                return;
+                            }
+                            resolve();
+                        })
+                    })
+                })
+            })
+        });
+
+    },
     leaveGame: (userObj)=>{
         return new Promise ((resolve,reject)=>{
             const shouldAbort = (err) => {

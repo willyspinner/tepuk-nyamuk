@@ -282,13 +282,14 @@ class MainPage extends Component {
         const createGameModal = (
             <Modal
                 isOpen={this.state.isCreatingGame}
-                onRequestClose={() => this.setState({isCreatingGame: false})}
+                //onRequestClose={() => this.setState({isCreatingGame: false})}
                 className="mainPage__createGameModal"
                 ariaHideApp={false}
             >
                 <h2 style={{color:'white',alignSelf:'center', marginTop: '8px'}}> Create a game</h2>
                 <CreateGameForm
                     onGameFormSubmit={this.onGameCreateHandler}
+                    onClose={()=>this.setState({isCreatingGame: false})}
                 />
             </Modal>
         );

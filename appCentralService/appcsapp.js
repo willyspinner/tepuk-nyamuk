@@ -206,7 +206,7 @@ TESTED . OK.
 app.get('/appcs/game', (req, res) => {
     logger.info(`GET /appcs/game`,`querying open games...`);
     db.queryOpenGames().then((games) => {
-        //logger.info(`GET /appcs/game`,`responding with games: ${JSON.stringify(games)}`);
+        logger.info(`GET /appcs/game`,`responding with games: ${JSON.stringify(games)}`);
         res.status(200).json({
             success: true,
             games
@@ -515,16 +515,16 @@ const GMSAuthMiddleware = (req,res,next)=>{
         });
     }
 };
-app.post(`/appcs/game/stop/:gameid`,GMSAuthMiddleware,(req,res)=>{
-    db.deleteGame(req.params.gameid).then(()=>{
-        io.emit(EVENTS.GAME_DELETED,
-            {
-                gameuuid: req.params.gameid
-            }
-        );
-        res.status(200).json({
-            success:true
-        });
+app.post(`/appcs/game/interrupt/:gameid`,GMSAuthMiddleware,(req,res)=>{
+    db.bulkLeaveGameAndDelete(req.params.gameid).then(()=>{
+            io.emit(EVENTS.GAME_DELETED,
+                {
+                    gameuuid: req.params.gameid
+                }
+            );
+            res.status(200).json({
+                success:true
+            });
     }).catch((e)=>{
         res.status(500).json({
             success:false,
@@ -714,6 +714,7 @@ io.on('connect', (socket) => {
 
      */
     socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj,response) => {
+        logger.info('on CLIENT_LEAVE',`${clientUserObj.username}`);
         db.leaveGame(clientUserObj).then(() => {
             //note: .to() is the one for room in the main namespace.
             let joinedRoom = clientUserObj.gameid;

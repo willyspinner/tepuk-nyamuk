@@ -66,6 +66,8 @@ redispubsubclient.configAsync("set","notify-keyspace-events","Ex").then(()=>{
 
 
 logger.info('app.js initialize',`GMS listening on ${app.get('port')}`);
+const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
+const APPCS_PORT = process.env.APPCS_PORT || 3000;
 
 /*
 POST /gms/game/create: posted to GMS from appcs to create game
@@ -214,8 +216,6 @@ socket.handshake.query:
  */
 /* onWinGame - called when a winning condition, or expiration of game, is detected.*/
 const onWinGame = (gamesessionid,winner,scoresnapshot,callback)=>{
-    const APPCS_HOST = process.env.APPCS_HOST || 'localhost';
-    const APPCS_PORT = process.env.APPCS_PORT || 3000;
     const resultObj = {winner : winner,finalscores:scoresnapshot};
     redisdb.getGameId(gamesessionid).then((gameid)=>{
         request.post(
@@ -305,8 +305,6 @@ io.use(function (socket, next) {
                         redisdb.getCurrentTurn(socket.gamesessionid),
                         redisdb.getCardsPerPlayer(socket.gamesessionid),
                         redisdb.startGameCountdown(socket.gamesessionid),
-
-
                     ]).then((data)=>{
                         const gamestartObj = {
                             playerinturn:data[0].playerinturn,
@@ -325,6 +323,31 @@ io.use(function (socket, next) {
         });
 
     }
+    socket.on('disconnect',(data)=>{
+            redisdb.isAlive(socket.gamesessionid).then((isalive)=>{
+                if (isalive){
+                    logger.info('socket.on DISCONNECT',`first socket to disconnect in game. Game ${socket.gamesessionid} will be destroyed.`);
+                    Promise.all([
+                        redisdb.getGameId(socket.gamesessionid),
+                            redisdb.deleteGame(socket.gamesessionid)
+                    ]).then((data)=>{
+                        const gameid = data[0];
+                            request.post(
+                                {
+                                    url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/interrupt/${gameid}`,
+                                    headers:{
+                                        Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                            .toString('base64')
+                                    },
+                                } ,(err,res,body)=>{
+                                    io.to(socket.gamesessionid).emit(events.GAME_INTERRUPT);
+                                })
+                    })
+                }
+
+            })
+
+    });
     // synchronize so that when client's frontend fails, they can synchronize and adjust to be right.
     socket.on(events.SYNCHRONIZE, (data,response)=>{
         logger.info("on SYNCHRONIZE", "trying to sync socket ",socket.id);

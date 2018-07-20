@@ -6,28 +6,29 @@ const GameListItem = (props)=> (
     <div className="gameList__item">
         <Card
             title={props.game.name?props.game.name:"untitled"}
-
             extra={
                 <div onClick={props.game.isStarted? null:props.onJoin}>
                     {
-                        props.game.isStarted? null:(
-
-                            <div className={props.game && props.game.gameoptions&&props.game.gameoptions.numberOfMaxPlayers === props.game.players.length? "":"gameList__item__joinButton"}>
-                                {props.game && props.gameoptions && props.game.gameoptions.numberOfMaxPlayers === props.game.players.length? (
-                                    <Tooltip title="Sorry! The game is full.">
-                                <Icon
-                                    type="rocket"
-                                />
-                                <h6>Join</h6>
-                                    </Tooltip>
-                                    ):
-                                    (<div>
-                            <Icon
-                                type="rocket"
-                            />
-                            <h6>Join</h6>
-                                        </div>
-                                    )}
+                        props.game.isStarted ? null : (
+                            <div>
+                            {props.game && props.game.gameoptions && parseInt(props.game.gameoptions.numberOfMaxPlayers) === props.game.players.length ?
+                                (
+                                        <Tooltip title="Sorry! The game is full." >
+                                            <Icon
+                                                type="rocket"
+                                            />
+                                            <h6>Join</h6>
+                                        </Tooltip>
+                                ) :
+                                (
+                                    <div className="gameList__item__joinButton">
+                                        <Icon
+                                            type="rocket"
+                                        />
+                                        <h6>Join</h6>
+                                    </div>
+                                )
+                        }
                             </div>
                         )
                     }

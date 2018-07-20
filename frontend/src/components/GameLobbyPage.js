@@ -66,9 +66,9 @@ class GameLobbyPage extends Component {
         clearInterval(this.intervalObj);
 
 
-        if (!this.state.hasLeft)
+       /* if (!this.state.hasLeft)
             this.onLeaveHandler();
-
+        */
     }
 
     onLeaveHandler = () => {

@@ -153,13 +153,21 @@ class GamePlayPage extends Component {
             notification.destroy();
             this.setState({isShowingResultsModal:true});
         };
+        const onGameInterrupt = ()=>{
+            //go back.
+            clearInterval(this.state.countdowntimer);
+            key.unbind('t');
+            key.unbind('space');
+            notification.destroy();
+            this.goBackToHome("error");
+        }
         //clear previous gameplay object.
         this.props.dispatch(finishGame());
         socketclient.disconnectAppcsAndConnectToGameplay(this.props.location.gamestartobj,
             this.props.myusername,
             onPlayerSlapRegistered,
             onNextTick,
-            onMatchResult,onGameStart,onGameWinnerAnnounced).then(()=>{
+            onMatchResult,onGameStart,onGameWinnerAnnounced,onGameInterrupt).then(()=>{
                 // bind key bindings only when we subscribed to the gameplay and everything ok...
                 key('t', () => {
                         this.throw();
@@ -204,7 +212,7 @@ class GamePlayPage extends Component {
             }
         })
     }
-    goBackToHome = ()=>{
+    goBackToHome = (errormsg)=>{
         //TODO ELEGANT: this method is an exact duplicate of the one in mainpage (connectToGameUpdates).
         // TODO: maybe abstract both away?
         // e.g. make a socketclient method which is simpler for both to call?
@@ -232,9 +240,19 @@ class GamePlayPage extends Component {
                 //remove our gameplay object.
                 this.props.dispatch(finishGame());
 
+                if (errormsg)
                 this.props.history.push({
-                    pathname: '/'
+                    pathname: '/',
+                    dialog: {
+                    subject: 'Sorry!',
+                        message: 'Someone disconnected from gameplay. Please don\'t leave games midway! '
+                }
+
                 });
+                else
+                    this.props.history.push({
+                        pathname: '/'
+                    });
             }).catch((e) => {
                 this.alertError('server error. Sorry!',
                     `couldn't get open games. Server error. Please try again later. ${e}`

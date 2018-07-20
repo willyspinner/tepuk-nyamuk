@@ -169,6 +169,17 @@ const self = module.exports = {
             }).catch((e)=>reject(e));
         });
     },
+    isAlive:(gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            redisclient.getAsync(`${gamesessionid}/isalive`).then((ans)=>{
+                if (parseInt(ans) === 1 )
+                    resolve(true);
+                else
+                    resolve(false);
+
+            })
+        });
+    },
     deleteGame: (gamesessionid)=>{
          return new Promise((resolve,reject)=>{
              //note: returnArr is here because this is used for the scan.

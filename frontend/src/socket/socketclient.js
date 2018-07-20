@@ -131,7 +131,7 @@ return new Promise((resolve,reject)=>{
     //TODO: make unsubscribefromgameplay?
     // or just close the socket?
     // first sends 'MOVING_TO_GMS', then disconnects, then connect to gameplay.
-    disconnectAppcsAndConnectToGameplay (gameStartObj, username, onPlayerSlapRegistered, onNextTick, onMatchResult, onGameStart, onGameFinished){
+    disconnectAppcsAndConnectToGameplay (gameStartObj, username, onPlayerSlapRegistered, onNextTick, onMatchResult, onGameStart, onGameFinished,onGameInterrupt){
         let mysocket = this.mysocket;
         return new Promise((resolve,reject)=>{
             //TODO: THIS EMIT doesn't work.
@@ -159,6 +159,9 @@ return new Promise((resolve,reject)=>{
                         })
                         this.mysocket.on(GMSEVENTS.GAME_FINISHED,(data)=>{
                             onGameFinished(data);
+                        })
+                        this.mysocket.on(GMSEVENTS.GAME_INTERRUPT,(data)=>{
+                            onGameInterrupt(data);
                         })
                         resolve();
                     }).catch((e)=>reject(e));
@@ -204,18 +207,24 @@ return new Promise((resolve,reject)=>{
 
     }
 
+    removeAllLobbyListeners(){
+        this.mysocket.removeAllListeners(EVENTS.LOBBY.GAME_START);
+        this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_GAME_DELETED);
+        this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_JOINED);
+        this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_LEFT);
+    }
+
     unsubscribeFromLobby(userStateObj,onSuccessLeave,onfailLeave){
-        this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE,userStateObj,(ack)=>{
-            if(ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK){
-                this.mysocket.removeAllListeners(EVENTS.LOBBY.GAME_START);
-                this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_GAME_DELETED);
-                this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_JOINED);
-                this.mysocket.removeAllListeners(EVENTS.LOBBY.USER_LEFT);
-                onSuccessLeave();
-            }else{
-                onfailLeave();
-            }
-        })
+        if (this.mysocket) {
+            this.mysocket.emit(EVENTS.LOBBY.CLIENT_LEAVE, userStateObj, (ack) => {
+                if (ack === EVENTS.LOBBY.CLIENT_LEAVE_ACK) {
+                    this.removeAllLobbyListeners();
+                    onSuccessLeave();
+                } else {
+                    onfailLeave();
+                }
+            })
+        }
     }
 
     // This is a private method. DOn't call this outside.

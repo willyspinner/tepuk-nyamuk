@@ -48,6 +48,12 @@ class NormalLoginForm extends React.Component {
                     <Button type="primary" htmlType="submit" className="login-form-button">
                         Create Game
                     </Button>
+                    <Button onClick={this.props.onClose}
+                            type="danger"
+                            style={{margin:'7px'}}
+                    >
+                        <Icon type="close" />
+                    </Button>
                 </Form.Item>
             </Form>
         );
