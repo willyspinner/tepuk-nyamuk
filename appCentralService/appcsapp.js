@@ -629,7 +629,7 @@ io.on('connect', (socket) => {
                         }
                     })
                 }else{
-                    logger.info(`socket.on DISCONNECT`,`${userObj.username} not in any game. Doing nothing...`)
+                    logger.info(`socket.on DISCONNECT`,` socket with id ${socket.id} not in any game. Doing nothing...`)
                 }
             })
         }else{
