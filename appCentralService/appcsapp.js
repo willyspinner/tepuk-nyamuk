@@ -1,10 +1,10 @@
 const logger = require('./log/appcs_logger');
-if (process.argv.length < 3){
+if (process.argv.length < 3) {
     console.error("ERROR. Environment not set.");
     console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
     process.exit(1);
 }
-switch(process.argv[2]){
+switch (process.argv[2]) {
     case 'development.local':
         require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
         break;
@@ -21,8 +21,8 @@ switch(process.argv[2]){
         throw new Error("INVALID environment mode.");
 }
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`})
-logger.info(`connection details`,`connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
-logger.info(`connection details`,`pub sub redis : ${process.env.APPCS_REDIS_PUBSUB_HOST}:${process.env.APPCS_REDIS_PUBSUB_PORT}`);
+logger.info(`connection details`, `connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
+logger.info(`connection details`, `pub sub redis : ${process.env.APPCS_REDIS_PUBSUB_HOST}:${process.env.APPCS_REDIS_PUBSUB_PORT}`);
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -34,20 +34,20 @@ const db = require('./db/db');
 const EVENTS = require('./constants/socketEvents');
 const uuidvalidate = require('uuid-validate');
 const request = require('request');
-const basicAuth=require('basic-auth');
-const socketioredis=  require('socket.io-redis');
+const basicAuth = require('basic-auth');
+const socketioredis = require('socket.io-redis');
 const cookieParser = require('cookie-parser');
 // appcs environment var.
 
 // constants
 
-if (process.env.APPCS_PORT){
-    app.set('port',process.env.APPCS_PORT);
-}else{
+if (process.env.APPCS_PORT) {
+    app.set('port', process.env.APPCS_PORT);
+} else {
     app.set('port', process.env.APPCS_PORT || 3000);
 }
-if (process.argv.length > 3){
-    app.set('port',process.argv[3]);
+if (process.argv.length > 3) {
+    app.set('port', process.argv[3]);
 }
 // body parser
 const bodyParser = require('body-parser')
@@ -56,9 +56,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 app.use(cookieParser());
-if( process.argv[2] === 'production.host'){
+if (process.argv[2] === 'production.host') {
     const dd_options = {
-        'response_code':true,
+        'response_code': true,
         'tags': ['app:appcs']
     }
     app.use(require('connect-datadog')(dd_options));
@@ -69,23 +69,23 @@ if( process.argv[2] === 'production.host'){
 // server listening.
 const server = app.listen(app.get('port'));
 
-const io = ioserver(server,{
+const io = ioserver(server, {
     path: '/appcs-socketio',
     pingTimeout: 15000, // ms
     pingInterval: 10000 // ms
 
 
 })
-io.adapter(socketioredis({host:process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
+io.adapter(socketioredis({host: process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
 //NOTE: do we attach it to the server? really?
-logger.info('app.js',`app listening on ${app.get('port')}`);
+logger.info('app.js', `app listening on ${app.get('port')}`);
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
     //TODO: load these configs in runtime in consul.
-    res.header("Access-Control-Allow-Origin", process.env.TEPKENV === 'production' ? process.env.DOMAINNAME: '*');
+    res.header("Access-Control-Allow-Origin", process.env.TEPKENV === 'production' ? process.env.DOMAINNAME : '*');
     //res.header("Access-Control-Allow-Origin",'*');
-    res.header("Access-Control-Allow-Methods","POST, GET, OPTIONS, DELETE, ")
+    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, ")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     //res.header('berdoge','ehehe');
     next();
@@ -100,7 +100,7 @@ password
  */
 // there should be some client side validation on NON NULL name.
 app.post('/appcs/user/new', (req, res) => {
-    if (!req.body.username|| !req.body.password) {
+    if (!req.body.username || !req.body.password) {
         res.status(400).json({
             success: false,
             error: 'invalid details'
@@ -108,7 +108,7 @@ app.post('/appcs/user/new', (req, res) => {
         return;
     }
     db.getUser(req.body.username).then((user) => {
-        if(!user){
+        if (!user) {
             const salt = bcrypt.genSaltSync(10);
             const userObj = {
                 username: req.body.username,
@@ -122,11 +122,11 @@ app.post('/appcs/user/new', (req, res) => {
                     });
 
                 res
-                    .cookie('tpk_app_token',token, {expiresIn })
+                    .cookie('tpk_app_token', token, {expiresIn})
                     .status(201).json({
-                        success: true,
-                        token: token
-                    })
+                    success: true,
+                    token: token
+                })
             }).catch((e) => {
                 res.status(500).json({
                     success: false
@@ -151,8 +151,8 @@ POST BODY:
 
  */
 app.post('/appcs/user/auth', (req, res) => {
-    logger.info(`POST /appcs/user/auth.`,`Post body: ${JSON.stringify(req.body)}`);
-    if(!req.body.username){
+    logger.info(`POST /appcs/user/auth.`, `Post body: ${JSON.stringify(req.body)}`);
+    if (!req.body.username) {
         res.status(400).json({
             success: false,
             error: `invalid request.`
@@ -160,7 +160,7 @@ app.post('/appcs/user/auth', (req, res) => {
         return;
     }
     db.getUserSecrets(req.body.username).then((user) => {
-        if (!user){
+        if (!user) {
             res.status(403).json({
                 success: false,
                 error: ` no such user: ${req.body.username}.`
@@ -170,11 +170,11 @@ app.post('/appcs/user/auth', (req, res) => {
         const passwordValid = bcrypt.compareSync(req.body.password, user.password);
         if (passwordValid) {
             const expiresIn = 7200;
-            let token = jwt.sign({username: user.username },
+            let token = jwt.sign({username: user.username},
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn});
             res
-                .cookie('tpk_app_token',token, {expiresIn })
+                .cookie('tpk_app_token', token, {expiresIn})
                 .status(200).json({
                 success: true,
                 token: token
@@ -185,8 +185,8 @@ app.post('/appcs/user/auth', (req, res) => {
                 token: null
             })
         }
-    }).catch((e)=>{
-        res.status(500).json({success:false});
+    }).catch((e) => {
+        res.status(500).json({success: false});
     })
 
 })
@@ -204,9 +204,9 @@ TESTED . OK.
  */
 
 app.get('/appcs/game', (req, res) => {
-    logger.info(`GET /appcs/game`,`querying open games...`);
+    logger.info(`GET /appcs/game`, `querying open games...`);
     db.queryOpenGames().then((games) => {
-        logger.info(`GET /appcs/game`,`responding with games: ${JSON.stringify(games)}`);
+        logger.info(`GET /appcs/game`, `responding with games: ${JSON.stringify(games)}`);
         res.status(200).json({
             success: true,
             games
@@ -214,7 +214,7 @@ app.get('/appcs/game', (req, res) => {
     }).catch((e) => {
         res.status(500).json({
             success: false,
-            error:JSON.stringify(e)
+            error: JSON.stringify(e)
         })
     });
 });
@@ -233,15 +233,15 @@ POST body:
  */
 app.post('/appcs/game/create', (req, res) => {
     // the creator information is here already. (inside req.body.game object).
-    if(!req.body.token || !req.body.game){
+    if (!req.body.token || !req.body.game) {
         res.status(400).json({
-            success:false,
-            error:"Bad request."
+            success: false,
+            error: "Bad request."
         });
         return;
     }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err){
+        if (err) {
             res.status(401).json({
                 success: false,
                 error: 'NOT AUTHENTICATED.'
@@ -252,7 +252,7 @@ app.post('/appcs/game/create', (req, res) => {
         game.creator = decoded.username;
         if (!game.numberOfMaxPlayers)
             game.numberOfMaxPlayers = 8;
-        logger.info('POST /appcs/game/create',`Creating game : ${JSON.stringify(game)}. Cookies: ${JSON.stringify(req.cookies)}`)
+        logger.info('POST /appcs/game/create', `Creating game : ${JSON.stringify(game)}. Cookies: ${JSON.stringify(req.cookies)}`)
         db.createGame(game).then((newgame) => {
             // link used to go to the lobby page.
             io.emit(EVENTS.GAME_CREATED, {
@@ -284,44 +284,41 @@ POST body:
 TESTED. OK.
  */
 app.delete('/appcs/game/delete/:gameid', (req, res) => {
-    if(!req.body.token || !req.body.socketid ){
-        res.status(400).json({success:false});
+    if (!req.body.token || !req.body.socketid) {
+        res.status(400).json({success: false});
         return;
     }
-    if(! uuidvalidate(req.params.gameid)){
+    if (!uuidvalidate(req.params.gameid)) {
         res.status(400).json({
-            success:false,
+            success: false,
             error: 'invalid game id.'
         });
         return;
     }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err){
+        if (err) {
             res.status(401).json({success: false, error: 'unauthorized.'});
             return;
         }
 
-        logger.info(`AppCS::app.js::delete game route`,` jwt signature verified`);
+        logger.info(`AppCS::app.js::delete game route`, ` jwt signature verified`);
         console.log(`get game user id: ${req.params.gameid}`);
         db.getGame(req.params.gameid).then((game) => {
-            if (!game){
+            if (!game) {
                 res.status(404).json({
-                    success:false,
-                    error:"no such game."
+                    success: false,
+                    error: "no such game."
                 });
                 return;
             }
             db.getUserSecrets(game.creator).then((creator) => {
-                logger.info("DELETE /appcs/game/delete/:gameid",`got user secrets : ${JSON.stringify(creator)}`);
-                logger.info("DELETE /appcs/game/delete/:gameid",`trying to authenticate deleter...`);
-                logger.info("DELETE /appcs/game/delete/:gameid",`creator.socketid : ${creator.socketid}`);
-                logger.info("DELETE /appcs/game/delete/:gameid",`req.body.socketid : ${req.body.socketid}`);
-                logger.info("DELETE /appcs/game/delete/:gameid",`creator.username: ${creator.username}`);
-                logger.info("DELETE /appcs/game/delete/:gameid",`decoded.username : ${decoded.username}`);
-                if(1 ==1 )
-                    logger.info("DELETE /appcs/game/delete/:gameid","indeed..");
+                logger.info("DELETE /appcs/game/delete/:gameid", `trying to authenticate deleter...`);
+                logger.info("DELETE /appcs/game/delete/:gameid", `creator.socketid : ${creator.socketid}`);
+                logger.info("DELETE /appcs/game/delete/:gameid", `req.body.socketid : ${req.body.socketid}`);
+                logger.info("DELETE /appcs/game/delete/:gameid", `creator.username: ${creator.username}`);
+                logger.info("DELETE /appcs/game/delete/:gameid", `decoded.username : ${decoded.username}`);
                 if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
-                    logger.info(`AppCS::app.js::delete game route`,` credentials verified for deletion.`);
+                    logger.info(`AppCS::app.js::delete game route`, ` credentials verified for deletion.`);
                     db.deleteGame(req.params.gameid).then(() => {
                         console.log(`AppCS::app.js::delete game route: emitting to main lobby...`);
                         io.emit(EVENTS.GAME_DELETED, {
@@ -336,28 +333,28 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                     }).catch((e) => {
                         res.status(500).json({
                             success: false,
-                            error:"here1"
+                            error: "here1"
                         })
                     });
-                }else {
+                } else {
                     res.status(401).json({
-                        success:false,
-                        error:"unauthorized."
+                        success: false,
+                        error: "unauthorized."
                     });
                 }
             }).catch((e) => {
-                    logger.error("DELETE /appcs/game/delete/:gameid",`${JSON.stringify(e)}`)
-                    res.status(500).json({
-                        success: false,
-                        error:"here2 berdog"
-                    })
-                });
-        }).catch((e) => {
+                logger.error("DELETE /appcs/game/delete/:gameid", `${JSON.stringify(e)}`)
                 res.status(500).json({
                     success: false,
-                    error:"here3"
+                    error: "here2 berdog"
                 })
             });
+        }).catch((e) => {
+            res.status(500).json({
+                success: false,
+                error: "here3"
+            })
+        });
     });
 });
 
@@ -376,15 +373,15 @@ POST body:
  */
 
 app.post('/appcs/game/start/:gameid', (req, res) => {
-    if(!req.body.token ||!req.body.socketid){
+    if (!req.body.token || !req.body.socketid) {
         res.status(400).json({
-            success:false,
-            error:"invalid details."
+            success: false,
+            error: "invalid details."
         })
         return;
     }
     jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-        if (err){
+        if (err) {
             res.status(401).json({
                 success: false,
                 error: 'Invalid token.'
@@ -393,14 +390,14 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
         }
         logger.info('POST /appcs/game/start/:gameid', `decoded jwt token: ${JSON.stringify(decoded)}`);
         db.getGame(req.params.gameid).then((game) => {
-            if(!game){
+            if (!game) {
                 res.status(404).json({
-                    success:false,
-                    error:"no such game."
+                    success: false,
+                    error: "no such game."
                 });
                 return;
             }
-            logger.info("POST /appcs/game/start/:gameid",`got game ${JSON.stringify(game)}`);
+            logger.info("POST /appcs/game/start/:gameid", `got game ${JSON.stringify(game)}`);
             db.getUserSecrets(game.creator).then((creator) => {
                 logger.info("creator vs req socketids:", `${creator.socketid} vs ${req.body.socketid}`)
                 logger.info("creator vs req usernames:", `${creator.username} vs ${decoded.username}`)
@@ -411,53 +408,52 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                     const GMS_HOST = process.env.GMS_HOST || 'localhost';
                     const GMS_PORT = process.env.GMS_PORT || 4000;
                     request.post({
-                            url:`http://${GMS_HOST}:${GMS_PORT}/gms/game/create`,
-                            headers:{
-                              Authorization: "Basic "+ new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
-                                  .toString('base64')
+                            url: `http://${GMS_HOST}:${GMS_PORT}/gms/game/create`,
+                            headers: {
+                                Authorization: "Basic " + new Buffer(`${process.env.INTERNAL_SECRET_USER}:${process.env.INTERNAL_SECRET_PW}`)
+                                    .toString('base64')
                             },
                             form: {
                                 gameid: req.params.gameid,
                                 gamename: "zz game", // NOTE:  we don't actually need the game name i think.
                                 players: game.players,// an array of the usernames.
-                                gameOptions:req.body.gameOptions
+                                gameOptions: req.body.gameOptions
                             },
                         },
                         (err, resp, body) => {
-                            if (err)
-                            {
+                            if (err) {
                                 res.status(500).json({
-                                    success:false,
-                                    error:"server request error."
+                                    success: false,
+                                    error: "server request error."
                                 })
                                 return;
                             }
                             let response = null;
-                            try{
+                            try {
                                 response = JSON.parse(body);
-                            } catch(e){
+                            } catch (e) {
                                 res.status(500).json({
-                                    success:false,
+                                    success: false,
                                     error: "game server error."
                                 })
                                 return;
                             }
 
-                            if(!response.success){
+                            if (!response.success) {
                                 res.status(400).json({
-                                    success:false,
-                                    error:"bad request",
+                                    success: false,
+                                    error: "bad request",
                                     err2: `${JSON.stringify(response.error)}`
                                 });
                                 return;
                             }
                             //oops. forgot to add this chunk below:
-                            db.startGame(req.params.gameid).then(()=>{
+                            db.startGame(req.params.gameid).then(() => {
                                 // emit to main lobby that this game is starting..
-                                io.emit(EVENTS.GAME_STARTED,{gameuuid: req.params.gameid} );
+                                io.emit(EVENTS.GAME_STARTED, {gameuuid: req.params.gameid});
                                 io
                                     .to(req.params.gameid)
-                                    .emit(EVENTS.LOBBY.GAME_START,{
+                                    .emit(EVENTS.LOBBY.GAME_START, {
                                         gametoken: response.gametoken,
                                         gamesecret: response.gamesecret,
                                         gamesessionid: response.gamesessionid
@@ -473,18 +469,18 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
                         success: false,
                         error: 'unauthorized.'
                     });
-            }).catch((e)=>{
+            }).catch((e) => {
                 res.status(500).json({
-                    success:false,
-                    error:'server error 1',
+                    success: false,
+                    error: 'server error 1',
                     e: JSON.stringify(e)
                 })
             });
-        }).catch((e)=>{
+        }).catch((e) => {
             res.status(500).json({
-                success:false,
-                error:'server error 2',
-                e :JSON.stringify(e)
+                success: false,
+                error: 'server error 2',
+                e: JSON.stringify(e)
             })
         });
     })
@@ -494,70 +490,70 @@ app.post('/appcs/game/start/:gameid', (req, res) => {
 
 GMS to APPCS route. Finish game.
  */
-const GMSAuthMiddleware = (req,res,next)=>{
+const GMSAuthMiddleware = (req, res, next) => {
     const user = basicAuth(req);
-    if(!user || !user.name || !user.pass){
+    if (!user || !user.name || !user.pass) {
         logger.warn('GMS AUTH Middleware', `no auth provided.`);
         res.status(401).json({
-            success:false,
-            error:"No authentication information provided."
+            success: false,
+            error: "No authentication information provided."
         })
         return;
     }
-    if(user.name === process.env.INTERNAL_SECRET_USER
+    if (user.name === process.env.INTERNAL_SECRET_USER
         && user.pass === process.env.INTERNAL_SECRET_PW) {
         next();
-    }else{
+    } else {
         logger.warn('GMS AUTH Middleware', `incorrect auth provided.`);
         res.status(401).json({
-            success:false,
-            error:"Incorrect authentication information."
+            success: false,
+            error: "Incorrect authentication information."
         });
     }
 };
-app.post(`/appcs/game/interrupt/:gameid`,GMSAuthMiddleware,(req,res)=>{
-    db.bulkLeaveGameAndDelete(req.params.gameid).then(()=>{
-            io.emit(EVENTS.GAME_DELETED,
-                {
-                    gameuuid: req.params.gameid
-                }
-            );
-            res.status(200).json({
-                success:true
-            });
-    }).catch((e)=>{
+app.post(`/appcs/game/interrupt/:gameid`, GMSAuthMiddleware, (req, res) => {
+    db.bulkLeaveGameAndDelete(req.params.gameid).then(() => {
+        io.emit(EVENTS.GAME_DELETED,
+            {
+                gameuuid: req.params.gameid
+            }
+        );
+        res.status(200).json({
+            success: true
+        });
+    }).catch((e) => {
         res.status(500).json({
-            success:false,
-            error:e
+            success: false,
+            error: e
         })
     })
 
 });
-app.post(`/appcs/game/finish/:gameid`,GMSAuthMiddleware,(req,res)=>{
+app.post(`/appcs/game/finish/:gameid`, GMSAuthMiddleware, (req, res) => {
 
-        db.gmsFinishGame(req.params.gameid,req.body.resultObj).then(()=>{
-            // emit to main lobby that the game is finished (deleted)
-            io.emit(EVENTS.GAME_DELETED,
-                {
-                    gameuuid: req.params.gameid
-                }
-            );
+    db.gmsFinishGame(req.params.gameid, req.body.resultObj).then(() => {
+        // emit to main lobby that the game is finished (deleted)
+        io.emit(EVENTS.GAME_DELETED,
+            {
+                gameuuid: req.params.gameid
+            }
+        );
 
-            res.json({
-                success:true,
-            })
-        }).catch((e)=>{
-            res.status(500).json({
-                success:false,
-                error:"postgresql finish game error."
-            })
+        res.json({
+            success: true,
         })
+    }).catch((e) => {
+        res.status(500).json({
+            success: false,
+            error: "postgresql finish game error."
+        })
+    })
 
 });
 
 // health check
-app.get('/health', (req,res)=>{
-    logger.info("app.js: GET /health","health checkup...");
+app.get('/health', (req, res) => {
+    logger.info("app.js: GET /health", "health checkup...");
     res.sendStatus(200);
 })
 
@@ -565,17 +561,17 @@ app.get('/health', (req,res)=>{
 // we use our middleware to deal with JWT auth
 io.use(function (socket, next) {
     if (socket.handshake.query.token) {
-        logger.info(`socket.io authentication middleware`,`verifying token ${socket.handshake.query.token}`);
+        logger.info(`socket.io authentication middleware`, `verifying token ${socket.handshake.query.token}`);
         jwt.verify(socket.handshake.query.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err)
                 return next(new Error('WS Auth Error'));
-            logger.info(`socket.io authentication middleware`,`verified token for user: ${decoded.username} `);
+            logger.info(`socket.io authentication middleware`, `verified token for user: ${decoded.username} `);
             socket.username = decoded.username;
             socket.token = socket.handshake.query.token;//TODO: is this needed?
             db.loginUserSocketId(socket.username, socket.id).then(() => {
                 socket.sentMydata = false;
-                 return next();
-            }).catch((e)=>{
+                return next();
+            }).catch((e) => {
                 return next(new Error("WS auth: Appcs internal DB error"));
             });
         })
@@ -586,62 +582,55 @@ io.use(function (socket, next) {
 });
 io.on('connect', (socket) => {
     if (!socket.sentMydata) {
-        logger.info('socket connect successful',`socket connected : ${socket.username}, id : ${socket.id}`);
-        socket.sentMydata =true;
+        logger.info('socket connect successful', `socket connected : ${socket.username}, id : ${socket.id}`);
+        socket.sentMydata = true;
     }
-    socket.on('pong',()=>{
-       logger.info(`socket.on PONG`,`${socket.username} ponged.`);
+    socket.on('pong', () => {
+        logger.info(`socket.on PONG`, `${socket.username} ponged.`);
     });
     socket.on('disconnect', () => {
-        if(!socket.movingToGms){
-            logger.info(`socket.on DISCONNECT`,`${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
-            db.getUser(socket.username).then((userObj)=>{
+        (async () => {
+            if (!socket.movingToGms) {
+                logger.info(`socket.on DISCONNECT`, `${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
+                const userObj = await db.getUser(socket.username);
                 logger.info(`socket.on DISCONNECt`, `got userObj : ${JSON.stringify(userObj)}`);
-                if( userObj && userObj.gameid){
-                    db.getGame(userObj.gameid).then((game)=>{
-                        if (game.creator === userObj.username){
-                            logger.info(`socket.on DISCONNECT`,`${userObj.username} is a game lobby creator. Deleting game ${game.uuid}...`)
-                            //delete game
-                            db.leaveGame(userObj).then(()=>{
-                                db.deleteGame(game.uuid).then(() => {
-                                    io.emit(EVENTS.GAME_DELETED, {
-                                        gameuuid: game.uuid
-                                    });
-                                    io
-                                        .to(game.uuid)
-                                        .emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
-                                });
-                            })
-                        }else{
-                            //TODO: leaving game.
-                            logger.info(`socket.on DISCONNECT`,`${userObj.username} is in a game. Leaving the game ${game.uuid}...`)
-                            db.leaveGame(userObj).then(() => {
-                                //note: .to() is the one for room in the main namespace.
-                                let joinedRoom = userObj.gameid;
-                                socket.leave(`${joinedRoom}`);
-                                io.to(`${joinedRoom}`).emit(EVENTS.LOBBY.USER_LEFT, userObj.username);
-                            }).catch((e) => {
-                                logger.error(`leaving game on disconnect`,`error: ${JSON.stringify(e)}`)
-                            });
-
-
-
-                        }
-                    })
-                }else{
-                    logger.info(`socket.on DISCONNECT`,` socket with id ${socket.id} not in any game. Doing nothing...`)
+                if (userObj && userObj.gameid) {
+                    let game = await db.getGame(userObj.gameid);
+                    if (game.creator === userObj.username) {
+                        logger.info(`socket.on DISCONNECT`, `${userObj.username} is a game lobby creator. Deleting game ${game.uuid}...`);
+                        //delete game
+                        await db.leaveGame(userObj);
+                        await db.deleteGame(game.uuid);
+                        io.emit(EVENTS.GAME_DELETED, {
+                            gameuuid: game.uuid
+                        });
+                        io.to(game.uuid).emit(EVENTS.LOBBY.LOBBY_GAME_DELETED);
+                    } else {
+                        //TODO: leaving game.
+                        logger.info(`socket.on DISCONNECT`, `${userObj.username} is in a game. Leaving the game ${game.uuid}...`)
+                        await db.leaveGame(userObj);
+                        //note: .to() is the one for room in the main namespace.
+                        let joinedRoom = userObj.gameid;
+                        socket.leave(`${joinedRoom}`);
+                        io.to(`${joinedRoom}`).emit(EVENTS.LOBBY.USER_LEFT, userObj.username);
+                    }
+                } else {
+                    logger.info(`socket.on DISCONNECT`, ` socket with id ${socket.id} not in any game. Doing nothing...`)
                 }
-            })
-        }else{
-            logger.info(`socket.on DISCONNECT`,`${socket.username} Disconnected but going to gms...`);
+            } else {
+                logger.info(`socket.on DISCONNECT`, `${socket.username} Disconnected but going to gms...`);
 
-        }
+            }
+        })().catch((e) => {
+            logger.info(`socket.on DISCONNECT`, `${socket.username} Disconnected but going to gms...`);
+
+        })
     });
 
-    socket.on(EVENTS.LOBBY.MOVING_TO_GMS, (data,response)=>{
-        logger.info(`on MOVING_TO_GMS`,`${socket.username} moving to gms.. ok.`);
+    socket.on(EVENTS.LOBBY.MOVING_TO_GMS, (data, response) => {
+        logger.info(`on MOVING_TO_GMS`, `${socket.username} moving to gms.. ok.`);
         socket.movingToGms = true;
-        response({success:true});
+        response({success: true});
     });
     /*
     AppCS Route.
@@ -649,62 +638,67 @@ io.on('connect', (socket) => {
     TODO: this socket route here is very costly (expensive).
     TODO: should be a way to make this more efficient.
      */
-    socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data,response) => {
+    socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data, response) => {
         jwt.verify(data.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
-            if (err){
+            if (err) {
                 response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
                 return;
             }
-        const clientUsername = decoded.username;
-        const roomName = data.gameid;
-        if(socket.username !== decoded.username){
-            response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
-            return;
-        }
-        db.getUser(clientUsername).then((user)=>{
-            if(user && user.gameid == null){
-                if(! uuidvalidate(data.gameid)){
-                    logger.warn('on CLIENT_ATTEMPT_JOIN',`got invalid uuid here.`);
-                    response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
-                    return;
+            const clientUsername = decoded.username;
+            const roomName = data.gameid;
+            if (socket.username !== decoded.username) {
+                response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                return;
+            }
+            db.getUser(clientUsername).then((user) => {
+                if (user && user.gameid == null) {
+                    if (!uuidvalidate(data.gameid)) {
+                        logger.warn('on CLIENT_ATTEMPT_JOIN', `got invalid uuid here.`);
+                        response(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK);
+                        return;
+                    }
+                    db.getGame(data.gameid).then((game) => {
+                        if (game == undefined) {
+                            logger.warn('on CLIENT_ATTEMPT_JOIN', `the game referred to by data.gameid is not real.`);
+                            response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error: 'no such game.'});
+                            return;
+                        }
+                        if (game.players.length + 1 > game.gameoptions.numberOfMaxPlayers) {
+                            response({
+                                msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK,
+                                error: `Already ${game.gameoptions.numberOfMaxPlayers } people in lobby. Sorry..`
+                            });
+                            return;
+                        }
+                        else {
+                            db.joinGame(clientUsername, roomName).then(() => {
+                                socket.lastroom = Object.keys(socket.rooms)[0];
+                                logger.info('ON CLIENT_ATTEMPT_JOIN', `socket.lastroom : ${JSON.stringify(socket.lastroom)}`)
+                                socket.join(roomName);
+
+                                logger.info('ON CLIENT_ATTEMPT_JOIN', `${clientUsername} joining socket room ${roomName}.`);
+                                io.to(`${roomName}`)
+                                    .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
+                                response({
+                                    msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
+                                    players: game.players
+                                });
+                            }).catch((e) => {
+                                logger.error('ON CLIENT_ATTEMPT_JOIN', `ACK ERROR for ${clientUsername}`)
+                                response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
+                            });
+                        }
+                    }).catch((e) => {
+                        logger.error(`on CLIENT_ATTEMPT_JOIN`, `ERROR db.getGame()`);
+                        response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
+                    });
                 }
-                db.getGame(data.gameid).then((game)=>{
-                    if (game == undefined) {
-                        logger.warn('on CLIENT_ATTEMPT_JOIN',`the game referred to by data.gameid is not real.`);
-                        response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error:'no such game.'});
-                        return;
-                    }
-                    if( game.players.length + 1 >game.gameoptions.numberOfMaxPlayers){
-                        response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK, error: `Already ${game.gameoptions.numberOfMaxPlayers } people in lobby. Sorry..`});
-                        return;
-                    }
-                    else{
-                        db.joinGame(clientUsername, roomName).then( () => {
-                            socket.lastroom = Object.keys(socket.rooms)[0];
-                           logger.info('ON CLIENT_ATTEMPT_JOIN', `socket.lastroom : ${JSON.stringify(socket.lastroom)}`)
-                            socket.join(roomName);
-                            
-                            logger.info('ON CLIENT_ATTEMPT_JOIN',`${clientUsername} joining socket room ${roomName}.`);
-                            io.to(`${roomName}`)
-                                .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
-                            response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
-                                players:game.players});
-                        }).catch((e) => {
-                            logger.error('ON CLIENT_ATTEMPT_JOIN',`ACK ERROR for ${clientUsername}`)
-                            response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
-                        });
-                    }
-                }).catch((e)=>{
-                    logger.error(`on CLIENT_ATTEMPT_JOIN`,`ERROR db.getGame()`);
-                    response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
-                });
-            }
-            else {
-                response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
-            }
-        }).catch((e)=>{
-            response({msg:EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
-        });
+                else {
+                    response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
+                }
+            }).catch((e) => {
+                response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
+            });
         });
     });
 
@@ -714,8 +708,8 @@ io.on('connect', (socket) => {
     WS player leave game
 
      */
-    socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj,response) => {
-        logger.info('on CLIENT_LEAVE',`${clientUserObj.username}`);
+    socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj, response) => {
+        logger.info('on CLIENT_LEAVE', `${clientUserObj.username}`);
         db.leaveGame(clientUserObj).then(() => {
             //note: .to() is the one for room in the main namespace.
             let joinedRoom = clientUserObj.gameid;
@@ -735,7 +729,7 @@ io.on('connect', (socket) => {
     (gets all connected rooms).
 
      */
-    socket.on(EVENTS.UTILS.CHECK_ROOM,(data,response)=>{
+    socket.on(EVENTS.UTILS.CHECK_ROOM, (data, response) => {
         response(socket.rooms);
     })
 
@@ -749,7 +743,7 @@ io.on('connect', (socket) => {
             message: "Whats up dawgs",
         }
      */
-    socket.on(EVENTS.EMIT_CHAT_MSG,(data)=>{
+    socket.on(EVENTS.EMIT_CHAT_MSG, (data) => {
         /* add things to the message */
         // assign a UUID to the message:
         data.msg_id = uuid();
@@ -758,9 +752,9 @@ io.on('connect', (socket) => {
         data.timestamp = moment.now();
 
         const namespace = data.namespace;
-        if (namespace ===null ){
+        if (namespace === null) {
             io.emit(EVENTS.RECV_CHAT_MSG, data);
-        }else {
+        } else {
             io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
         }
     });
@@ -774,56 +768,56 @@ io.on('connect', (socket) => {
 
 
      */
-    socket.on(EVENTS.LOBBY.INVITE_USER, (data,callback)=>{
+    socket.on(EVENTS.LOBBY.INVITE_USER, (data, callback) => {
         const invitedBy = data.invitedBy;
         const invitee = data.invitee;
         const gameid = data.gameid;
         const gamename = data.gamename;
         logger.info("on INVITE_USER", `got data : ${JSON.stringify(data)}`)
-        if(!invitedBy || !invitee || !gameid || !gamename){
+        if (!invitedBy || !invitee || !gameid || !gamename) {
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);
             return;
         }
-        db.getUser(invitee).then((user)=>{
-            if(!user){
+        db.getUser(invitee).then((user) => {
+            if (!user) {
                 callback(EVENTS.LOBBY.INVITE_USER_FAIL);
                 return;
             }
-            logger.info('on INVITE_USER',`user.gameid === gameid : ${user.gameid === gameid}`);
-            if (user.gameid === gameid){
+            logger.info('on INVITE_USER', `user.gameid === gameid : ${user.gameid === gameid}`);
+            if (user.gameid === gameid) {
                 callback(`${invitee} is already in the lobby.`);
                 return;
             }
-            const socketid= user.socketid;
-            io.to(socketid).emit(EVENTS.LOBBY.LOBBY_INVITATION,{
-               invitedBy,
-               gameid,
+            const socketid = user.socketid;
+            io.to(socketid).emit(EVENTS.LOBBY.LOBBY_INVITATION, {
+                invitedBy,
+                gameid,
                 gamename
             });
             callback(EVENTS.LOBBY.INVITE_USER_SUCCESS);
-        }).catch((e)=>{
+        }).catch((e) => {
             callback(EVENTS.LOBBY.INVITE_USER_FAIL);
         })
 
     })
-    socket.on(EVENTS.LOBBY.KICK_OUT_USER,(data,callback)=>{
-        db.getUser(data.kickee).then((user)=>{
-            if(!user || user.gameid !== data.gameid){
+    socket.on(EVENTS.LOBBY.KICK_OUT_USER, (data, callback) => {
+        db.getUser(data.kickee).then((user) => {
+            if (!user || user.gameid !== data.gameid) {
                 callback(false);
                 return;
             }
             //TODO: very inefficient.
-            db.getGame(data.gameid).then((game)=>{
-                db.getUser(game.creator).then((creator)=>{
-                    if(creator.socketid === socket.id){
+            db.getGame(data.gameid).then((game) => {
+                db.getUser(game.creator).then((creator) => {
+                    if (creator.socketid === socket.id) {
                         socket.to(user.socketid).emit(EVENTS.LOBBY.KICKED_OUT);
                         callback(true);
-                    }else{
+                    } else {
                         callback(false);
                     }
-                }).catch((e)=>callback(false))
-            }).catch((e)=>callback(false))
-        }).catch((e)=>callback(false))
+                }).catch((e) => callback(false))
+            }).catch((e) => callback(false))
+        }).catch((e) => callback(false))
     });
 
 })
