@@ -596,7 +596,8 @@ io.on('connect', (socket) => {
         if(!socket.movingToGms){
             logger.info(`socket.on DISCONNECT`,`${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
             db.getUser(socket.username).then((userObj)=>{
-                if(userObj.gameid){
+                logger.info(`socket.on DISCONNECt`, `got userObj : ${JSON.stringify(userObj)}`);
+                if( userObj && userObj.gameid){
                     db.getGame(userObj.gameid).then((game)=>{
                         if (game.creator === userObj.username){
                             logger.info(`socket.on DISCONNECT`,`${userObj.username} is a game lobby creator. Deleting game ${game.uuid}...`)
