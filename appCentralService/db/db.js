@@ -502,7 +502,7 @@ const self = module.exports = {
                 const finishgamequery = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.STATUS} `+
-                    `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2, `+
+                    `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2 `+
                     `WHERE ${fields.GAMES.UUID} = $1;
               `,
                     values: [gameid,JSON.stringify(resultObj)]
@@ -540,47 +540,62 @@ const self = module.exports = {
     },
     // called after end of game. Increment exp. resolves with incremented stuff.
 
-    incrementLevel: (username)=>{
+    getExpAndLevel: (username)=>{
+        return new Promise((resolve,reject)=> {
+            const getQuery= {
+                text:  `SELECT ${fields.USERS.USERNAME}, ${fields.USERS.EXP}, ${fields.USERS.LEVEL}
+                FROM ${fields.USERS.TABLENAME}
+                 WHERE ${fields.USERS.USERNAME} = $1`,
+                values: [ username]
+            };
+            client.query(getQuery, (err, res) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(res.rows[0]);
+            });
+        });
+    },
+    updateExpAndLevel: (username,expIncr,newLevel)=>{
     return new Promise((resolve,reject)=> {
-        const incrementLevelQuery = {
-            text: `UPDATE ${fields.USERS.TABLENAME}
-            SET ${fields.USERS.LEVEL} = ${fields.USERS.LEVEL} + 1
-            WHERE ${fields.USERS.USERNAME} = $1
-            RETURNING ${fields.USERS.LEVEL}, ${fields.USERS.USERNAME};
-           `,
-            values: [ username]
-        };
+        logger.info('db.js::updateExpAndLevel()',`increasing : ${username} with +exp : ${expIncr}, newLevel: ${newLevel}`)
+        let incrementLevelQuery;
+        if (newLevel){
+            incrementLevelQuery = {
+                text: `UPDATE ${fields.USERS.TABLENAME} `+
+              `SET ${fields.USERS.LEVEL} = $1, `+
+             `${fields.USERS.EXP} = ${fields.USERS.EXP} + $2 `+
+            `WHERE ${fields.USERS.USERNAME} = $3;`,
+                values: [newLevel, expIncr, username]
+            };
+        }
+        else{
+            incrementLevelQuery = {
+                text: `UPDATE ${fields.USERS.TABLENAME}` +
+             ` SET ${fields.USERS.EXP} = ${fields.USERS.EXP} + $1 `+
+            ` WHERE ${fields.USERS.USERNAME} = $2;`,
+                values: [ parseInt(expIncr),username]
+            };
+        }
+        /*
+        //DEBUG. NOTE: will  be deleted.
+        resolve();
+        return;
+        */
+        logger.info(`db.js::updateExpAndLevel()`,`query : ${JSON.stringify(incrementLevelQuery)}`);
         client.query(incrementLevelQuery, (err, res) => {
             if (err) {
+                logger.error('ERROR@ db::updateExpAndLevel()',`${JSON.stringify(err)}`)
                 reject(err);
                 return;
 
             }
-            resolve(res.rows[0]);
+            resolve();
         });
     });
     },
 
-    incrementExp: (username,expUpdate)=>{
-        return new Promise((resolve,reject)=>{
-            const incrementExpQuery= {
-                text: `UPDATE ${fields.USERS.TABLENAME}
-            SET ${fields.USERS.EXP} = ${fields.USERS.EXP} + $1
-            WHERE ${fields.USERS.USERNAME} = $2
-            RETURNING ${fields.USERS.EXP} , ${fields.USERS.LEVEL}, ${fields.USERS.USERNAME};
-           `,
-                values: [expUpdate,username]
-            };
-            client.query(incrementExpQuery,(err,res)=>{
-                if(err){
-                    reject(err);
-                    return;
-
-                }
-                resolve(res.rows[0]);
-            })
-        });
-        },
     closeConnection : ()=>{
         return client.end();
     }

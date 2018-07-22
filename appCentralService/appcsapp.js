@@ -38,6 +38,8 @@ const basicAuth = require('basic-auth');
 const socketioredis = require('socket.io-redis');
 const cookieParser = require('cookie-parser');
 const chatroomdb = require('./db/chatroomDb');
+const notifdb = require('./db/notifDb');
+const exp = require('./exp/func.exp');
 // appcs environment var.
 
 // constants
@@ -68,8 +70,9 @@ if (process.argv[2] === 'production.host') {
 }
 
 // server listening.
-const server = app.listen(app.get('port'));
 
+const server = app.listen(app.get('port'));
+logger.info(`app.js`,`API server listening on ${app.get('port')}`)
 const io = ioserver(server, {
     path: '/appcs-socketio',
     pingTimeout: 15000, // ms
@@ -79,7 +82,7 @@ const io = ioserver(server, {
 })
 io.adapter(socketioredis({host: process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
 //NOTE: do we attach it to the server? really?
-logger.info('app.js', `app listening on ${app.get('port')}`);
+logger.info('app.js', `ioserver listening on ${app.get('port')}`);
 
 app.use(function (req, res, next) {
     //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
@@ -118,21 +121,21 @@ app.post('/appcs/user/new', (req, res) => {
             Promise.all([
                 db.registerUser(userObj),
                 chatroomdb.getMainchat()
-            ]).then((data)=>{
-                const mainchat=  data[1];
+            ]).then((data) => {
+                const mainchat = data[1];
                 const expiresIn = 7200;
                 const token = jwt.sign({username: userObj.username},
                     process.env.AUTH_TOKEN_SECRET, {
                         expiresIn // secs, so 2 hours.
                     });
 
-                    res
-                        .cookie('tpk_app_token', token, {expiresIn})
-                        .status(201).json({
-                        success: true,
-                        token: token,
-                        stringifiedmainchat:mainchat
-                    })
+                res
+                    .cookie('tpk_app_token', token, {expiresIn})
+                    .status(201).json({
+                    success: true,
+                    token: token,
+                    stringifiedmainchat: mainchat
+                })
             }).catch((e) => {
                 res.status(500).json({
                     success: false
@@ -179,7 +182,7 @@ app.post('/appcs/user/auth', (req, res) => {
             let token = jwt.sign({username: user.username},
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn});
-            chatroomdb.getMainchat().then((mainchat)=> {
+            chatroomdb.getMainchat().then((mainchat) => {
                 res
                     .cookie('tpk_app_token', token, {expiresIn})
                     .status(200).json({
@@ -539,19 +542,39 @@ app.post(`/appcs/game/interrupt/:gameid`, GMSAuthMiddleware, (req, res) => {
 
 });
 app.post(`/appcs/game/finish/:gameid`, GMSAuthMiddleware, (req, res) => {
+    //TODO: make expUpdateObj.
+    Promise.all(
+        [
+        db.gmsFinishGame(req.params.gameid, req.body.resultObj),
+        exp.bulkIncrementExpAndLevel(exp.calculateExpGains(req.body.resultObj))
+    ]
+    ).then((data) => {
+        const expUpdates = data[1];
+        /*
+        [
+            {username: ___, currentLevel: ___, currentExp:___, currentLevelname: ___}
+            ]
+            */
 
-    db.gmsFinishGame(req.params.gameid, req.body.resultObj).then(() => {
-        // emit to main lobby that the game is finished (deleted)
-        io.emit(EVENTS.GAME_DELETED,
-            {
-                gameuuid: req.params.gameid
-            }
-        );
-
-        res.json({
-            success: true,
+        //emit to users: when they connect?  Put a redis thingy that waits for them?
+        /*/notif/user/USERNAMEHERE: jstring.  */
+        /* This expires as soon as we read it. */
+        Promise.all(
+            expUpdates.map((expUpdate) => notifdb.setNotif(expUpdate.username, JSON.stringify(expUpdate))))
+        .then(() => {
+            // emit to main lobby that the game is finished (deleted)
+            io.emit(EVENTS.GAME_DELETED,
+                {
+                    gameuuid: req.params.gameid
+                }
+            );
+            res.json({
+                success: true,
+            })
         })
+
     }).catch((e) => {
+        logger.error(`ERROR TING `,JSON.stringify(e));
         res.status(500).json({
             success: false,
             error: "postgresql finish game error."
@@ -592,6 +615,14 @@ io.use(function (socket, next) {
 io.on('connect', (socket) => {
     if (!socket.sentMydata) {
         logger.info('socket connect successful', `socket connected : ${socket.username}, id : ${socket.id}`);
+        //get notif.
+        notifdb.getNotifAndExpire(socket.username).then((notif)=>{
+            if (notif ){
+                console.log('SOCKETING EMITTING RECV NOTIF WITH OBJ :')
+                console.log(notif);
+                socket.emit(EVENTS.RECV_NOTIF,notif);
+            }
+        })
         socket.sentMydata = true;
     }
     socket.on('pong', () => {
@@ -689,7 +720,7 @@ io.on('connect', (socket) => {
                                 logger.info('ON CLIENT_ATTEMPT_JOIN', `${clientUsername} joining socket room ${roomName}.`);
                                 io.to(`${roomName}`)
                                     .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
-                                chatroomdb.getRoomchat(roomName).then((chats)=>{
+                                chatroomdb.getRoomchat(roomName).then((chats) => {
                                     response({
                                         msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
                                         players: game.players,
@@ -767,11 +798,11 @@ io.on('connect', (socket) => {
 
         const namespace = data.namespace;
         if (namespace === null) {
-            chatroomdb.pushToMainchat(JSON.stringify(data)).then(()=>{
+            chatroomdb.pushToMainchat(JSON.stringify(data)).then(() => {
                 io.emit(EVENTS.RECV_CHAT_MSG, data);
             })
         } else {
-            chatroomdb.pushToRoomchat(namespace,JSON.stringify(data)).then(()=>{
+            chatroomdb.pushToRoomchat(namespace, JSON.stringify(data)).then(() => {
                 io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
             })
         }
@@ -841,13 +872,26 @@ io.on('connect', (socket) => {
 })
 
 // trapping exit signals.
-const shutDown = async (signal)=>{
-    logger.warn(`signal ${signal}`,`shutting down gracefully..`);
+const shutDown = async (signal) => {
+    logger.warn(`signal ${signal}`, `shutting down gracefully..`);
     await db.closeConnection();
     await server.close();
-    logger.warn(`signal ${signal}`,`OK. Bye... 👋`);
+    logger.warn(`signal ${signal}`, `OK. Bye... 👋`);
     process.exit(0);
 }
-process.on('SIGTERM', ()=>shutDown('SIGTERM'));
-process.on('SIGINT', ()=>shutDown('SIGINT'));
+process.on('SIGTERM', () => shutDown('SIGTERM'));
+process.on('SIGINT', () => shutDown('SIGINT'));
+
+/*
+logger.info('doing testing...',`testing db.updateExpAndLevel()...`);
+    exp.bulkIncrementExpAndLevel(
+        [{username: 'a', expUpdate: 4000},
+            {username: 'b', expUpdate: 3000}
+        ])
+        .then(() => {
+            console.log('resolved.');
+        }).catch((e) => {
+        console.log(e);
+    })
+    */
 

@@ -9,7 +9,7 @@ const redisconnectionobject = {
 const redisclient = redis.createClient(redisconnectionobject);
 
 redisclient.on('error',(err)=>{
-    logger.error("redisdb",`redis connection error. ${JSON.stringify(err)}`);
+    logger.error("chatroomdb",`redis connection error. ${JSON.stringify(err)}`);
     process.exit(1);
 })
 logger.info("chatroomDb",`redis connection established @ ${redisconnectionobject.host}:${redisconnectionobject.port}`)

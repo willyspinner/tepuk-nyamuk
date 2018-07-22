@@ -1,8 +1,15 @@
 const db = require('../db/db');
-const dbfields = require('../db/schema/dbconstants');
-const USER = dbfields.USERS;
 const LEVELS = require('./expConfig').EXPLEVELS;
+const logger = require('../log/appcs_logger');
 class Scorer {
+    static calculateExpGains(resultObj){
+        const scoreresults = resultObj.finalscores;
+        // {username: ___, score ___}.
+        return scoreresults.map((scoreresult)=>({username: scoreresult.username,expUpdate: Math.round(scoreresult.score)}));
+    }
+    static getExpAndLevel(username){
+        return db.getExpAndLevel(username);
+    }
 
    static bulkIncrementExpAndLevel(expUpdateObjs){
         /*
@@ -14,41 +21,31 @@ class Scorer {
         {username: ___, currentLevel: ___, currentExp:___, currentLevelname: ___}
          */
         return new Promise((resolve,reject)=>{
-
-            Promise.all(expUpdateObjs.map((obj)=>db.incrementExp(obj.username,obj.expUpdate))).then((updatedScorers)=>{
-                /* update scorings:
-                of the form: {  exp, level, username}
-                 */
-                let finalobj = [];
+            Promise.all(expUpdateObjs.map((obj)=> db.getExpAndLevel(obj.username)))
+                .then((players)=>{
+                let finalObj = [];
                 Promise.all(
-                    updatedScorers.map((updatedScorer)=>{
-                        const level = updatedScorer[USER.LEVEL];
-                        if (LEVELS[level].threshold <= parseInt(updatedScorer[USER.EXP])){
-                            updatedScorer.currentLevel = updatedScorers[USER.LEVEL] + 1;
-                            finalobj.push({
-                                username: updatedScorer[USER.USERNAME],
-                                currentLevel : updatedScorer.currentLevel,
-                                currentExp: updatedScorer[USER.EXP],
-                                currentLevelname: LEVELS[updatedScorer.currentLevel].levelname
-                            });
-                            return db.incrementLevel(username);
-                        }else{
-                            updatedScorer.currentLevel = updatedScorers[USER.LEVEL];
-                            finalobj.push({
-                                username: updatedScorer[USER.USERNAME],
-                                currentLevel : updatedScorer.currentLevel,
-                                currentExp: updatedScorer[USER.EXP],
-                                currentLevelname: LEVELS[updatedScorer.currentLevel].levelname
-                            });
-                            return null;
+                    players.map((player,idx)=>{
+                        const oldlevel = player.level;
+                        let level = player.level;
+                        const incrExp = expUpdateObjs[idx].expUpdate;
+                        const currentExp =  parseInt(player.exp) + incrExp;
+                        if (LEVELS[level].threshold <= currentExp){
+                            for( ;LEVELS[level].threshold && LEVELS[level].threshold < currentExp ; level++ );
                         }
+                        finalObj.push({
+                            username: player.username,
+                            currentLevel : level,
+                            currentExp,
+                            currentLevelname: LEVELS[level].levelname
+                        });
+                        return db.updateExpAndLevel(player.username,incrExp,oldlevel === level? undefined: level);
                     })
                 ).then(()=>{
                     resolve(finalObj);
 
-                })
-
-            })
+                }).catch((e)=>reject(e));
+            }).catch((e)=>reject(e));
         });
     }
 
