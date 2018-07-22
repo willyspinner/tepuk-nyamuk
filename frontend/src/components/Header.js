@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {connect} from 'react-redux';
+import {Tooltip} from "antd";
 
 class Header extends React.Component {
     state = {
@@ -42,10 +43,26 @@ class Header extends React.Component {
                         this.props.user.currentLevelObj &&
                         this.props.user.currentExp >= 0
                         ? (
-                    <div style={{marginTop:"5px", marginRight: '10px'}}>
-                        <h4 style={{color:'white'}}> Lvl {this.props.user.currentLevelIdx +1} - {this.props.user.currentLevelObj.levelname}  EXP: {this.props.user.currentExp}</h4>
-                        <h4 style={{color:'white'}}>Exp needed to go to level {this.props.user.currentLevelIdx + 2}: {this.props.user.currentLevelObj.threshold - this.props.user.currentExp} </h4>
-                            <h3 style={{color: '#ffffff'}}>{this.props.user.username}</h3>
+                    <div style={{marginTop:"5px", marginRight: '10px' ,display:'flex',flexDirection:'row'}}>
+                        <Tooltip
+                            placement="bottom"
+                            title={`Exp needed to go to level ${this.props.user.currentLevelIdx + 2}: ${this.props.user.currentLevelObj.threshold - this.props.user.currentExp} points.`}
+                        >
+                            <div style={{display:'flex',flexDirection:'column'}}>
+                            <h5 style={{color:'white',
+                            }} className="game_font"> Lvl {this.props.user.currentLevelIdx +1} </h5>
+                             <h5 style={{color:'white',
+                            }} className="game_font">
+                                    {this.props.user.currentLevelObj.levelname}
+                                </h5>
+                                <h5 style={{color:'white',
+                                }} className="game_font">
+                                    EXP: {this.props.user.currentExp}
+                                </h5>
+
+                            </div>
+                        </Tooltip>
+                            <h1 style={{color: '#ffffff', marginLeft: '20px'}}>{this.props.user.username}</h1>
                     </div>
                         ):null
                     }

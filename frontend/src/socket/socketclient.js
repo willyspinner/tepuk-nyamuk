@@ -5,7 +5,7 @@ import GMSEVENTS from '../../../gameMarshallingService/constants/socketEvents';
 const ioclient = require('socket.io-client');
 class SocketClient {
     mysocket=null;
-    connect(connectionStr, token,extraquery,type){
+    connect(connectionStr, token,extraquery,type, onRecvNotif){
         this.token = token;
         let thatsocket = this.mysocket;
 
@@ -28,7 +28,6 @@ class SocketClient {
                 }
             );
 
-            console.log(`trying to listen to connect event.`);
             this.mysocket = thatsocket;
             thatsocket.on('connect',()=>{
                 console.log(`socket connected and authenticated`);
@@ -50,9 +49,11 @@ class SocketClient {
         this.mysocket.on(EVENTS.RECV_CHAT_MSG,(data)=>onRecvChat(data) )
         this.mysocket.on(EVENTS.GAME_STARTED,(data)=>onGameStarted(data) )
         this.mysocket.on(EVENTS.LOBBY.LOBBY_INVITATION,(data)=>onRecvInvitation(data) )
-        this.mysocket.on(EVENTS.RECV_NOTIF,(data)=>{
+        this.mysocket.on(EVENTS.RECV_NOTIF,(data)=> {
             console.log(`socketclient::subscribeToMainPage: received data: ${data}`);
-            onRecvNotif(data)} )
+            onRecvNotif(data);
+        });
+        this.mysocket.emit(EVENTS.GET_NOTIF);
     }
     sendChatMessage(msgObj){
         //NOTE: this isn't promise based, since we'll be waiting for the broadcast
@@ -240,9 +241,9 @@ return new Promise((resolve,reject)=>{
     }
 }
 
-const instance = new SocketClient();
+const socketclient= new SocketClient();
 //Object.freeze(instance);
 //NOTEDIFF: we don't use object.freeze here since in this way,
 //NOTEDIFF: we cannot manipulate the object once it leaves this blueprint and becomes our singleton.
-export default instance;
+export default socketclient;
 //export default SocketClient;

@@ -632,12 +632,14 @@ io.use(function (socket, next) {
     }
 
 });
-io.on('connect', (socket) => {
+io.on('connection', (socket) => {
     if (!socket.sentMydata) {
         logger.info('socket connect successful', `socket connected : ${socket.username}, id : ${socket.id}`);
         //get notif.
+        socket.sentMydata = true;
+    }
+    socket.on(EVENTS.GET_NOTIF,()=>{
         notifdb.getNotifAndExpire(socket.username).then((notif)=>{
-            socket.emit(EVENTS.RECV_NOTIF,{type: 'EXP', expObject:"BERDOG"});
             let notifObj = JSON.parse(notif);
             if ( notif && notifObj.type === 'EXP' ){
                 //TODO : why isn't the socket.emit working...
@@ -646,8 +648,7 @@ io.on('connect', (socket) => {
                 socket.emit(EVENTS.RECV_NOTIF,{type: 'EXP', expObject: notifObj.expObject});
             }
         })
-        socket.sentMydata = true;
-    }
+    })
     socket.on('pong', () => {
         logger.info(`socket.on PONG`, `${socket.username} ponged.`);
     });

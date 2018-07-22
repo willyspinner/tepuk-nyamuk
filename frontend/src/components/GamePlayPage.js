@@ -76,6 +76,8 @@ class GamePlayPage extends Component {
                 duration: 3
             })
         }
+        if(this.state.slapped)
+            return;
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
@@ -231,7 +233,8 @@ class GamePlayPage extends Component {
                 else
                     this.props.history.push({
                         pathname: '/',
-                        needConnect: true
+                        needConnect: true,
+                        expUpdate: true
                     });
 }
     synchronize=()=>{

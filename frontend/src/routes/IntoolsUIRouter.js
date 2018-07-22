@@ -2,12 +2,14 @@ import React from 'react';
 import createHistory from 'history/createBrowserHistory';
 import {Router,Switch,Route } from 'react-router-dom';
 import ChatRoom from '../components/ui/ChatRoom';
+import ExpUpdateModal from '../components/ExpUpdateModal';
 import ScoreRankings from "../components/ui/ScoreRankings";
 import {Button} from 'antd';
 import PlayingCard from "../components/ui/PlayingCard";
 import Sound from 'react-sound';
 import SOUNDTYPES from '../constants/soundTypes';
 export const history = createHistory();
+const EXPLEVELS= require('../../../appCentralService/exp/expConfig').EXPLEVELS;
 const sampleMessageFeed= [
     {
         sender_username: 'berdoge',
@@ -41,6 +43,9 @@ const IntoolsUIRouter =()=> (
                 </Button>
                 <Button onClick={()=>history.push('/intoolsUI/sound')} >
                     Joined Game Lobby sound
+                </Button>
+                <Button onClick={()=>history.push('/intoolsUI/expUpdateModal')} >
+                    expUpdateModal
                 </Button>
             </div>
             <Switch>
@@ -124,6 +129,23 @@ const IntoolsUIRouter =()=> (
                         </div>
                     )}
                 />
+                <Route
+                    path={"/intoolsUI/expUpdateModal"}
+                    exact={true}
+                    render={()=>(
+                        <ExpUpdateModal
+                        isOpen={true}
+                        previousLevelIdx={4}
+                        previousExp={2000}
+                        previousLevelObj={EXPLEVELS[4]}
+                        currentLevelIdx={5}
+                        currentExp={2700}
+                        currentLevelObj={EXPLEVELS[5]}
+                        onRequestClose={()=>alert('on request close.')}
+
+                        />
+                        )}
+                    />
 
                 <Route render={()=>(<h3> Please select a UI component to continue.</h3>)}/>
             </Switch>

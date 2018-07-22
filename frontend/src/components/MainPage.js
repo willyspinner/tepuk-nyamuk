@@ -9,6 +9,7 @@ import {
     receiveInvitation,
     updateExpObject
 } from "../actions/user";
+import ExpUpdateModal from './ExpUpdateModal';
 import {initChat, receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
@@ -85,10 +86,10 @@ class MainPage extends Component {
             return {success: false, error: "passwords do not match."}
         return {success: true}
     }
-
     connectToGameUpdates = () => {
         const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
-        socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs').then((socketid) => {
+        socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs'
+            ).then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
             console.log(`connected here 1 `);
             this.props.dispatch(startGetOpenGames()).then(() => {
@@ -107,9 +108,26 @@ class MainPage extends Component {
                     this.props.dispatch(receiveInvitation(invitation));
                     },
                     (onRecvNotif)=>{
-                    if(onRecvNotif.type ==='EXP')
-                        this.props.dispatch(updateExpObject(onRecvNotif.expObject))
-                }
+                        if(onRecvNotif.type ==='EXP'){
+                            if( this.props.location.expUpdate){
+                                //TODO show modal here.
+                                this.setState({
+                                    showExpModal: true,
+                                    expModalDetails: {
+                                        previousExp: this.props.user.currentExp,
+                                        previousLevelIdx : this.props.user.currentLevelIdx,
+                                        previousLevelObj: this.props.user.currentLevelObj,
+                                        currentExp: onRecvNotif.expObject.currentExp,
+                                        currentLevelIdx: onRecvNotif.expObject.currentLevelIdx,
+                                        currentLevelObj: onRecvNotif.expObject.currentLevelObj,
+                                    }
+                                },()=>{
+                                this.props.dispatch(updateExpObject(onRecvNotif.expObject))
+                                })
+                            }else
+                                this.props.dispatch(updateExpObject(onRecvNotif.expObject))
+                        }
+                    }
                 );
             }).catch((e) => {
                 this.alertError('server error. Sorry!',
@@ -364,6 +382,15 @@ class MainPage extends Component {
             </Modal>
 
         );
+        const MainpageExpUpdateModal = (
+            <ExpUpdateModal
+
+                {...this.state.expModalDetails}
+
+                isOpen={this.state.showExpModal}
+                onRequestClose={()=>this.setState({showExpModal: false})}
+            />
+        );
         return (
 
             <div className="mainPageContainer">
@@ -383,6 +410,7 @@ class MainPage extends Component {
                 {registerModal}
                 {joinGameModal}
                 {tutorialModal}
+                {MainpageExpUpdateModal}
                 <AlertDialog
                     isShowingModal={this.state.error.showErrorModal}
                     handleClose={() => this.setState({error: {showErrorModal: false}})}

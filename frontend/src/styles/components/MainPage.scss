@@ -32,13 +32,24 @@ cursor:pointer;
   padding-right:3%;
 
 }
+.mainPage__expUpdateModal {
+  background-color: rgba(106, 249, 66, 0.93);
+  position: absolute;
+  border-radius: 10px;
+  top: 5%;
+  left: 15%;
+  right: 15%;
+ //bottom: 30%;
+  padding-left: 3%;
+  padding-right:3%;
+}
 .mainPage__registerModal {
   background-color:#4EAFFC;
   position: absolute;
   border-radius: 10px;
   top: 30%;
-  left: 30%;
-  right: 30%;
+  left: 20%;
+  right: 20%;
   //bottom: 30%;
   padding-left: 3%;
   padding-right:3%;

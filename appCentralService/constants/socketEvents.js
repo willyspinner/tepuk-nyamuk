@@ -4,6 +4,7 @@ module.exports=  {
     GAME_STARTED: 'gameStarted',
     CONN_DETAILS: 'connDetails',
     RECV_NOTIF: 'recvNOTIF', // for users when they receive notifications when logging in.
+    GET_NOTIF:'getNotif',
     LOBBY:{
         USER_JOINED: 'userJoined',
         USER_LEFT:'userLeft',
