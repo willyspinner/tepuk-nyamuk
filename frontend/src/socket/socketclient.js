@@ -44,12 +44,15 @@ class SocketClient {
         });
     }
 
-    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat,onGameStarted,onRecvInvitation){
+    subscribeToMainPage(onGameCreate,onGameDelete,onRecvChat,onGameStarted,onRecvInvitation,onRecvNotif){
         this.mysocket.on(EVENTS.GAME_CREATED,(data)=>onGameCreate(data.game));
         this.mysocket.on(EVENTS.GAME_DELETED,(data)=> onGameDelete(data.gameuuid));
         this.mysocket.on(EVENTS.RECV_CHAT_MSG,(data)=>onRecvChat(data) )
         this.mysocket.on(EVENTS.GAME_STARTED,(data)=>onGameStarted(data) )
         this.mysocket.on(EVENTS.LOBBY.LOBBY_INVITATION,(data)=>onRecvInvitation(data) )
+        this.mysocket.on(EVENTS.RECV_NOTIF,(data)=>{
+            console.log(`socketclient::subscribeToMainPage: received data: ${data}`);
+            onRecvNotif(data)} )
     }
     sendChatMessage(msgObj){
         //NOTE: this isn't promise based, since we'll be waiting for the broadcast
@@ -79,6 +82,7 @@ class SocketClient {
         this.mysocket.removeAllListeners(EVENTS.GAME_STARTED);
         this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_INVITATION);
         this.mysocket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
+        this.mysocket.removeAllListeners(EVENTS.RECV_NOTIF);
         }
    }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted,onKickedOut){

@@ -1,6 +1,14 @@
 import React, {Component} from 'react';
 import {startCreateGame, startedGame, startJoinGame, startLeaveGame} from "../actions/games";
-import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser, discardInvitation,receiveInvitation} from "../actions/user";
+import {
+    startLoginUser,
+    startRegisterUser,
+    connectSocket,
+    startLogoutUser,
+    discardInvitation,
+    receiveInvitation,
+    updateExpObject
+} from "../actions/user";
 import {initChat, receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
@@ -91,7 +99,11 @@ class MainPage extends Component {
                     },
                     (invitation)=>{
                     this.props.dispatch(receiveInvitation(invitation));
-                    }
+                    },
+                    (onRecvNotif)=>{
+                    if(onRecvNotif.type ==='EXP')
+                        this.props.dispatch(updateExpObject(onRecvNotif.expObject))
+                }
                 );
             }).catch((e) => {
                 this.alertError('server error. Sorry!',
@@ -119,6 +131,7 @@ class MainPage extends Component {
         this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
             .then((resObj) => {
                 this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
+                this.props.dispatch(updateExpObject(resObj.expObject));
                 this.connectToGameUpdates();
             }).catch((e) => {
                 this.alertError(
@@ -210,6 +223,7 @@ class MainPage extends Component {
             this.state.password))
             .then((resObj) => {
                 this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
+                this.props.dispatch(updateExpObject(resObj.expObject));
                 this.connectToGameUpdates();
             }).catch((e) => {
             if (e.error) {

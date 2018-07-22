@@ -134,7 +134,13 @@ app.post('/appcs/user/new', (req, res) => {
                     .status(201).json({
                     success: true,
                     token: token,
-                    stringifiedmainchat: mainchat
+                    stringifiedmainchat: mainchat,
+                    expObject: {
+                        currentLevelIdx : 0,
+                        currentExp : 0,
+                        currentLevelObj: exp.getLevel(0),
+                        nextLevelObj: exp.getLevel( 1),
+                    }
                 })
             }).catch((e) => {
                 res.status(500).json({
@@ -188,7 +194,13 @@ app.post('/appcs/user/auth', (req, res) => {
                     .status(200).json({
                     success: true,
                     token: token,
-                    stringifiedmainchat: mainchat
+                    stringifiedmainchat: mainchat,
+                    expObject: {
+                        currentLevelIdx : user.level,
+                        currentExp : user.exp,
+                        currentLevelObj: exp.getLevel(user.level),
+                        nextLevelObj: exp.getLevel( user.level+ 1),
+                    }
                 });
             });
         } else {
@@ -551,16 +563,24 @@ app.post(`/appcs/game/finish/:gameid`, GMSAuthMiddleware, (req, res) => {
     ).then((data) => {
         const expUpdates = data[1];
         /*
-        [
-            {username: ___, currentLevel: ___, currentExp:___, currentLevelname: ___}
-            ]
+        {
+                            username: player.username,
+                            currentLevelIdx : level,
+                            currentExp,
+                            currentLevelObj: Scorer.getLevel(level),
+                            nextLevelObj: Scorer.getLevel(level + 1)
+            }
             */
 
         //emit to users: when they connect?  Put a redis thingy that waits for them?
         /*/notif/user/USERNAMEHERE: jstring.  */
         /* This expires as soon as we read it. */
+        /*
+        Final data:
+        {
+         */
         Promise.all(
-            expUpdates.map((expUpdate) => notifdb.setNotif(expUpdate.username, JSON.stringify(expUpdate))))
+            expUpdates.map((expUpdate) => notifdb.setNotif(expUpdate.username, JSON.stringify({type:'EXP',expObject: expUpdate}))))
         .then(() => {
             // emit to main lobby that the game is finished (deleted)
             io.emit(EVENTS.GAME_DELETED,
@@ -617,10 +637,13 @@ io.on('connect', (socket) => {
         logger.info('socket connect successful', `socket connected : ${socket.username}, id : ${socket.id}`);
         //get notif.
         notifdb.getNotifAndExpire(socket.username).then((notif)=>{
-            if (notif ){
+            socket.emit(EVENTS.RECV_NOTIF,{type: 'EXP', expObject:"BERDOG"});
+            let notifObj = JSON.parse(notif);
+            if ( notif && notifObj.type === 'EXP' ){
+                //TODO : why isn't the socket.emit working...
                 console.log('SOCKETING EMITTING RECV NOTIF WITH OBJ :')
                 console.log(notif);
-                socket.emit(EVENTS.RECV_NOTIF,notif);
+                socket.emit(EVENTS.RECV_NOTIF,{type: 'EXP', expObject: notifObj.expObject});
             }
         })
         socket.sentMydata = true;

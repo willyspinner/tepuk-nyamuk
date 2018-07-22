@@ -104,3 +104,19 @@ export const recordCurrentGameid = (gameid)=>({
     type: 'RECORD_CURRENT_GAMEID',
     gameid
 })
+export const updateExpObject = (expObject)=>({
+    //NOTE: they are of the form:
+    /*
+                        currentLevelIdx : 0,
+                        currentExp : 0,
+                        currentLevelObj: exp.getLevel(0),
+                        nextLevelObj: exp.getLevel( 1),
+
+                    where a 'level' obj is:
+                    {levelname: ___, threshold: ___}
+     */
+    type: 'UPDATE_EXP',
+    expObject: expObject
+})
+
+

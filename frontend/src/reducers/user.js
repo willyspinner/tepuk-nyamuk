@@ -1,5 +1,5 @@
 
-const userReducer = (state = {}, action) => {
+const userReducer = (state ={} , action) => {
   switch (action.type) {
       case 'USER_LOGGED_IN':
         return {
@@ -29,6 +29,11 @@ const userReducer = (state = {}, action) => {
           return {
               ...state,
               invitation:undefined
+          }
+      case 'UPDATE_EXP':
+          return {
+              ...state,
+              ...action.expObject
           }
     default:
       console.log(`USERREDUCER DEFAULTING STATE for action ${action.type}`);

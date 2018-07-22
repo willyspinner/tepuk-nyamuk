@@ -7,14 +7,17 @@ class Header extends React.Component {
         current: 'mail',
     }
 
-    handleClick = (e) => {
-        console.log('click ', e);
-        this.setState({
-            current: e.key,
-        });
-    }
 
     render() {
+
+        console.log(`this.props.user: ${JSON.stringify(this.props.user)}`)
+        console.log(`condition : ${
+        this.props.user &&
+        this.props.user.currentLevelIdx >= 0 &&
+        this.props.user.currentLevelObj &&
+        this.props.user.currentExp >= 0
+            
+            }`)
         return (
             <div style={{marginBottom: '10px'}} >
                 <div style={{
@@ -34,12 +37,18 @@ class Header extends React.Component {
                         <h1 style={{color: '#ffffff'}} className="main_header"> Tepuk  </h1>
                         <h1 style={{marginLeft: '15px',color: '#ffffff'}} className="main_header"> Nyamuk </h1>
                     </div>
+                    {this.props.user &&
+                        this.props.user.currentLevelIdx >= 0 &&
+                        this.props.user.currentLevelObj &&
+                        this.props.user.currentExp >= 0
+                        ? (
                     <div style={{marginTop:"5px", marginRight: '10px'}}>
-                        {this.props.username ?
-                            (<h3 style={{color: '#ffffff'}}>{this.props.username}</h3>)
-                            :null
-                        }
+                        <h4 style={{color:'white'}}> Lvl {this.props.user.currentLevelIdx +1} - {this.props.user.currentLevelObj.levelname}  EXP: {this.props.user.currentExp}</h4>
+                        <h4 style={{color:'white'}}>Exp needed to go to level {this.props.user.currentLevelIdx + 2}: {this.props.user.currentLevelObj.threshold - this.props.user.currentExp} </h4>
+                            <h3 style={{color: '#ffffff'}}>{this.props.user.username}</h3>
                     </div>
+                        ):null
+                    }
                 </div>
             </div>
         )
@@ -47,7 +56,7 @@ class Header extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    username: state.user.username,
+    user: state.user
 });
 
 export default connect(mapStateToProps)(Header);

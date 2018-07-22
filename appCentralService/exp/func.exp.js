@@ -11,6 +11,12 @@ class Scorer {
         return db.getExpAndLevel(username);
     }
 
+    static getLevel(idx){
+        if( idx >=LEVELS.length)
+            return  LEVELS[LEVELS.length - 1];
+        else
+            return LEVELS[idx];
+    }
    static bulkIncrementExpAndLevel(expUpdateObjs){
         /*
         obj is of the form:
@@ -35,9 +41,10 @@ class Scorer {
                         }
                         finalObj.push({
                             username: player.username,
-                            currentLevel : level,
+                            currentLevelIdx : level,
                             currentExp,
-                            currentLevelname: LEVELS[level].levelname
+                            currentLevelObj: Scorer.getLevel(level),
+                            nextLevelObj: Scorer.getLevel(level + 1)
                         });
                         return db.updateExpAndLevel(player.username,incrExp,oldlevel === level? undefined: level);
                     })

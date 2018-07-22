@@ -9,7 +9,7 @@ import ReactLoading from 'react-loading';
 import key from 'keymaster';
 import {Row, Col, notification, Progress, Button, Tooltip} from 'antd';
 import socketclient from '../socket/socketclient';
-import {connectSocket, receiveInvitation} from "../actions/user";
+import {connectSocket, receiveInvitation, updateExpObject} from "../actions/user";
 import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
 import {receiveMessage} from "../actions/chatroom";
 import AlertDialog from "./ui/AlertDialog";
@@ -230,10 +230,11 @@ class GamePlayPage extends Component {
                     (newMessageObj) =>
                         this.props.dispatch(receiveMessage(newMessageObj)),
                     (onGameStarted) =>
-                        this.props.dispatch(startedGame(onGameStarted.gameuuid))
-                    ,
+                        this.props.dispatch(startedGame(onGameStarted.gameuuid)),
                     (invitation)=>
                         this.props.dispatch(receiveInvitation(invitation))
+                    ,
+                        (onRecvNotif)=> {if (onRecvNotif.type === 'EXP')this.props.dispatch(updateExpObject(onRecvNotif.expObject))}
                 );
                 //remove our finished game.
                 this.props.dispatch(removeGame(this.props.user.gameid));
