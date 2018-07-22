@@ -22,6 +22,7 @@ client.connect().then(()=>{
     logger.info('db.js: initial connection',`connection successful`);
 }).catch((e)=>{
     logger.error('db.js: initial connection', 'connection ERROR. Is postgresql running?')
+
     process.exit(1);
 });
 
@@ -344,7 +345,6 @@ const self = module.exports = {
             })
         });
     },
-
     bulkLeaveGameAndDelete: (gameid)=>{
         return new Promise((resolve,reject)=>{
             const shouldAbort = (err) => {
@@ -502,14 +502,15 @@ const self = module.exports = {
                 const finishgamequery = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.STATUS} `+
-                    `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2 `+
+                    `= '${dbconstants.GAMES.STATUS.ENDED}',${fields.GAMES.RESULT} = $2, `+
                     `WHERE ${fields.GAMES.UUID} = $1;
               `,
                     values: [gameid,JSON.stringify(resultObj)]
                 };
                 const finishgameusersquery= {
                     text: `UPDATE ${fields.USERS.TABLENAME}
-                        SET ${fields.USERS.GAMEID} = null
+                        SET ${fields.USERS.GAMEID} = null,
+                     ${fields.USERS.PASTGAMES} = array_append(${fields.USERS.PASTGAMES}, $1) 
                 WHERE ${fields.USERS.GAMEID} = $1;`,
                     values: [gameid]
                 }
@@ -537,4 +538,50 @@ const self = module.exports = {
             })
         });
     },
+    // called after end of game. Increment exp. resolves with incremented stuff.
+
+    incrementLevel: (username)=>{
+    return new Promise((resolve,reject)=> {
+        const incrementLevelQuery = {
+            text: `UPDATE ${fields.USERS.TABLENAME}
+            SET ${fields.USERS.LEVEL} = ${fields.USERS.LEVEL} + 1
+            WHERE ${fields.USERS.USERNAME} = $1
+            RETURNING ${fields.USERS.LEVEL}, ${fields.USERS.USERNAME};
+           `,
+            values: [ username]
+        };
+        client.query(incrementLevelQuery, (err, res) => {
+            if (err) {
+                reject(err);
+                return;
+
+            }
+            resolve(res.rows[0]);
+        });
+    });
+    },
+
+    incrementExp: (username,expUpdate)=>{
+        return new Promise((resolve,reject)=>{
+            const incrementExpQuery= {
+                text: `UPDATE ${fields.USERS.TABLENAME}
+            SET ${fields.USERS.EXP} = ${fields.USERS.EXP} + $1
+            WHERE ${fields.USERS.USERNAME} = $2
+            RETURNING ${fields.USERS.EXP} , ${fields.USERS.LEVEL}, ${fields.USERS.USERNAME};
+           `,
+                values: [expUpdate,username]
+            };
+            client.query(incrementExpQuery,(err,res)=>{
+                if(err){
+                    reject(err);
+                    return;
+
+                }
+                resolve(res.rows[0]);
+            })
+        });
+        },
+    closeConnection : ()=>{
+        return client.end();
+    }
 };

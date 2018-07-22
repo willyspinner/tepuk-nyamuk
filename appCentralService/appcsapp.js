@@ -840,3 +840,14 @@ io.on('connect', (socket) => {
 
 })
 
+// trapping exit signals.
+const shutDown = async (signal)=>{
+    logger.warn(`signal ${signal}`,`shutting down gracefully..`);
+    await db.closeConnection();
+    await server.close();
+    logger.warn(`signal ${signal}`,`OK. Bye... 👋`);
+    process.exit(0);
+}
+process.on('SIGTERM', ()=>shutDown('SIGTERM'));
+process.on('SIGINT', ()=>shutDown('SIGINT'));
+

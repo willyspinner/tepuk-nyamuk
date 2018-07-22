@@ -7,16 +7,6 @@ module.exports=  {
             ENDED:'END'
         }
     },
-    EXP:[
-        "Beginner",
-        "Amateur",
-        "Adept",
-        "Expert",
-        "Rumbling (mozzy) Racketeer",
-        "Mozzy Magnet",
-        "Knight of Mosquitoland",
-        "The Exterminator"
-    ],
 
 
 };
