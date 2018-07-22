@@ -4,11 +4,14 @@ module.exports = {
     //for each user
     USERS: {
         TABLENAME: 'USERS',
-        TABLE:`USERS(USERNAME,SOCKETID, GAMEID,PASSWORD)`,
+        TABLE:`USERS(USERNAME,SOCKETID, GAMEID,PASSWORD,EXP,LEVEL,PASTGAMES)`,
         USERNAME:'USERNAME', // their username
         SOCKET_ID: 'SOCKETID', // their socket id
         GAMEID: 'GAMEID', // the game id they are involved in, or null. - foreign key (into games table -- uuid)
-        PASSWORD:'PASSWORD'
+        PASSWORD:'PASSWORD',
+        EXP:'EXP',
+        LEVEL:'LEVEL',
+        PASTGAMES:'PASTGAMES'
     },
     //for each game
     GAMES: {

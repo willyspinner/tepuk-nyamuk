@@ -196,8 +196,8 @@ const self = module.exports = {
     registerUser: (userObj) => {
         return new Promise ((resolve,reject)=>{
             const newuserquery = {
-                text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3,$4);`,
-                values: [userObj.username,null,null,userObj.password]
+                text: `INSERT INTO ${fields.USERS.TABLE} VALUES($1,$2,$3,$4,$5,$6,$7);`,
+                values: [userObj.username,null,null,userObj.password,0,0,null]
             };
             
             logger.info(`db::registerUser()`,`trying to register user ${JSON.stringify(userObj)}`);

@@ -4,7 +4,10 @@ module.exports = {
     `${CONSTANTS.USERNAME} text,` +
     `${CONSTANTS.SOCKET_ID} text,` +
     `${CONSTANTS.GAMEID} uuid,`+
-        `${CONSTANTS.PASSWORD} text`+
+        `${CONSTANTS.PASSWORD} text,`+
+    `${CONSTANTS.EXP} int,`+
+    `${CONSTANTS.LEVEL} int,`+
+    `${CONSTANTS.PASTGAMES} uuid []`+
     `);`
 
 };
