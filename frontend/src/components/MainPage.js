@@ -44,6 +44,12 @@ class MainPage extends Component {
         },
     }
 
+    constructor(props){
+        super(props);
+        if(this.props.location.needConnect)
+            this.connectToGameUpdates();
+
+    }
     componentWillUnmount(){
         console.log('COMPONENT WILL UNMOUNT.');
     }

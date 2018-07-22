@@ -213,29 +213,7 @@ class GamePlayPage extends Component {
         })
     }
     goBackToHome = (errormsg)=>{
-        //TODO ELEGANT: this method is an exact duplicate of the one in mainpage (connectToGameUpdates).
-        // TODO: maybe abstract both away?
-        // e.g. make a socketclient method which is simpler for both to call?
         socketclient.close();
-        const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
-        //TODO: differentiate between appcs and gms here.
-        socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs').then((socketid) => {
-            this.props.dispatch(connectSocket(socketid));
-            this.props.dispatch(startGetOpenGames()).then(() => {
-                socketclient.subscribeToMainPage(
-                    (newGame) =>
-                        this.props.dispatch(addGame(newGame)),
-                    (deletedGameuuid) =>
-                        this.props.dispatch(removeGame(deletedGameuuid)),
-                    (newMessageObj) =>
-                        this.props.dispatch(receiveMessage(newMessageObj)),
-                    (onGameStarted) =>
-                        this.props.dispatch(startedGame(onGameStarted.gameuuid)),
-                    (invitation)=>
-                        this.props.dispatch(receiveInvitation(invitation))
-                    ,
-                        (onRecvNotif)=> {if (onRecvNotif.type === 'EXP')this.props.dispatch(updateExpObject(onRecvNotif.expObject))}
-                );
                 //remove our finished game.
                 this.props.dispatch(removeGame(this.props.user.gameid));
                 //remove our gameplay object.
@@ -252,19 +230,9 @@ class GamePlayPage extends Component {
                 });
                 else
                     this.props.history.push({
-                        pathname: '/'
+                        pathname: '/',
+                        needConnect: true
                     });
-            }).catch((e) => {
-                this.alertError('server error. Sorry!',
-                    `couldn't get open games. Server error. Please try again later. ${e}`
-                );
-            });
-        }).catch((e) => {
-            this.alertError(
-                'server error. Sorry!',
-                `couldn't connect to socket for live updates. Please try again later. ${e}`
-            );
-        })
 }
     synchronize=()=>{
         console.log('trying to synchronize gameplay...')
