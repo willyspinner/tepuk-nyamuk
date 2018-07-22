@@ -31,3 +31,11 @@ export const receiveMessage = (message_object)  => {
     }
 
 }
+export const initChat= (chat,namespace) =>(
+    {
+        type: 'INIT_CHAT',
+        chat,
+        namespace
+    }
+)
+

@@ -3,6 +3,7 @@ import moment from 'moment';
 import mysocket from '../socket/socketclient';
 import {GETOPENGAMES,CREATEGAME,DELETEGAME,STARTGAMEFROMLOBBY} from "../serverroutes/AppCSRoutes";
 import {recordCurrentGameid, recordCurrentgameid} from "./user";
+import {initChat} from "./chatroom";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"
 });
@@ -119,9 +120,10 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOu
 
                 reduxDispatch(recordCurrentGameid(uuid));
                 mysocket.subscribeToLobby(username,uuid,
-                    onUserJoin,onUserLeft,onGameStart,onGameDeleted,onKickedOut).then((playersInLobby)=>{
+                    onUserJoin,onUserLeft,onGameStart,onGameDeleted,onKickedOut).then((obj)=>{
                     reduxDispatch(joinGame(uuid,username));
-                    resolve(playersInLobby);
+                    reduxDispatch(initChat(obj.stringifiedchat.map((msg)=>JSON.parse(msg)),uuid));
+                    resolve(obj.players);
                 }).catch((e)=>{
                     console.log(`failed to subscribe to lobby ${uuid}`);
                     reject(e);

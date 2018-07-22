@@ -73,13 +73,14 @@ class SocketClient {
         });
     }
     unsubscribeFromMainPage(){
+        if(this.mysocket){
         this.mysocket.removeAllListeners(EVENTS.GAME_CREATED);
         this.mysocket.removeAllListeners(EVENTS.GAME_DELETED);
         this.mysocket.removeAllListeners(EVENTS.GAME_STARTED);
         this.mysocket.removeAllListeners(EVENTS.LOBBY.LOBBY_INVITATION);
         this.mysocket.removeAllListeners(EVENTS.RECV_CHAT_MSG);
-
-    }
+        }
+   }
     subscribeToLobby(username,gameid,onUserJoin,onUserLeave,onLobbyGameStart,onLobbyGameDeleted,onKickedOut){
         return new Promise((resolve,reject)=>{
             this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid, token : this.token},
@@ -100,7 +101,7 @@ class SocketClient {
                         this.mysocket.on(EVENTS.LOBBY.KICKED_OUT,(kickoutobj)=>{
                             onKickedOut(kickoutobj);
                         })
-                        resolve(ackResponse.players);
+                        resolve({players: ackResponse.players, stringifiedchat: ackResponse.stringifiedchat});
                     }else{
                         reject(ackResponse.error);
                         //No ack.

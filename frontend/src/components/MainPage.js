@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {startCreateGame, startedGame, startJoinGame, startLeaveGame} from "../actions/games";
 import {startLoginUser, startRegisterUser, connectSocket, startLogoutUser, discardInvitation,receiveInvitation} from "../actions/user";
-import {receiveMessage, startSendMessage} from "../actions/chatroom";
+import {initChat, receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
 import GameList from './GameList';
 import Modal from 'react-modal';
@@ -117,21 +117,14 @@ class MainPage extends Component {
             return;
         }
         this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
-            .then(() => {
+            .then((resObj) => {
+                this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
                 this.connectToGameUpdates();
             }).catch((e) => {
-            if (e.error) {
                 this.alertError(
                     'login error.',
                     'authentication failed.'
                 );
-            }
-            else {
-                this.alertError(
-                    'login error.',
-                    'authentication failed.'
-                )
-            }
         });
     }
 
@@ -207,7 +200,7 @@ class MainPage extends Component {
     }
 
     registerUserHandler = () => {
-        console.log(`calling loginUserHandler`);
+        console.log(`calling registerUserHandler`);
         let validateInput = this.validateInput();
         if (!validateInput.success) {
             this.alertError('registration error.', validateInput.error);
@@ -215,7 +208,8 @@ class MainPage extends Component {
         }
         this.props.dispatch(startRegisterUser(this.state.inputusername,
             this.state.password))
-            .then(() => {
+            .then((resObj) => {
+                this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
                 this.connectToGameUpdates();
             }).catch((e) => {
             if (e.error) {

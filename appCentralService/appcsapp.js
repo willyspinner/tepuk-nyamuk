@@ -37,6 +37,7 @@ const request = require('request');
 const basicAuth = require('basic-auth');
 const socketioredis = require('socket.io-redis');
 const cookieParser = require('cookie-parser');
+const chatroomdb = require('./db/chatroomDb');
 // appcs environment var.
 
 // constants
@@ -114,19 +115,24 @@ app.post('/appcs/user/new', (req, res) => {
                 username: req.body.username,
                 password: bcrypt.hashSync(req.body.password, salt)
             };
-            db.registerUser(userObj).then(() => {
+            Promise.all([
+                db.registerUser(userObj),
+                chatroomdb.getMainchat()
+            ]).then((data)=>{
+                const mainchat=  data[1];
                 const expiresIn = 7200;
-                let token = jwt.sign({username: userObj.username},
+                const token = jwt.sign({username: userObj.username},
                     process.env.AUTH_TOKEN_SECRET, {
                         expiresIn // secs, so 2 hours.
                     });
 
-                res
-                    .cookie('tpk_app_token', token, {expiresIn})
-                    .status(201).json({
-                    success: true,
-                    token: token
-                })
+                    res
+                        .cookie('tpk_app_token', token, {expiresIn})
+                        .status(201).json({
+                        success: true,
+                        token: token,
+                        stringifiedmainchat:mainchat
+                    })
             }).catch((e) => {
                 res.status(500).json({
                     success: false
@@ -173,11 +179,14 @@ app.post('/appcs/user/auth', (req, res) => {
             let token = jwt.sign({username: user.username},
                 process.env.AUTH_TOKEN_SECRET,
                 {expiresIn});
-            res
-                .cookie('tpk_app_token', token, {expiresIn})
-                .status(200).json({
-                success: true,
-                token: token
+            chatroomdb.getMainchat().then((mainchat)=> {
+                res
+                    .cookie('tpk_app_token', token, {expiresIn})
+                    .status(200).json({
+                    success: true,
+                    token: token,
+                    stringifiedmainchat: mainchat
+                });
             });
         } else {
             res.status(401).json({
@@ -638,6 +647,7 @@ io.on('connect', (socket) => {
     TODO: this socket route here is very costly (expensive).
     TODO: should be a way to make this more efficient.
      */
+    //TODO: lrange the redislist here, for the client.
     socket.on(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN, (data, response) => {
         jwt.verify(data.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
             if (err) {
@@ -679,10 +689,13 @@ io.on('connect', (socket) => {
                                 logger.info('ON CLIENT_ATTEMPT_JOIN', `${clientUsername} joining socket room ${roomName}.`);
                                 io.to(`${roomName}`)
                                     .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
-                                response({
-                                    msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
-                                    players: game.players
-                                });
+                                chatroomdb.getRoomchat(roomName).then((chats)=>{
+                                    response({
+                                        msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,
+                                        players: game.players,
+                                        stringifiedchat: chats
+                                    });
+                                })
                             }).catch((e) => {
                                 logger.error('ON CLIENT_ATTEMPT_JOIN', `ACK ERROR for ${clientUsername}`)
                                 response({msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_NOACK});
@@ -743,6 +756,7 @@ io.on('connect', (socket) => {
             message: "Whats up dawgs",
         }
      */
+    //TODO: rpush to the redis list here.
     socket.on(EVENTS.EMIT_CHAT_MSG, (data) => {
         /* add things to the message */
         // assign a UUID to the message:
@@ -753,9 +767,13 @@ io.on('connect', (socket) => {
 
         const namespace = data.namespace;
         if (namespace === null) {
-            io.emit(EVENTS.RECV_CHAT_MSG, data);
+            chatroomdb.pushToMainchat(JSON.stringify(data)).then(()=>{
+                io.emit(EVENTS.RECV_CHAT_MSG, data);
+            })
         } else {
-            io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
+            chatroomdb.pushToRoomchat(namespace,JSON.stringify(data)).then(()=>{
+                io.to(namespace).emit(EVENTS.RECV_CHAT_MSG, data);
+            })
         }
     });
 

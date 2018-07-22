@@ -20,6 +20,17 @@ const chatReducer = (state= {main: [], room: []},action)=>{
                     room: [...state.room,action.message_obj]
                 }
             }
+        case 'INIT_CHAT':
+            if( action.namespace)
+            return {
+                ...state,
+                room : action.chat
+            }
+            else
+                return {
+                    ...state,
+                    main: action.chat
+                }
         default:
             return state;
     }
