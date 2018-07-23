@@ -1,7 +1,7 @@
 import React from 'react';
-import {Input,Button,Icon} from 'antd';
+import {Input,Button} from 'antd';
 import Modal from 'react-modal';
-
+import IMGTYPES from '../constants/imgTypes';
 /*
 
 props:
@@ -21,7 +21,7 @@ const registerModal = (props)=>(
         >
             Welcome.
         </h1>
-            <img src="/fly-image-white.png"
+            <img src={IMGTYPES.flyImage.white}
                  style={{alignSelf:'center', marginBottom: '15px'}}
             width="75px"
                  height="75px"

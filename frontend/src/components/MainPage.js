@@ -9,6 +9,7 @@ import {
     receiveInvitation,
     updateExpObject
 } from "../actions/user";
+import IMGTYPES from '../constants/imgTypes';
 import ExpUpdateModal from './ExpUpdateModal';
 import {initChat, receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
@@ -504,7 +505,7 @@ class MainPage extends Component {
                         </div>
                     </div>
                     <div className="mainPage__module"style={{minHeight: '120px',minWidth: '120px'}}>
-                        <img src="/fly-image.png"
+                        <img src={IMGTYPES.flyImage.normal}
                              height="40%"
                              width="30%"
                              style={{maxWidth:'100%'}}

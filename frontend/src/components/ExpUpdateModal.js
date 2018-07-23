@@ -2,6 +2,7 @@ import React from 'react';
 import {Button, Icon} from 'antd';
 import Modal from 'react-modal';
 import Typed from 'react-typed';
+import IMGTYPES from '../constants/imgTypes';
 class ExpUpdateModal extends React.Component {
 state= {
     typeSpeed: 100
@@ -25,6 +26,12 @@ state= {
                         You earned some exp {hasLeveledUp ? "and leveled up!" : ""}!
                     </h1>
 
+                    <img
+                    src={IMGTYPES.expUpdate.stairsGoal}
+                    height={200}
+                    width={200}
+                    style={{alignSelf:'center'}}
+                    />
                     {hasLeveledUp ?
                         (
                             <div>

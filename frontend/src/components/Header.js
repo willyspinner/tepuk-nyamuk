@@ -2,6 +2,7 @@ import React from 'react';
 
 import {connect} from 'react-redux';
 import {Tooltip} from "antd";
+import IMGTYPES from '../constants/imgTypes';
 
 class Header extends React.Component {
     state = {
@@ -30,7 +31,7 @@ class Header extends React.Component {
                     justifyContent:'space-between'
                 }}>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <img src="/fly-image-white.png"
+                        <img src={IMGTYPES.flyImage.white}
                              height="35px"
                              width="35px"
                              style={{marginLeft: '10px',marginRight: '10px', marginTop: '5px'}}

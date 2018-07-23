@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from 'react-playing-card';
+import IMGTYPES from '../../constants/imgTypes'
 /*
 Playing Card component.
 
@@ -39,7 +40,7 @@ const PlayingCard = (props) => {
         <div>
             {props.hasSlapped?
                 (
-            <img src="/mosquito-zapper.png" style={{zIndex:2, position:'absolute', marginTop: '50px'}}
+            <img src={IMGTYPES.zapper} style={{zIndex:2, position:'absolute', marginTop: '50px'}}
                  width="550px"
                  height={"550px"}
             />
