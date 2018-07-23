@@ -558,7 +558,7 @@ app.post(`/appcs/game/finish/:gameid`, GMSAuthMiddleware, (req, res) => {
     Promise.all(
         [
         db.gmsFinishGame(req.params.gameid, req.body.resultObj),
-        exp.bulkIncrementExpAndLevel(exp.calculateExpGains(req.body.resultObj))
+        exp.bulkIncrementExpAndLevel(exp.calculateExpGains(req.body.resultObj,req.body.totalgametime))
     ]
     ).then((data) => {
         const expUpdates = data[1];

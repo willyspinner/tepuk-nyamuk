@@ -2,10 +2,16 @@ const db = require('../db/db');
 const LEVELS = require('./expConfig').EXPLEVELS;
 const logger = require('../log/appcs_logger');
 class Scorer {
-    static calculateExpGains(resultObj){
+    static calculateExpGains(resultObj,totalgametimesecs){
         const scoreresults = resultObj.finalscores;
         // {username: ___, score ___}.
-        return scoreresults.map((scoreresult)=>({username: scoreresult.username,expUpdate: Math.round(scoreresult.score<=0 ? 100: scoreresult.score)}));
+        //logger.info(`func.exp.js::calculateExpGains:`,`totalgametime multiplier : ${parseInt(totalgametime)} / 60 = ${parseInt(totalgametime)/60}`)
+        return scoreresults.map((scoreresult)=>(
+            {
+                username: scoreresult.username,
+                expUpdate: Math.round((scoreresult.score<=0 ? 100: scoreresult.score )/ (parseInt(totalgametimesecs) / 60))
+            }
+                ));
     }
     static getExpAndLevel(username){
         return db.getExpAndLevel(username);

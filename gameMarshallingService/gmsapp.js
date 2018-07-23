@@ -217,7 +217,16 @@ socket.handshake.query:
 /* onWinGame - called when a winning condition, or expiration of game, is detected.*/
 const onWinGame = (gamesessionid,winner,scoresnapshot,callback)=>{
     const resultObj = {winner : winner,finalscores:scoresnapshot};
-    redisdb.getGameId(gamesessionid).then((gameid)=>{
+    Promise.all([
+    redisdb.getTimeAndTtlInSecs(gamesessionid),
+    redisdb.getGameId(gamesessionid)
+        ])
+        .then((obj)=>{
+            let time_remaining = parseInt(obj[0][0]);
+            const original_time = parseInt(obj[0][1]);
+           time_remaining = time_remaining === -2 ? 0: time_remaining;
+           const totalgametime = original_time - time_remaining;
+            const gameid = obj[1];
         request.post(
             {
                 url : `http://${APPCS_HOST}:${APPCS_PORT}/appcs/game/finish/${gameid}`,
@@ -226,7 +235,8 @@ const onWinGame = (gamesessionid,winner,scoresnapshot,callback)=>{
                         .toString('base64')
                 },
                 form :{
-                    resultObj:resultObj
+                    resultObj:resultObj,
+                    totalgametime
                 }
             },
             (err,resp,body)=>{

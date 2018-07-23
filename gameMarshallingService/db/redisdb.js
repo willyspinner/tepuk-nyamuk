@@ -139,6 +139,17 @@ const self = module.exports = {
 
     });
     },
+    getTimeAndTtlInSecs: (gamesessionid)=>{
+        return new Promise((resolve,reject)=>{
+            let chain = redisclient.multi();
+             chain.ttl(`${gamesessionid}`).get(`${gamesessionid}/timelimit`).execAsync().then((obj)=>{
+                resolve(obj);
+            }).catch((e)=>{
+                reject(e);
+            })
+        });
+
+    },
     //NOTEDIFF: this one is for scoring. gets an array of:
     /*
         [ {username: ___, score: ___}, ... etc]
