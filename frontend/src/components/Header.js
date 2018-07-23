@@ -51,7 +51,7 @@ class Header extends React.Component {
                         />
                         <Tooltip
                             placement="bottom"
-                            title={`Exp needed to go to level ${this.props.user.currentLevelIdx + 2}: ${this.props.user.currentLevelObj.threshold - this.props.user.currentExp} points.`}
+                            title={ this.props.user.currentLevelObj.threshold? `Exp needed to go to level ${this.props.user.currentLevelIdx + 2}: ${this.props.user.currentLevelObj.threshold - this.props.user.currentExp} points.`: "max level!"}
                         >
                             <div style={{display:'flex',flexDirection:'column'}}>
                             <h5 style={{color:'white',
@@ -67,7 +67,7 @@ class Header extends React.Component {
 
                             </div>
                         </Tooltip>
-                            <h1 style={{color: '#ffffff', marginLeft: '20px'}}>{this.props.user.username}</h1>
+                            <h2 style={{color: '#ffffff', marginLeft: '15px'}}>{this.props.user.username}</h2>
                     </div>
                         ):null
                     }
