@@ -45,6 +45,10 @@ class Header extends React.Component {
                         this.props.user.currentExp >= 0
                         ? (
                     <div style={{marginTop:"5px", marginRight: '10px' ,display:'flex',flexDirection:'row'}}>
+                        <img src={IMGTYPES.levels.white[this.props.user.currentLevelIdx]}
+                        width={60}
+                             height={60}
+                        />
                         <Tooltip
                             placement="bottom"
                             title={`Exp needed to go to level ${this.props.user.currentLevelIdx + 2}: ${this.props.user.currentLevelObj.threshold - this.props.user.currentExp} points.`}

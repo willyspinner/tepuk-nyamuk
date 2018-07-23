@@ -19,24 +19,38 @@ state= {
                 onRequestClose={this.props.onRequestClose}
             >
                 {this.props.isOpen ?(
-                <div style={{display: 'flex', flexDirection: 'column',}}>
+                <div style={{display: 'flex', flexDirection: 'column', overflow:'auto'}}>
                     <h1
-                        style={{marginTop: "20px", color: 'white', textAlign: 'center'}}
+                        style={{marginTop: "20px",  textAlign: 'center'}}
                     >
                         You earned some exp {hasLeveledUp ? "and leveled up!" : ""}!
                     </h1>
 
                     <img
                     src={IMGTYPES.expUpdate.stairsGoal}
-                    height={200}
-                    width={200}
+                    height={150}
+                    width={150}
                     style={{alignSelf:'center'}}
                     />
+                    <p className="game_font" style={{fontSize: '30px', textAlign: 'center'}}
+                    >
+                        <Typed
+                            strings={[
+
+                                `${this.props.previousExp} -> ${this.props.currentExp}`
+
+                            ]}
+                            typeSpeed={this.state.typeSpeed}
+                            typedRef={(el) => {
+                                this.el3 = el;
+                            }}
+                        />
+                    </p>
                     {hasLeveledUp ?
                         (
-                            <div>
+                            <div style={{display:'flex',flexDirection:'column'}}>
                                 <p className="game_font" style={{
-                                    fontSize: '35px', textAlign: 'center'
+                                    fontSize: '30px', textAlign: 'center'
                                 }}>
                                 <Typed
                                     strings={
@@ -62,34 +76,27 @@ state= {
                                         }}
                                     />
                                 </p>
+                                <div style={{alignSelf:'center',display:'flex',flexDirection:'row', alignItems:'center'}}>
+                                <img
+                                    height={100}
+                                    width={100}
+                                src={IMGTYPES.levels.white[this.props.previousLevelIdx]}/>
+                                    <Icon type="arrow-right" style={{fontSize:'40px',color:'white'}}/>
+                                <img
+
+
+                                    height={100}
+                                    width={100}
+                                    src={IMGTYPES.levels.white[this.props.currentLevelIdx]}/>
+                                </div>
                             </div>
                         ) : null
                     }
-                    <h1 style={{color: 'white', textAlign: 'center'}}>
-                        Exp boost
-                    </h1>
-                    <p className="game_font" style={{fontSize: '30px', textAlign: 'center'}}
+                    <p className="game_font" style={{fontSize: '15px', textAlign: 'center'}}
                     >
                         <Typed
                             strings={[
-
-                                `${this.props.previousExp} -> ${this.props.currentExp}`
-
-                            ]}
-                            typeSpeed={this.state.typeSpeed}
-                            typedRef={(el) => {
-                                this.el3 = el;
-                            }}
-                        />
-                    </p>
-                    <h1 style={{color: 'white', textAlign: 'center'}}>
-                        Remaining till next level (lvl. {this.props.currentLevelIdx + 2}):
-                    </h1>
-                    <p className="game_font" style={{fontSize: '30px', textAlign: 'center'}}
-                    >
-                        <Typed
-                            strings={[
-                                `${this.props.currentLevelObj.threshold - this.props.currentExp} EXP Points.`
+                                `Remaining till Lvl. ${this.props.currentLevelIdx + 2} :${this.props.currentLevelObj.threshold - this.props.currentExp} EXP Points.`
                             ]}
                             typeSpeed={this.state.typeSpeed}
                             typedRef={(el) => {
