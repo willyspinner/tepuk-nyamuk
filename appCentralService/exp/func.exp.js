@@ -5,7 +5,7 @@ class Scorer {
     static calculateExpGains(resultObj){
         const scoreresults = resultObj.finalscores;
         // {username: ___, score ___}.
-        return scoreresults.map((scoreresult)=>({username: scoreresult.username,expUpdate: Math.round(scoreresult.score)}));
+        return scoreresults.map((scoreresult)=>({username: scoreresult.username,expUpdate: Math.round(scoreresult.score<=0 ? 100: scoreresult.score)}));
     }
     static getExpAndLevel(username){
         return db.getExpAndLevel(username);

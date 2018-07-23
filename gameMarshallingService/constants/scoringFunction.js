@@ -8,5 +8,5 @@ module.exports = (isMatch,reactionTimeInMilliSeconds)=>{
         return (250000 / reactionTimeInMilliSeconds);
     else
         // false slap. Punish player by decrementing score.
-        return -500;
+        return -400;
 }

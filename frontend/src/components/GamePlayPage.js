@@ -35,7 +35,8 @@ class GamePlayPage extends Component {
         soundPlayingStatus:Sound.status.STOPPED,
         cardsuit :'S',
         cardsuitoptions: ['S','H','C','D'],
-        bgcolor: 'white'
+        bgcolor: 'white',
+        redbgcolor : 'rgba(255, 62, 23, 0.58)'
     }
     playSound= (SOUNDTYPE)=> {
         this.setState({
@@ -194,10 +195,10 @@ class GamePlayPage extends Component {
         })
         if(loserusername === this.props.user.username){
             //do the flashy thingy.
-            this.setState({bgcolor: 'red'})
-            setTimeout(()=>this.setState({bgcolor: 'white'}),150);
-            setTimeout(()=>this.setState({bgcolor: 'red'}),300);
-            setTimeout(()=>this.setState({bgcolor: 'white'}),450);
+            this.setState({bgcolor: this.state.redbgcolor})
+            setTimeout(()=>this.setState({bgcolor: 'white'}),220);
+            setTimeout(()=>this.setState({bgcolor: this.state.redbgcolor}),440);
+            setTimeout(()=>this.setState({bgcolor: 'white'}),600);
         }
     };
 
