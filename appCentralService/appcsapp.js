@@ -874,6 +874,7 @@ io.on('connection', (socket) => {
 
     })
     socket.on(EVENTS.LOBBY.KICK_OUT_USER, (data, callback) => {
+        logger.info(`on KICK_OUT_USER`, `data supplied : ${JSON.stringify(data)}`);
         db.getUser(data.kickee).then((user) => {
             if (!user || user.gameid !== data.gameid) {
                 callback(false);

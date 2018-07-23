@@ -127,13 +127,15 @@ class GameLobbyPage extends Component {
                 // NOTE: we should receive the socket's GAME_START, from which we go to /game/play/:uuid.
                 // no need to push here.
                 // this.props.history.push(`/game/play/${this.state.uuid}`);
+                console.log('RESOLVED TINGWIPNGG');
             }).catch((e) => {
-                this.alertError("Sorry!", "Our game service is experiencing some technical difficulties. Please try again later!")
+                this.alertError("Sorry!", "Our game servers are experiencing some technical difficulties. Please try again later!")
                 this.setState({isStartingGame: false});
             })
         });
     };
     onKickUserHandler = (username) => {
+        //TODO TODO: ERROR: sometimes, kick user doesn't work, yet shows the correct message. Why?
         this.props.dispatch(startKickoutUser(username, this.props.match.params.uuid)).then(() => {
             message.success(`kicked ${username} from game lobby.`, 5);
         }).catch((e) => {

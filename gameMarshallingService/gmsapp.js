@@ -163,10 +163,10 @@ app.post('/gms/game/create', authMiddleware,(req, res) => {
         const encryptedgamesecret = bcrypt.hashSync(gamesecret, salt);
         let gameCountdown = req.body.gameOptions.timelimitsecs || 60 *5;
         redisdb.initializeGame(req.body.gameid, gamesessionid, encryptedgamesecret,
-            req.body.players, cardsperplayer,gameCountdown) // NO NEED TO JSON.parse(). It's already parsed.
+            req.body.players.map((p)=>p.username), cardsperplayer,gameCountdown) // NO NEED TO JSON.parse(). It's already parsed.
             .then((result) => {
                 logger.info(`POST /gms/game/create`,`redisdb.initializeGame succeded. seting initial PM snapshot..`)
-                redisdb.setPostMatchSnapshot(gamesessionid,cardsperplayer,req.body.players,undefined).then(()=>{
+                redisdb.setPostMatchSnapshot(gamesessionid,cardsperplayer,req.body.players.map((p)=>p.username),undefined).then(()=>{
                     logger.info(`POST /gms/game/create`,`setting initial PM snapshot succeeded. Signing new gametoken..`)
                     const gametoken = jwt.sign({gamesessionid: gamesessionid}, process.env.AUTH_TOKEN_SECRET, {expiresIn: 21600});
                     logger.info(`POST /gms/game/create`,`gmsapp: created new game: ${gamesessionid}`);

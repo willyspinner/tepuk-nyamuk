@@ -190,13 +190,14 @@ export const startStartGame = (gameid,cardsperplayer,timelimitsecs) => {
                        if (err) {
                            reject(err);
                            return;
+                       }
                            if (response.success)
                                resolve(response);
                            else
                                reject(response);
-                       }
                    }
-                   )
+                   );
+           setTimeout(()=>reject(), 7000);
         });
     }
 };

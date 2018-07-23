@@ -60,11 +60,12 @@ cursor:pointer;
   text-align:center;
 }
 .mainPage__joinModal{
+  background: #4EAffc;
+  border-radius: 20px;
   position: absolute;
-  top: 40px;
+  top: 20%;
   left: 20%;
   right: 20%;
-  bottom: 40px;
   padding-left: 2%;
   padding-right:2%;
 }

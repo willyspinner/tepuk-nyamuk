@@ -31,7 +31,7 @@ class MainPage extends Component {
         inputusername: "",
         password: "",
         repeatPassword: "",
-        isJoiningGame: false,
+        showLoadingModal: false,
         isLoggingIn: true,
         showTutorial: false,
         isCreatingGame: false,
@@ -153,12 +153,15 @@ class MainPage extends Component {
             );
             return;
         }
+        this.setState({showLoadingModal:true, loadingmodaltext:`Logging in as ${this.state.inputusername}...`})
         this.props.dispatch(startLoginUser(this.state.inputusername, this.state.password))
             .then((resObj) => {
                 this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
                 this.props.dispatch(updateExpObject(resObj.expObject));
                 this.connectToGameUpdates();
+                this.setState({showLoadingModal : false});
             }).catch((e) => {
+            this.setState({showLoadingModal : false});
                 this.alertError(
                     'login error.',
                     'authentication failed.'
@@ -177,7 +180,8 @@ class MainPage extends Component {
 
     onLeaderGameJoinHandler = (gameId) => {
         this.setState({
-            isJoiningGame: true,
+            showLoadingModal: true,
+            loadingmodaltext:'Joining game...'
         });
         // the leader just goes straight to his/her lobby .
         //NOTE: both joining methods are diff because onLeaderGameJoinHandler is called when no one is in the room.
@@ -190,12 +194,12 @@ class MainPage extends Component {
             this.alertError('error creating and joining game. Please try again later!',
                 JSON.stringify(e)
             )
-            this.setState({isJoiningGame: false});
+            this.setState({showLoadingModal: false});
         });
     }
 
     onGameJoinHandler = (gameId) => {
-        this.setState({isJoiningGame: true});
+        this.setState({showLoadingModal: true, loadingmodaltext: 'Joining game...'});
         const onGameDeleted = (gameuuid) => {
             this.props.dispatch(startLeaveGame(gameuuid, this.props.user.username))
                 .then(() => {
@@ -230,7 +234,7 @@ class MainPage extends Component {
             this.props.history.push(`/game/lobby/${gameId}`);
         }).catch((errormsg) => {
             this.alertError('Sorry!',errormsg);
-            this.setState({isJoiningGame: false});
+            this.setState({showLoadingModal: false});
         })
         // we render a modal for loading until the promise is returned.
         // for now, the promise is just a stub to simulate server response time.
@@ -352,16 +356,17 @@ class MainPage extends Component {
 
             />
         );
-        const joinGameModal = (
+        const LoadingModal = (
             //TODO: Fix modal styling - contents need to be centered.
             <Modal
                 className="mainPage__joinModal"
-                isOpen={this.state.isJoiningGame}
+                isOpen={this.state.showLoadingModal}
                 contentLabel="Joining game..."
                 ariaHideApp={false}
             >
-                <ReactLoading type={"cylon"} color={"blue"} height={159} width={90}/>
-                <h1> joining game...</h1>
+                <ReactLoading type={"cylon"} color={"white"} height={200} width={120}
+                />
+                <h1 style={{color:'white'}}> {this.state.loadingmodaltext} </h1>
             </Modal>);
 
 
@@ -409,7 +414,7 @@ class MainPage extends Component {
                 {/* modals here */}
                 {createGameModal}
                 {registerModal}
-                {joinGameModal}
+                {LoadingModal}
                 {tutorialModal}
                 {MainpageExpUpdateModal}
                 <AlertDialog
