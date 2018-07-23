@@ -34,7 +34,8 @@ class GamePlayPage extends Component {
         timerblinking: false,
         soundPlayingStatus:Sound.status.STOPPED,
         cardsuit :'S',
-        cardsuitoptions: ['S','H','C','D']
+        cardsuitoptions: ['S','H','C','D'],
+        bgcolor: 'white'
     }
     playSound= (SOUNDTYPE)=> {
         this.setState({
@@ -81,7 +82,10 @@ class GamePlayPage extends Component {
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
-            this.props.dispatch(startPlayerSlap(performance.now() - this.state.myreactiontime)).catch((e)=>{
+            const elapsed_time =performance.now() -  this.state.myreactiontime;
+            console.log(`this.state.myreactiontime : ${this.state.myreactiontime}`);
+            console.log(`elapsed time slap : ${elapsed_time}`);
+            this.props.dispatch(startPlayerSlap(elapsed_time)).catch((e)=>{
 
             })
         }
@@ -188,6 +192,13 @@ class GamePlayPage extends Component {
             description,
             duration: 3
         })
+        if(loserusername === this.props.user.username){
+            //do the flashy thingy.
+            this.setState({bgcolor: 'red'})
+            setTimeout(()=>this.setState({bgcolor: 'white'}),150);
+            setTimeout(()=>this.setState({bgcolor: 'red'}),300);
+            setTimeout(()=>this.setState({bgcolor: 'white'}),450);
+        }
     };
 
     componentDidUpdate(prevProps, prevState) {
@@ -199,11 +210,13 @@ class GamePlayPage extends Component {
         }
         */
 
-        if (prevProps.gameplay.playerinturn !== this.props.gameplay.playerinturn) {
+        if ( prevProps.gameplay.pile && prevProps.gameplay.pile.length !== this.props.gameplay.pile.length) {
             if (this.props.gameplay.match) {
-                this.setState({myreactiontime: performance.now()})
+                this.setState({myreactiontime: performance.now()},()=> {
+                    console.log(`setting state myreaction time: ${this.state.myreactiontime}`)
+                });
             }
-        }
+       }
     }
     alertError(subject, message) {
         this.setState({
@@ -276,7 +289,7 @@ class GamePlayPage extends Component {
             }
         return (
 
-            <div>
+            <div style={{background:this.state.bgcolor}}>
                 {/* modals */}
                 <AlertDialog
                 isShowingModal={this.state.error.showErrorModal}
@@ -367,7 +380,7 @@ class GamePlayPage extends Component {
                     :
                         (
 
-                            <div style={{margin: '0 auto'}}>
+                            <div style={{margin: '0 auto' ,display:'flex',flexDirection:'column',alignItems:'center'}}>
                                 <ReactLoading type={"cylon"} color={"blue"} height={300} width={180}/>
                                 <h1> joining game...</h1>
                             </div>

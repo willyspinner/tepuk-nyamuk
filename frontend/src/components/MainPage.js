@@ -364,9 +364,11 @@ class MainPage extends Component {
                 contentLabel="Joining game..."
                 ariaHideApp={false}
             >
+                <div style={{margin: '0 auto' ,display:'flex',flexDirection:'column',alignItems:'center'}}>
                 <ReactLoading type={"cylon"} color={"white"} height={200} width={120}
                 />
                 <h1 style={{color:'white'}}> {this.state.loadingmodaltext} </h1>
+                </div>
             </Modal>);
 
 
