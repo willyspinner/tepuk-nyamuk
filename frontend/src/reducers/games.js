@@ -26,8 +26,8 @@ const gamesReducer = (state = [], action) => {
                 //NOTEDIFF: we add this so that we don't add the same person twice.
                 // This happens due to a confusion in local redux code and listening
                 // and reacting to socket events.
-                if( game.players.indexOf(action.username) === -1)
-                    game.players.push(action.username);
+                if( game.players.map((p)=>p.username).indexOf(action.username) === -1)
+                    game.players.push({username: action.username, level: action.level});
             }
             return game;
             }
@@ -37,7 +37,7 @@ const gamesReducer = (state = [], action) => {
                   if (game.uuid === action.uuid)
                       return {
                           ...game,
-                            players: game.players.filter((player_username)=>player_username !== action.username)
+                            players: game.players.filter((player)=>player.username !== action.username)
                   };
                   return game;
               });

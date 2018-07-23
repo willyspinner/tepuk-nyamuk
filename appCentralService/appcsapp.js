@@ -736,14 +736,14 @@ io.on('connection', (socket) => {
                             return;
                         }
                         else {
-                            db.joinGame(clientUsername, roomName).then(() => {
+                            db.joinGame(clientUsername, roomName,user.level).then(() => {
                                 socket.lastroom = Object.keys(socket.rooms)[0];
                                 logger.info('ON CLIENT_ATTEMPT_JOIN', `socket.lastroom : ${JSON.stringify(socket.lastroom)}`)
                                 socket.join(roomName);
 
                                 logger.info('ON CLIENT_ATTEMPT_JOIN', `${clientUsername} joining socket room ${roomName}.`);
                                 io.to(`${roomName}`)
-                                    .emit(EVENTS.LOBBY.USER_JOINED, clientUsername);
+                                    .emit(EVENTS.LOBBY.USER_JOINED, {username: clientUsername, level: user.level});
                                 chatroomdb.getRoomchat(roomName).then((chats) => {
                                     response({
                                         msg: EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK,

@@ -91,8 +91,8 @@ class SocketClient {
             this.mysocket.emit(EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN,{username,gameid, token : this.token},
                 (ackResponse)=>{
                     if(ackResponse.msg === EVENTS.LOBBY.CLIENT_ATTEMPT_JOIN_ACK){
-                        this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(username)=>{
-                            onUserJoin(username);
+                        this.mysocket.on(EVENTS.LOBBY.USER_JOINED,(userAndLevel)=>{
+                            onUserJoin(userAndLevel);
                         });
                         this.mysocket.on(EVENTS.LOBBY.USER_LEFT,(username)=>{
                             onUserLeave(username);

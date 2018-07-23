@@ -119,7 +119,7 @@ const self = module.exports = {
                 
                     reject(err);
                 }
-                resolve(res.rows);
+                resolve(res.rows.map((row)=>({...row,players: row.players.map((p)=>JSON.parse(p))})));
             })
         })
     },
@@ -137,7 +137,7 @@ const self = module.exports = {
                     reject(err);
                     return;
                 }
-                resolve(res.rows);
+                resolve(res.rows.map((row)=>({...row,players: row.players.map((p)=>JSON.parse(p))})));
             })
         })
     },
@@ -189,7 +189,7 @@ const self = module.exports = {
                     return;
                 }
                // Minor fix here to prevent crashes.
-                resolve(!res.rows || res.rows.length ===0? undefined: res.rows[0]);
+                resolve(!res.rows || res.rows.length ===0? undefined: {...res.rows[0], players: res.rows[0].players.map((p)=>JSON.parse(p))});
             })
         });
     },
@@ -215,7 +215,7 @@ const self = module.exports = {
         return new Promise ((resolve,reject)=>{
             const getuserquery = {
                 text:
-                    `SELECT ${fields.USERS.USERNAME},${fields.USERS.GAMEID},  ${fields.USERS.SOCKET_ID} `+
+                    `SELECT ${fields.USERS.USERNAME},${fields.USERS.GAMEID},  ${fields.USERS.SOCKET_ID} , ${fields.USERS.LEVEL} `+
                     `FROM ${fields.USERS.TABLENAME} `+
                     ` WHERE ${fields.USERS.USERNAME} = $1 ;`,
                 values: [username]
@@ -289,7 +289,7 @@ const self = module.exports = {
 
         })
     },
-    joinGame: (username,gameId)=>{
+    joinGame: (username,gameId,level)=>{
         return new Promise ((resolve,reject)=>{
             const shouldAbort = (err) => {
                 if (err) {
@@ -313,7 +313,7 @@ const self = module.exports = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.PLAYERS} = array_append(${fields.GAMES.PLAYERS}, $1) `+
                     `WHERE ${fields.GAMES.UUID} = $2;`,
-                    values: [username, gameId]
+                    values: [JSON.stringify({username: username, level: level}), gameId]
                 };
                 client.query(updateGamesTableQuery, (err, res) => {
                     if (shouldAbort(err)){

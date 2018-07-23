@@ -7,8 +7,10 @@ import EVENTS from '../../../appCentralService/constants/socketEvents';
 import {startKickoutUser, startLeaveGame, startRemoveGame, startStartGame} from "../actions/games";
 import {startInviteToLobby} from "../actions/user";
 import ChatRoom from './ui/ChatRoom';
-import {message,Alert} from 'antd';
+import {message, Alert} from 'antd';
 import {startSendMessage} from "../actions/chatroom";
+import IMGTYPES from '../constants/imgTypes';
+import LEVELS from '../../../appCentralService/exp/expConfig';
 
 class GameLobbyPage extends Component {
     constructor(props) {
@@ -36,16 +38,16 @@ class GameLobbyPage extends Component {
                 message: ''
             },
             ncards: 20, // default.
-            timelimitmins:5
+            timelimitmins: 5
         };
-        const interval =()=> {
-                this.setState((prevState) => {
-                    return {
+        const interval = () => {
+            this.setState((prevState) => {
+                return {
 
-                        loadingidx: (prevState.loadingidx + 1) % prevState.loadingtypes.length
-                    };
-                })
-            };
+                    loadingidx: (prevState.loadingidx + 1) % prevState.loadingtypes.length
+                };
+            })
+        };
         this.intervalObj = setInterval(interval,
             3000);
 
@@ -66,9 +68,9 @@ class GameLobbyPage extends Component {
         clearInterval(this.intervalObj);
 
 
-       /* if (!this.state.hasLeft)
-            this.onLeaveHandler();
-        */
+        /* if (!this.state.hasLeft)
+             this.onLeaveHandler();
+         */
     }
 
     onLeaveHandler = () => {
@@ -108,7 +110,7 @@ class GameLobbyPage extends Component {
                 this.state.invitation.invitee)).then(() => {
                 message.success(`Invitation sent to ${this.state.invitation.invitee}.`, 5);
                 this.setState({
-                    invitation:{invitee:''}
+                    invitation: {invitee: ''}
                 })
             }).catch((e) => {
                 if (e === EVENTS.LOBBY.INVITE_USER_FAIL) {
@@ -121,7 +123,7 @@ class GameLobbyPage extends Component {
     gameStartHandler = () => {
         this.setState({isStartingGame: true}, () => {
             console.log(`Starting game: state: ${JSON.stringify(this.state)}`);
-            this.props.dispatch(startStartGame(this.props.match.params.uuid, this.state.ncards,this.state.timelimitmins * 60)).then(() => {
+            this.props.dispatch(startStartGame(this.props.match.params.uuid, this.state.ncards, this.state.timelimitmins * 60)).then(() => {
                 // NOTE: we should receive the socket's GAME_START, from which we go to /game/play/:uuid.
                 // no need to push here.
                 // this.props.history.push(`/game/play/${this.state.uuid}`);
@@ -131,21 +133,21 @@ class GameLobbyPage extends Component {
             })
         });
     };
-    onKickUserHandler = (username)=>{
-        this.props.dispatch(startKickoutUser(username,this.props.match.params.uuid)).then(()=>{
-            message.success(`kicked ${username} from game lobby.`,5);
-        }).catch((e)=>{
-            message.error(`failed to kick ${username} from game lobby.`,5);
+    onKickUserHandler = (username) => {
+        this.props.dispatch(startKickoutUser(username, this.props.match.params.uuid)).then(() => {
+            message.success(`kicked ${username} from game lobby.`, 5);
+        }).catch((e) => {
+            message.error(`failed to kick ${username} from game lobby.`, 5);
         })
     }
+
     render() {
         const currentgame = this.props.games.filter(g => g.uuid === this.props.match.params.uuid
         )[0];
-        let msg= undefined;
+        let msg = undefined;
         if (!this.props.user.username)
             msg = "Please log in first.";
-        else
-        if (!currentgame) {
+        else if (!currentgame) {
             msg = "No such game lobby found. ";
         }
         const errorGameLobbyContent = (
@@ -153,10 +155,10 @@ class GameLobbyPage extends Component {
                 <h2>
                     {msg}
                 </h2>
-                <Button onClick={()=>this.props.history.push('/')}>Go back to Main page</Button>
+                <Button onClick={() => this.props.history.push('/')}>Go back to Main page</Button>
             </div>
         );
-        if(msg)
+        if (msg)
             return errorGameLobbyContent;
 
         /*
@@ -166,18 +168,18 @@ class GameLobbyPage extends Component {
         return (
             <div>
                 <div className="gameLobbyPage__module">
-                <Button onClick={this.onLeaveHandler}
-                >
-                    {/* Invitation faillure modal */}
-                    <AlertDialog
-                        isShowingModal={this.state.error.showErrorModal}
-                        handleClose={() => this.setState({error: {showErrorModal: false}})}
-                        subject={this.state.error.subject}
-                        message={this.state.error.message}
-                    />
-                    <Icon type={currentgame.creator === this.props.user.username ? "close-circle-o" : "home"}/>
-                    {currentgame.creator === this.props.user.username ? "leave and delete game" : "leave game"}
-                </Button>
+                    <Button onClick={this.onLeaveHandler}
+                    >
+                        {/* Invitation faillure modal */}
+                        <AlertDialog
+                            isShowingModal={this.state.error.showErrorModal}
+                            handleClose={() => this.setState({error: {showErrorModal: false}})}
+                            subject={this.state.error.subject}
+                            message={this.state.error.message}
+                        />
+                        <Icon type={currentgame.creator === this.props.user.username ? "close-circle-o" : "home"}/>
+                        {currentgame.creator === this.props.user.username ? "leave and delete game" : "leave game"}
+                    </Button>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
                     <Icon type="rocket" style={{fontSize: '50px', marginRight: '10px'}}/>
@@ -193,7 +195,7 @@ class GameLobbyPage extends Component {
                                 dataSource={currentgame ? currentgame.players : []}
                                 renderItem={item => (
                                     <List.Item>
-                                        {currentgame.creator === item ?
+                                        {currentgame.creator === item.username ?
                                             (
                                                 <div style={{marginRight: "15px"}}>
                                                     <Icon type="user"/>
@@ -207,19 +209,47 @@ class GameLobbyPage extends Component {
                                             )
                                         }
 
+
                                         <div>
-                                            {item}
+                                            {item.username}
                                         </div>
-                                        {currentgame.creator !== item && currentgame.creator ===this.props.user.username?
-                                            (
-                                                <div style={{ position: 'absolute',
-                                                    right: '10px', cursor:'pointer'}}
-                                                     onClick={()=>this.onKickUserHandler(item)}
-                                                >
-                                                    <Icon type="close-circle-o" style={{fontSize: '20px'}}/>
+
+                                        <div style={{
+                                            position: 'absolute',
+                                            right: '10px',
+                                        }}
+                                        >
+                                            <div>
+                                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                                    {item.level >= 0 ? (
+
+                                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                                        <p style={{marginRight: '10px'}}> Lvl. {item.level + 1} - {LEVELS.EXPLEVELS[item.level].levelname}</p>
+
+                                                        < div
+                                                        className="gameLobbyPage__levelIcon"
+                                                        >
+                                                        <img
+                                                        height={40}
+                                                        width={40}
+                                                        src={IMGTYPES.levels.white[item.level]}
+                                                        />
+                                                        </div>
+                                                        </div>
+                                                        ) : null}
+                                                    {currentgame.creator !== item.username && currentgame.creator === this.props.user.username ?
+                                                        (
+                                                            <div
+                                                                style={{marginLeft:'10px', cursor: 'pointer'}}
+                                                                onClick={() => this.onKickUserHandler(item.username)}
+                                                            >
+                                                                <Icon type="close-circle-o"
+                                                                      style={{fontSize: '20px'}}/>
+                                                            </div>
+                                                        ) : null}
                                                 </div>
-                                            ): null
-                                        }
+                                            </div>
+                                        </div>
                                     </List.Item>)}
                             />
                         </div>
@@ -248,20 +278,20 @@ class GameLobbyPage extends Component {
                                                     </Button>
                                                 ) :
                                                 (
-                                                        <Alert
-                                                                type="warning"
-                                                               message="Can't start game yet."
-                                                               description="You need at least 2 players to start a game! invite others!"
-                                                               showIcon
-                                                                iconType="exclamation-circle-o"
-                                                               />
+                                                    <Alert
+                                                        type="warning"
+                                                        message="Can't start game yet."
+                                                        description="You need at least 2 players to start a game! invite others!"
+                                                        showIcon
+                                                        iconType="exclamation-circle-o"
+                                                    />
                                                 )
                                             }
                                         </div>
                                     </div>
                                 ) : null
                         }
-                        <div className="gameLobbyPage__module" style={{width:'40%'}}>
+                        <div className="gameLobbyPage__module" style={{width: '40%'}}>
                             <h3>Invite people here:</h3>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <div style={{width: '85%'}}>
@@ -287,44 +317,48 @@ class GameLobbyPage extends Component {
                             username={this.props.user.username}
                         />
                         {
-                        currentgame.creator === this.props.user.username ?
-                            (
-                                <div className="gameLobbyPage__module">
-                                <h2>
-                                Game settings
-                            </h2>
-                                    <Row>
-                                        <h4>Cards per player:</h4>
-                                        <Col span={12}>
-                                            <Slider min={5} max={30} onChange={(val)=>{ this.setState({ncards:val})}} value={this.state.ncards} />
-                                        </Col>
-                                        <Col span={4}>
-                                            <InputNumber
-                                                min={5}
-                                                max={30}
-                                                style={{ marginLeft: 16 }}
-                                                value={this.state.ncards}
-                                                onChange={(val)=>this.setState({ncards:val})}
-                                            />
-                                        </Col>
-                                    </Row>
-                                    <Row>
-                                        <h4>time limit:</h4>
-                                        <Col span={12}>
-                                            <Slider min={3} max={8} onChange={(val)=>{this.setState({timelimitmins:val})}} value={this.state.timelimitmins} />
-                                        </Col>
-                                        <Col span={4}>
-                                            <InputNumber
-                                                min={3}
-                                                max={8}
-                                                style={{ marginLeft: 16 }}
-                                                value={this.state.timelimitmins}
-                                                onChange={(val)=>this.setState({timelimitmins:val})}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </div>
-                                ):null
+                            currentgame.creator === this.props.user.username ?
+                                (
+                                    <div className="gameLobbyPage__module">
+                                        <h2>
+                                            Game settings
+                                        </h2>
+                                        <Row>
+                                            <h4>Cards per player:</h4>
+                                            <Col span={12}>
+                                                <Slider min={5} max={30} onChange={(val) => {
+                                                    this.setState({ncards: val})
+                                                }} value={this.state.ncards}/>
+                                            </Col>
+                                            <Col span={4}>
+                                                <InputNumber
+                                                    min={5}
+                                                    max={30}
+                                                    style={{marginLeft: 16}}
+                                                    value={this.state.ncards}
+                                                    onChange={(val) => this.setState({ncards: val})}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <h4>time limit:</h4>
+                                            <Col span={12}>
+                                                <Slider min={3} max={8} onChange={(val) => {
+                                                    this.setState({timelimitmins: val})
+                                                }} value={this.state.timelimitmins}/>
+                                            </Col>
+                                            <Col span={4}>
+                                                <InputNumber
+                                                    min={3}
+                                                    max={8}
+                                                    style={{marginLeft: 16}}
+                                                    value={this.state.timelimitmins}
+                                                    onChange={(val) => this.setState({timelimitmins: val})}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                ) : null
                         }
                     </div>
                 </div>

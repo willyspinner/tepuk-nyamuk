@@ -95,10 +95,11 @@ export const startRemoveGame = (gameid) => {
 
 };
 
-export const joinGame = (gameuuid,username) => ({
+export const joinGame = (gameuuid,userobj) => ({
     type :'JOIN_GAME',
     uuid:gameuuid,
-    username,
+    username: userobj.username,
+    level : userobj.level
 });
 
 export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOut) => {
@@ -108,7 +109,7 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOu
         console.log(`games_action:: startJoinGame: trying to subscribe to lobby ${uuid}...`);
         const onUserJoin = (other_user)=>{
           /* onUserJoin  (when someone joins.*/
-            console.log(`${other_user} joined.`);
+            console.log(`${other_user.username} joined.`);
             reduxDispatch(joinGame(uuid,other_user));
 
         };
@@ -119,9 +120,10 @@ export const startJoinGame = (uuid,username,onGameStart,onGameDeleted,onKickedOu
             };
 
                 reduxDispatch(recordCurrentGameid(uuid));
+                // join myself.
                 mysocket.subscribeToLobby(username,uuid,
                     onUserJoin,onUserLeft,onGameStart,onGameDeleted,onKickedOut).then((obj)=>{
-                    reduxDispatch(joinGame(uuid,username));
+                    reduxDispatch(joinGame(uuid,{username, level: getState().user.currentLevelIdx}));
                     reduxDispatch(initChat(obj.stringifiedchat.map((msg)=>JSON.parse(msg)),uuid));
                     resolve(obj.players);
                 }).catch((e)=>{

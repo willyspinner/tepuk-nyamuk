@@ -55,7 +55,7 @@ const GameListItem = (props)=> (
                     size="small"
                     bordered
                     dataSource={props.game.players}
-                    renderItem={item => (<List.Item>{item}</List.Item>)}
+                    renderItem={item => (<List.Item>{item.username} - Lvl. {item.level+ 1}</List.Item>)}
                 />
             </div>
         </Card>
