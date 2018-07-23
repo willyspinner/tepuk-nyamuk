@@ -161,10 +161,7 @@ class GameLobbyPage extends Component {
         if (msg)
             return errorGameLobbyContent;
 
-        /*
-
-                <Beforeunload onBeforeunload={e => this.onLeaveHandler()}/>
-                */
+        const fontSizeIcon = "20px";
         return (
             <div>
                 <div className="gameLobbyPage__module">
@@ -198,13 +195,13 @@ class GameLobbyPage extends Component {
                                         {currentgame.creator === item.username ?
                                             (
                                                 <div style={{marginRight: "15px"}}>
-                                                    <Icon type="user"/>
-                                                    <Icon type="star-o"/>
+                                                    <Icon type="user" style={{fontSize: fontSizeIcon}}/>
+                                                    <Icon type="star-o" style={{fontSize: fontSizeIcon}}/>
                                                 </div>
                                             )
                                             : (
                                                 <div style={{marginRight: "30px"}}>
-                                                    <Icon type="user"/>
+                                                    <Icon type="user" style={{fontSize: fontSizeIcon}}/>
                                                 </div>
                                             )
                                         }
@@ -216,7 +213,8 @@ class GameLobbyPage extends Component {
 
                                         <div style={{
                                             position: 'absolute',
-                                            right: '10px',
+                                            right: '10px'
+                                            //bottom:'6px'
                                         }}
                                         >
                                             <div>

@@ -30,7 +30,7 @@ class Header extends React.Component {
                     paddingTop: "9px",
                     justifyContent:'space-between'
                 }}>
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <div style={{display: 'flex', flexDirection: 'row', marginTop:'5px'}}>
                         <img src={IMGTYPES.flyImage.white}
                              height="35px"
                              width="35px"
@@ -44,26 +44,27 @@ class Header extends React.Component {
                         this.props.user.currentLevelObj &&
                         this.props.user.currentExp >= 0
                         ? (
-                    <div style={{marginTop:"5px", marginRight: '10px' ,display:'flex',flexDirection:'row'}}>
+                    <div style={{marginTop:"2px", marginRight: '10px' ,display:'flex',flexDirection:'row',marginBottom:'5px'}}>
                         <img src={IMGTYPES.levels.white[this.props.user.currentLevelIdx]}
                         width={60}
                              height={60}
+                             style={{marginRight:'10px'}}
                         />
                         <Tooltip
                             placement="bottom"
                             title={ this.props.user.currentLevelObj.threshold? `Exp needed to go to level ${this.props.user.currentLevelIdx + 2}: ${this.props.user.currentLevelObj.threshold - this.props.user.currentExp} points.`: "max level!"}
                         >
                             <div style={{display:'flex',flexDirection:'column'}}>
-                            <h5 style={{color:'white',
-                            }} className="game_font"> Lvl {this.props.user.currentLevelIdx +1} </h5>
-                             <h5 style={{color:'white',
+                            <h6 style={{color:'white',
+                            }} className="game_font"> Lvl {this.props.user.currentLevelIdx +1} </h6>
+                             <h6 style={{color:'white',
                             }} className="game_font">
                                     {this.props.user.currentLevelObj.levelname}
-                                </h5>
-                                <h5 style={{color:'white',
+                                </h6>
+                                <h6 style={{color:'white',
                                 }} className="game_font">
                                     EXP: {this.props.user.currentExp}
-                                </h5>
+                                </h6>
 
                             </div>
                         </Tooltip>
