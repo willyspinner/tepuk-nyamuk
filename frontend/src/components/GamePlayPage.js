@@ -194,11 +194,14 @@ class GamePlayPage extends Component {
             duration: 3
         })
         if(loserusername === this.props.user.username){
-            //do the flashy thingy.
             this.setState({bgcolor: this.state.redbgcolor})
             setTimeout(()=>this.setState({bgcolor: 'white'}),220);
             setTimeout(()=>this.setState({bgcolor: this.state.redbgcolor}),440);
             setTimeout(()=>this.setState({bgcolor: 'white'}),600);
+        }else{
+            const color = 'rgba(25, 252, 19, 0.51)';
+            this.setState({bgcolor: color})
+            setTimeout(()=>this.setState({bgcolor: 'white'}),650);
         }
     };
 

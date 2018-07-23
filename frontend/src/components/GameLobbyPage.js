@@ -38,7 +38,7 @@ class GameLobbyPage extends Component {
                 message: ''
             },
             ncards: 20, // default.
-            timelimitmins: 5
+            timelimitmins: 3
         };
         const interval = () => {
             this.setState((prevState) => {
@@ -343,13 +343,13 @@ class GameLobbyPage extends Component {
                                         <Row>
                                             <h4>time limit:</h4>
                                             <Col span={12}>
-                                                <Slider min={3} max={8} onChange={(val) => {
+                                                <Slider min={1} max={8} onChange={(val) => {
                                                     this.setState({timelimitmins: val})
                                                 }} value={this.state.timelimitmins}/>
                                             </Col>
                                             <Col span={4}>
                                                 <InputNumber
-                                                    min={3}
+                                                    min={1}
                                                     max={8}
                                                     style={{marginLeft: 16}}
                                                     value={this.state.timelimitmins}
