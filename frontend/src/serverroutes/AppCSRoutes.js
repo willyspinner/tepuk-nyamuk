@@ -1,6 +1,6 @@
 // this creates the request object.
 //NOTE: process.env below works because we have defined it as a webpack DefinePlugin in webpack.config.js.
-const ROOTURL=`http://${process.env.API_HOST}:${process.env.API_PORT}`;
+const ROOTURL=`${process.env.NODE_ENV === 'production' ? 'https':'http'}://${process.env.API_HOST}:${process.env.API_PORT}`;
 export const NEWUSER= (username,password)=>{
   const obj =  {
     url : `${ROOTURL}/appcs/user/new`,

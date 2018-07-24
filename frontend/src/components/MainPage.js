@@ -88,7 +88,7 @@ class MainPage extends Component {
         return {success: true}
     }
     connectToGameUpdates = () => {
-        const connectionStr = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
+        const connectionStr = `${process.env.NODE_ENV === 'production'?'https':'http'}//${process.env.API_HOST}:${process.env.API_PORT}`;
         socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs'
             ).then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
