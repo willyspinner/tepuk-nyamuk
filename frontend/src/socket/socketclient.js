@@ -143,11 +143,12 @@ return new Promise((resolve,reject)=>{
             //TODO: THIS EMIT doesn't work.
             console.log('trying to subscribe to gameplay... Emitting moving to GMS...')
             mysocket.emit(EVENTS.LOBBY.MOVING_TO_GMS,{}, (ack)=>{
-                console.log(`SUBSCRIBE TO GAMEPLAY:ack object ${JSON.stringify(ack)}`)
+                console.log(`SUBSCRIBE TO GAMEPLAY:ack object ${JSON.stringify(ack)}`);
                 if(ack.success){
                     mysocket.close();
                     console.log('connectToGameplay : ack succes.')
-                    this.connect(`http://${process.env.API_HOST}:${process.env.API_PORT}`,gameStartObj.gametoken,
+                    this.connect(`${process.env.NODE_ENV === 'production' ? 'https': 'http'}://${process.env.API_HOST}:${process.env.API_PORT}`,gameStartObj.gametoken,
+                        //TODO: Something wrong here! wtf?
                         {gamesecret: gameStartObj.gamesecret, username: username},
                         'gms'
                     ).then(()=> {
