@@ -9,7 +9,7 @@ class Scorer {
         return scoreresults.map((scoreresult)=>(
             {
                 username: scoreresult.username,
-                expUpdate: Math.round((scoreresult.score<=0 ? 100: scoreresult.score )/ (parseInt(totalgametimesecs) / 60))
+                expUpdate: Math.round((scoreresult.score<=0 ? 100: scoreresult.score )/ (parseInt(totalgametimesecs) / 100))
             }
                 ));
     }
