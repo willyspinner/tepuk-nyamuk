@@ -78,6 +78,17 @@ const registerModal = (props)=>(
                 "Already registered?!"
             }
         </Button>
+            {process.env.NODE_ENV !== 'production'?
+                (
+            <Button
+
+                style={{marginBottom: '24px'}}
+                onClick={()=>props.history.push('/intoolsUI')}
+            >
+                Go to UI intools
+            </Button>
+                )
+                :null}
         </div>
     </Modal>
 );

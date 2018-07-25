@@ -2,7 +2,7 @@ import request from 'request';
 import moment from 'moment';
 import mysocket from '../socket/socketclient';
 import {GETOPENGAMES,CREATEGAME,DELETEGAME,STARTGAMEFROMLOBBY} from "../serverroutes/AppCSRoutes";
-import {recordCurrentGameid, recordCurrentgameid} from "./user";
+import {recordCurrentGameid} from "./user";
 import {initChat} from "./chatroom";
 export const gamesEmptyReduxState = ()=>({
     type: "EMPTY_GAME_STATE"

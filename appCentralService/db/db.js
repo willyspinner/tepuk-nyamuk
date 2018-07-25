@@ -478,6 +478,26 @@ const self = module.exports = {
     getGamesHistory : (username)=>{
 
     },
+    //TODO: get ranking of users by exp
+    getRankingByExp : (limit)=>{
+        return new Promise((resolve,reject)=>{
+            const rankingByExpQuery= {
+                text: `SELECT ${fields.USERS.USERNAME},${fields.USERS.LEVEL}, ${fields.USERS.EXP} FROM
+                    ${fields.USERS.TABLENAME} ORDER BY EXP DESC LIMIT $1;`,
+                values: [limit]
+            };
+            client.query(rankingByExpQuery,(err,res)=>{
+                if(err){
+                    reject(err);
+                    return;
+
+                }
+                resolve(res.rows);
+            })
+
+        });
+    },
+
     // Called by GMS when a game finishes.
     gmsFinishGame : (gameid,resultObj)=>{
         return new Promise ((resolve,reject)=>{

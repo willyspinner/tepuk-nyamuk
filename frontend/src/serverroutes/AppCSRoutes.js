@@ -57,6 +57,15 @@ export const DELETEGAME= (gameid,token,socketid)=>{
     };
 };
 
+export const GETRANKINGS= (token)=>{
+    return {
+        url: `${ROOTURL}/appcs/user/rankings`,
+        /*auth: {
+            bearer: token,
+            sendImmediately: true
+        },*/
+    };
+};
 export const STARTGAMEFROMLOBBY=(gameid,token,socketid,cardsperplayer,timelimitsecs)=>{
     return {
         url: `${ROOTURL}/appcs/game/start/${gameid}`,

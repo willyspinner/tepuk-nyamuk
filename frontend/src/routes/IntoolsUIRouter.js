@@ -8,6 +8,7 @@ import {Button} from 'antd';
 import PlayingCard from "../components/ui/PlayingCard";
 import Sound from 'react-sound';
 import SOUNDTYPES from '../constants/soundTypes';
+import RankingsList from "../components/RankingsList";
 export const history = createHistory();
 const EXPLEVELS= require('../../../appCentralService/exp/expConfig').EXPLEVELS;
 const sampleMessageFeed= [
@@ -32,7 +33,7 @@ class IntoolsUIRouter extends React.Component {
             <Router history={history}>
                 <div>
                     <h1 style={{textAlign: 'center'}}> UI Intools </h1>
-                    <p style={{textAlign: 'center'}}> FOR TESTING PURPOSES ONLY. Use for testing UI look and feel.</p>
+                    <p style={{textAlign: 'center'}}> FOR TESTING PURPOSES ONLY. Use for testing UI look and feel. This page is disabled in production.</p>
                     <div
                         style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', marginBottom: '15px'}}>
                         <Button onClick={() => history.push('/intoolsUI/ChatRoom')}>
@@ -49,6 +50,9 @@ class IntoolsUIRouter extends React.Component {
                         </Button>
                         <Button onClick={() => history.push('/intoolsUI/expUpdateModal')}>
                             expUpdateModal
+                        </Button>
+                        <Button onClick={() => history.push('/intoolsUI/rankingsList')}>
+                            rankingsList
                         </Button>
                     </div>
                     <Switch>
@@ -156,7 +160,25 @@ class IntoolsUIRouter extends React.Component {
                             )}
                         />
 
-                        <Route render={() => (<h3> Please select a UI component to continue.</h3>)}/>
+                        <Route
+                            path={"/intoolsUI/rankingsList"}
+                            exact={true}
+                            render={() => (
+                                <RankingsList
+
+                                    rankings={[
+
+                                        {username: 'berdog', level: 4, exp: 2000},
+                                        {username: 'zaza', level: 8, exp: 9000},
+                                        {username: 'willyking', level: 9, exp: 20000},
+                                        {username: 'Terry', level: 9, exp: 25000},
+                                        {username: 'Sucker', level: 0, exp: 10},
+
+                                    ]}
+                                />
+                                )}
+                        />
+                        <Route render={() => (<h3 style={{alignSelf:'center'}}> Please select a UI component to continue.</h3>)}/>
                     </Switch>
                 </div>
             </Router>

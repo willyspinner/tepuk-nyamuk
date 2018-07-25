@@ -26,6 +26,8 @@ import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
 import AlertDialog from './ui/AlertDialog';
 import InvitationDialog from './ui/InvitationDialog';
+import RankingsList from "./RankingsList";
+import {startGetRankings} from "../actions/rankings";
 class MainPage extends Component {
     state = {
         inputusername: "",
@@ -44,6 +46,7 @@ class MainPage extends Component {
             message: '',
             showErrorModal: false
         },
+        rankingIsLoading:false
     }
 
     constructor(props){
@@ -88,7 +91,7 @@ class MainPage extends Component {
         return {success: true}
     }
     connectToGameUpdates = () => {
-        const connectionStr = `${process.env.NODE_ENV === 'production'?'https':'http'}//${process.env.API_HOST}:${process.env.API_PORT}`;
+        const connectionStr = `${process.env.NODE_ENV === 'production'?'https':'http'}://${process.env.API_HOST}:${process.env.API_PORT}`;
         socketclient.connect(connectionStr, this.props.user.token,undefined,'appcs'
             ).then((socketid) => {
             this.props.dispatch(connectSocket(socketid));
@@ -143,6 +146,16 @@ class MainPage extends Component {
         })
     }
 
+    getRankings = () =>{
+        this.setState({rankingIsLoading : true});
+        console.log(`getting ranking ting with token : ${this.props.user.token}`)
+        this.props.dispatch(startGetRankings(this.props.user.token)).then(()=>{
+            this.setState({rankingIsLoading : false});
+        }).catch((e)=>{
+            this.setState({rankingIsLoading : false});
+            this.alertError("Sorry!", `Couldn't get rankings. Unfortunately, there was a server error. ${JSON.stringify(e)}`);
+        });
+    }
     loginUserHandler = () => {
         console.log(`calling loginUserHandler`);
         let validateInput = this.validateInput();
@@ -159,6 +172,7 @@ class MainPage extends Component {
                 this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
                 this.props.dispatch(updateExpObject(resObj.expObject));
                 this.connectToGameUpdates();
+                this.getRankings();
                 this.setState({showLoadingModal : false});
             }).catch((e) => {
             this.setState({showLoadingModal : false});
@@ -251,6 +265,7 @@ class MainPage extends Component {
         this.props.dispatch(startRegisterUser(this.state.inputusername,
             this.state.password))
             .then((resObj) => {
+                this.getRankings();
                 this.props.dispatch(initChat(resObj.stringifiedmainchat.map((obj)=>JSON.parse(obj))));
                 this.props.dispatch(updateExpObject(resObj.expObject));
                 this.connectToGameUpdates();
@@ -333,6 +348,7 @@ class MainPage extends Component {
 
         const registerModal = (
             <AuthenticationModal
+                history={this.props.history}
                 isOpen={!this.props.user.username}
                 inputUsernameValue={this.state.inputusername}
                 onInputUsernameChange={(e) => {
@@ -433,6 +449,7 @@ class MainPage extends Component {
                 />
 
                 <div style={{display: 'flex', flexDirection: 'row'}}>
+                    {/* chatroom div */}
                     <div style={{width: '35%'}} className="mainPage__module">
                         <h2>Chatroom</h2>
                         <ChatRoom
@@ -442,6 +459,7 @@ class MainPage extends Component {
                             username={this.props.user.username}
                         />
                     </div>
+                    {/* game div */}
                     <div style={{width: "65%"}} className="mainPage__module">
                         <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
                         <h2>Games</h2>
@@ -473,7 +491,8 @@ class MainPage extends Component {
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
 
-                    <div style={{width: '80%'}}>
+                    {/* instructions */}
+                    <div style={{width: '40%'}}>
                         <div className="mainPage__module">
                             <h2>How to play</h2>
                             <ol>
@@ -511,12 +530,17 @@ class MainPage extends Component {
                             </Button>
                         </div>
                     </div>
-                    <div className="mainPage__module"style={{minHeight: '120px',minWidth: '120px'}}>
-                        <img src={IMGTYPES.flyImage.normal}
-                             height="40%"
-                             width="30%"
-                             style={{maxWidth:'100%'}}
-                        />
+                    <div className="mainPage__module">
+                    <h2>Rankings</h2>
+                        <Button onClick={()=>this.getRankings()}>
+                            Reload
+                        </Button>
+                    <RankingsList
+                        rankings={this.props.rankings}
+                        isLoading={this.state.rankingIsLoading}
+                        isVisible ={!!(this.props.user && this.props.user.token)}
+
+                    />
                     </div>
                 </div>
             </div>
@@ -528,6 +552,7 @@ class MainPage extends Component {
 const mapStateToProps = (state) => ({
     games: state.games,
     user: state.user,
-    mainchat: state.chat.main
+    mainchat: state.chat.main,
+    rankings : state.rankings
 });
 export default connect(mapStateToProps)(MainPage);

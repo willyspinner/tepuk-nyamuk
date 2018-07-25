@@ -216,6 +216,42 @@ app.post('/appcs/user/auth', (req, res) => {
 })
 
 
+/* GET RANKINGS */
+app.get('/appcs/user/rankings',(req,res)=>{
+    db.getRankingByExp(5).then((topFive)=> {
+        res.status(200).json({
+            success: true,
+            rankings: topFive /* they have exp, level and username */
+        })
+    });
+    // auth jwt.
+    logger.info('GET /appcs/user/rankings', `req.headers : ${JSON.stringify(req.headers)}`)
+    /*
+    if (!req.body.token ) {
+        res.status(400).json({
+            success: false,
+            error: "Bad request."
+        });
+        return;
+    }
+    jwt.verify(req.body.token, process.env.AUTH_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            res.status(401).json({
+                success: false,
+                error: 'NOT AUTHENTICATED.'
+            });
+            return;
+        }else{
+            db.getRankingByExp(5).then((topFive)=>{
+                res.status(200).json({
+                    success:true,
+                    rankings: topFive
+                })
+            })
+        }
+    });
+*/
+});
 /*
 
 AppCS Route.
