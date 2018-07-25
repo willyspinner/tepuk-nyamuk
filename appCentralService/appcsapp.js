@@ -379,7 +379,10 @@ app.delete('/appcs/game/delete/:gameid', (req, res) => {
                 logger.info("DELETE /appcs/game/delete/:gameid", `decoded.username : ${decoded.username}`);
                 if (creator.socketid === req.body.socketid && creator.username === decoded.username) {
                     logger.info(`AppCS::app.js::delete game route`, ` credentials verified for deletion.`);
-                    db.deleteGame(req.params.gameid).then(() => {
+                    Promise.all([
+                    db.deleteGame(req.params.gameid),
+                        chatroomdb.deleteRoomchat(req.params.gameid)
+                    ]).then(() => {
                         console.log(`AppCS::app.js::delete game route: emitting to main lobby...`);
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: req.params.gameid
@@ -700,7 +703,7 @@ io.on('connection', (socket) => {
                         logger.info(`socket.on DISCONNECT`, `${userObj.username} is a game lobby creator. Deleting game ${game.uuid}...`);
                         //delete game
                         await db.leaveGame(userObj);
-                        await db.deleteGame(game.uuid);
+                        await Promise.all([chatroomdb.deleteRoomchat(game.uuid),db.deleteGame(game.uuid)]);
                         io.emit(EVENTS.GAME_DELETED, {
                             gameuuid: game.uuid
                         });

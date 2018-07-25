@@ -39,7 +39,11 @@ class chatroomDb {
         return redisclient.lrangeAsync(`/room/${gameid}/chat`, 0 ,-1);
 
     }
+    static deleteRoomchat(gameid){
+        return redisclient.delAsync(`/room/${gameid}/chat`);
 
-
+    }
 }
+
+
 module.exports = chatroomDb;
