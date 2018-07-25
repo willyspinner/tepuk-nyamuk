@@ -214,7 +214,7 @@ class GamePlayPage extends Component {
         }
         */
 
-        if ( prevProps.gameplay.pile && prevProps.gameplay.pile.length !== this.props.gameplay.pile.length) {
+        if ( this.props.gameplay.pile && prevProps.gameplay.pile && prevProps.gameplay.pile.length !== this.props.gameplay.pile.length) {
             if (this.props.gameplay.match) {
                 this.setState({myreactiontime: performance.now()},()=> {
                     console.log(`setting state myreaction time: ${this.state.myreactiontime}`)
@@ -238,15 +238,19 @@ class GamePlayPage extends Component {
                 //remove our gameplay object.
                 this.props.dispatch(finishGame());
 
-                if (errormsg === 'error')
-                this.props.history.push({
-                    pathname: '/',
-                    dialog: {
-                    subject: 'Sorry!',
-                        message: 'Someone disconnected from gameplay. Please don\'t leave games midway! '
-                }
+                if (errormsg === 'error'){
+                    this.setState({isdisconnected:true},()=>{
+                        this.props.history.push({
+                            pathname: '/',
+                            dialog: {
+                                subject: 'Sorry!',
+                                message: 'Someone disconnected from gameplay. Please don\'t leave games midway! '
+                            },
+                            needConnect: true,
 
-                });
+                        });
+                    })
+                }
                 else
                     this.props.history.push({
                         pathname: '/',
