@@ -498,23 +498,22 @@ class MainPage extends Component {
                             <ol>
                                 <li>
                                     Everyone gets given out a personal pile of cards. They are not to look at their own
-                                    pile,
+                                    hand,
                                     and must be faced down.
                                 </li>
                                 <li>
                                     Players count in order (Ace to King) as they throw a single card to a central pile
                                     from
-                                    their own pile.
+                                    their hand (by pressing T).
                                 </li>
                                 <li>
-                                    if the count matches the card's number, then everyone has to slap the central pile.
+                                    if the count matches the card's number, then everyone has to slap the central pile (pressing spacebar).
                                     The last
                                     person to slap this central pile has to get all the cards from the center.
                                 </li>
                                 <li>
-                                    First person to finish their own pile, and successfuly slaps in 3 rounds with their
-                                    pile
-                                    finished wins!
+                                    First person to finish their own hand, and successfuly slaps in 3 rounds with 0 cards on their hands
+                                    wins!
                                 </li>
 
                             </ol>
