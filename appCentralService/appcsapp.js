@@ -223,9 +223,13 @@ app.get('/appcs/user/rankings',(req,res)=>{
             success: true,
             rankings: topFive /* they have exp, level and username */
         })
-    });
+    }).catch((e)=>{
+      res.status(500).json({
+      success:false
+      });
+    })
     // auth jwt.
-    logger.info('GET /appcs/user/rankings', `req.headers : ${JSON.stringify(req.headers)}`)
+    //logger.info('GET /appcs/user/rankings', `req.headers : ${JSON.stringify(req.headers)}`)
     /*
     if (!req.body.token ) {
         res.status(400).json({
@@ -266,7 +270,7 @@ TESTED . OK.
 app.get('/appcs/game', (req, res) => {
     logger.info(`GET /appcs/game`, `querying open games...`);
     db.queryOpenGames().then((games) => {
-        logger.info(`GET /appcs/game`, `responding with games: ${JSON.stringify(games)}`);
+        //logger.info(`GET /appcs/game`, `responding with games: ${JSON.stringify(games)}`);
         res.status(200).json({
             success: true,
             games

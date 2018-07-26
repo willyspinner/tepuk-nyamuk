@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+command uuid >/dev/null 2>&1 || { echo "you need the npm uuid module to generate random uuids."; exit 1; };
+if [ $# -lt 1 ];
+   then echo "need game name arg in \$1."
+     exit 1;
+   fi
+
+SQLSTRING=$(cat<<EOF
+INSERT INTO GAMES(name,players,uuid,status,result,createdat,creator,gameoptions) 
+VALUES ('$1', '{}','$(uuid)','LOB','{}',10222,'willy','{}')
+EOF
+);
+
+psql -c "$SQLSTRING" 'tepuk-nyamuk'
