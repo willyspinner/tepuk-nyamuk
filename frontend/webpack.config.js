@@ -95,7 +95,6 @@ return {
       {
         loader: 'babel-loader', // what we use
         test: /\.js$/, // regex for which ones we want to run this rule on. (only on js files)
-        // NOTE THAT THE REGEX DOESNT HAVE quOTATION MARKS.
         exclude: /node_modules/ // we don't want to make changes to node modules.
       },
         {
@@ -148,9 +147,6 @@ return {
   devServer: {
     contentBase: path.join(__dirname,'public'),// serve from public directory.
     historyApiFallback:true, // tells the devserver that we're going to
-    //handle routing client side, and should always serve index.html..
-    // THIS IS IMPORTANT! NOTE: production settings is different.
-    // if we use react router, we'll get the actual client side routing
       publicPath:'/dist/'
   }
 }
