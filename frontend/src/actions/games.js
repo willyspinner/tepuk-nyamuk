@@ -157,7 +157,7 @@ export const startLeaveGame = (uuid,username) => {
             };
 
 
-            mysocket.unsubscribeFromLobby({username: username, gameid: uuid},
+            mysocket.unsubscribeFromLobby({username: username, gameid: uuid, level: getState().user.currentLevelIdx},
                 onSuccessLeave,
                 onFailLeave);
         });

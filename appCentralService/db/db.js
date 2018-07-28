@@ -424,7 +424,7 @@ const self = module.exports = {
                     text: `UPDATE ${fields.GAMES.TABLENAME} `+
                     `SET ${fields.GAMES.PLAYERS} = array_remove(${fields.GAMES.PLAYERS}, $1) `+
                     `WHERE ${fields.GAMES.UUID} = $2;`,
-                    values: [userObj.username, userObj.gameid]
+                    values: [JSON.stringify({username:userObj.username,level: userObj.level}), userObj.gameid]
                 } ;
                 client.query(updateGamesTableQuery, (err, res) => {
                     if (shouldAbort(err)){

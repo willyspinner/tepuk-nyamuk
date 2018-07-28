@@ -819,7 +819,7 @@ io.on('connection', (socket) => {
 
      */
     socket.on(EVENTS.LOBBY.CLIENT_LEAVE, (clientUserObj, response) => {
-        logger.info('on CLIENT_LEAVE', `${clientUserObj.username}`);
+        logger.info('on CLIENT_LEAVE', `${JSON.stringify(clientUserObj)}`);
         db.leaveGame(clientUserObj).then(() => {
             //note: .to() is the one for room in the main namespace.
             let joinedRoom = clientUserObj.gameid;
