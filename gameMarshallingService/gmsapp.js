@@ -2,11 +2,12 @@
 initialize our environment.
  */
 const logger = require('./log/gms_logger');
-if (process.argv.length < 3){
-    logger.error(`ENVIRONMENT NOT SET.`,` please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+if (process.argv.length < 3  && !process.env.TPKENV){
+    logger.error(`ENVIRONMENT NOT SET.`,` please specify one of : 'development.{local,lan} or production.{local,host} in either the script argument or as an environment variable to continue`);
     process.exit(1);
 }
-switch(process.argv[2]){
+let decision = process.argv.length >=3 ? process.argv[2]: process.env.TPKENV;
+switch(decision){
     case 'development.local':
         require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
         break;
@@ -23,6 +24,7 @@ switch(process.argv[2]){
         throw new Error("INVALID environment mode.");
 }
 // gms ting here is default.
+logger.info(`gmssapp.js`,`starting gms in ${decision} mode.`);
 require('dotenv').config({path: `${__dirname}/.gms.test.env`});
 const redisdb = require('./db/redisdb');
 const express = require('express');

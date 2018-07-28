@@ -1,10 +1,11 @@
 const logger = require('./log/appcs_logger');
-if (process.argv.length < 3) {
+if (process.argv.length < 3 && !process.env.TPKENV) {
     console.error("ERROR. Environment not set.");
-    console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue`);
+    console.log(`please specify one of : 'development.{local,lan} or production.{local,host} to continue as nodejs argument OR as a "TPKENV" environment variable.`);
     process.exit(1);
 }
-switch (process.argv[2]) {
+let decision = process.argv.length >=3 ? process.argv[2]: process.env.TPKENV;
+switch (decision) {
     case 'development.local':
         require('dotenv').config({path: `${__dirname}/../shared/.development.local.env`});
         break;
@@ -20,6 +21,7 @@ switch (process.argv[2]) {
     default :
         throw new Error("INVALID environment mode.");
 }
+logger.info(`appcsapp.js`,`starting appcs in ${decision} mode.`);
 require('dotenv').config({path: `${__dirname}/.appcs.test.env`})
 logger.info(`connection details`, `connection details : appcs: ${process.env.APPCS_HOST}:${process.env.APPCS_PORT}, gms: ${process.env.GMS_HOST}:${process.env.GMS_PORT}.`)
 logger.info(`connection details`, `pub sub redis : ${process.env.APPCS_REDIS_PUBSUB_HOST}:${process.env.APPCS_REDIS_PUBSUB_PORT}`);
@@ -72,7 +74,6 @@ if (process.argv[2] === 'production.host') {
 // server listening.
 
 const server = app.listen(app.get('port'));
-logger.info(`app.js`,`API server listening on ${app.get('port')}`)
 const io = ioserver(server, {
     path: '/appcs-socketio',
     pingTimeout: 15000, // ms
@@ -83,6 +84,7 @@ const io = ioserver(server, {
 io.adapter(socketioredis({host: process.env.APPCS_REDIS_PUBSUB_HOST, port: process.env.APPCS_REDIS_PUBSUB_PORT}));
 //NOTE: do we attach it to the server? really?
 logger.info('app.js', `ioserver listening on ${app.get('port')}`);
+logger.info(`app.js`,`API server listening on ${app.get('port')}`)
 
 app.use(function (req, res, next) {
     //NOTEDIFF: Changed ALLOW ORIGIN to our thing only in production.
@@ -685,9 +687,6 @@ io.on('connection', (socket) => {
         notifdb.getNotifAndExpire(socket.username).then((notif)=>{
             let notifObj = JSON.parse(notif);
             if ( notif && notifObj.type === 'EXP' ){
-                //TODO : why isn't the socket.emit working...
-                console.log('SOCKETING EMITTING RECV NOTIF WITH OBJ :')
-                console.log(notif);
                 socket.emit(EVENTS.RECV_NOTIF,{type: 'EXP', expObject: notifObj.expObject});
             }
         })
@@ -700,7 +699,7 @@ io.on('connection', (socket) => {
             if (!socket.movingToGms) {
                 logger.info(`socket.on DISCONNECT`, `${socket.username} disconnected. Will get them to leave lobby or destroy it.`);
                 const userObj = await db.getUser(socket.username);
-                logger.info(`socket.on DISCONNECt`, `got userObj : ${JSON.stringify(userObj)}`);
+                logger.info(`socket.on DISCONNECT`, `got userObj : ${JSON.stringify(userObj)}`);
                 if (userObj && userObj.gameid) {
                     let game = await db.getGame(userObj.gameid);
                     if (game.creator === userObj.username) {
@@ -949,17 +948,4 @@ const shutDown = async (signal) => {
 }
 process.on('SIGTERM', () => shutDown('SIGTERM'));
 process.on('SIGINT', () => shutDown('SIGINT'));
-
-/*
-logger.info('doing testing...',`testing db.updateExpAndLevel()...`);
-    exp.bulkIncrementExpAndLevel(
-        [{username: 'a', expUpdate: 4000},
-            {username: 'b', expUpdate: 3000}
-        ])
-        .then(() => {
-            console.log('resolved.');
-        }).catch((e) => {
-        console.log(e);
-    })
-    */
 
