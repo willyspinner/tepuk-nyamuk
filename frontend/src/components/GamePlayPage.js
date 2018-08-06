@@ -182,6 +182,10 @@ class GamePlayPage extends Component {
                 key('space', () => {
                     this.slap();
                 })
+        }).catch((e)=>{
+            this.setState({isError:true},()=>{
+                this.alertError('ERROR',"Sorry. You can't join this game. Please go back to the home page.");
+            });
         });
     }
 
@@ -389,8 +393,12 @@ class GamePlayPage extends Component {
                         (
 
                             <div style={{margin: '0 auto' ,display:'flex',flexDirection:'column',alignItems:'center'}}>
+                                {!this.state.isError?
+                                    <span>
                                 <ReactLoading type={"cylon"} color={"blue"} height={300} width={180}/>
                                 <h1> joining game...</h1>
+                                    </span>
+                                    :null}
                             </div>
                         )
 

@@ -242,6 +242,9 @@ const onWinGame = (gamesessionid,winner,scoresnapshot,callback)=>{
                 }
             },
             (err,resp,body)=>{
+                if (err){
+                    callback({success:false})
+                }
                 io.to(gamesessionid).emit(events.GAME_FINISHED,
                     resultObj
                 )
@@ -633,7 +636,6 @@ io.use(function (socket, next) {
                                                             .map((zeroed_player_username)=>redisdb.incrementStreak(gamesessionid,zeroed_player_username))
                                                         )*/
                                                     //NOTEDIFF: optimized redis access pattern.
-                                                    //TODO: WHY DOESN't THIS WORK!!
                                                     redisdb.massIncrementStreak(gamesessionid,zeroed_players)
                                                         .then((zeroed_players_new_streaks)=>{
                                                             let winning_condition = false;
@@ -754,28 +756,39 @@ const determinePlacesByHandAndStreaks =  (handSnapshot,streakSnapshot)=>{
 
 };
 const onExpire = (gamesessionid)=>{
-    logger.info("gmsapp::onExpire",`${gamesessionid} expiring...`);
-    Promise.all([
-        redisdb.getSnapshotLlen(gamesessionid),
-        redisdb.getStreaksSnapshot(gamesessionid),
-        redisdb.getLowToHighScoreSnapshot(gamesessionid)
-    ]).then((data)=> {
-        let handSnapshot = data[0];
-        let streaksSnapshot = data[1];
-        let scoreSnapshot = data[2];
-        let ranks = determinePlacesByHandAndStreaks(handSnapshot,streaksSnapshot);
+    return new Promise((resolve,reject)=>{
+        logger.info("gmsapp::onExpire",`${gamesessionid} expiring...`);
+        Promise.all([
+            redisdb.getSnapshotLlen(gamesessionid),
+            redisdb.getStreaksSnapshot(gamesessionid),
+            redisdb.getLowToHighScoreSnapshot(gamesessionid)
+        ]).then((data)=> {
+            logger.info(`gmsapp::onExpire`,`first promise resolved.`);
+            let handSnapshot = data[0];
+            let streaksSnapshot = data[1];
+            let scoreSnapshot = data[2];
+            let ranks = determinePlacesByHandAndStreaks(handSnapshot,streaksSnapshot);
             /*
                 rank[0] : 1st place,
                 rank[1] : 2nd place,
                 rank[2] : 3rd place,
              */
             let winner = ranks[0];
-            onWinGame(gamesessionid, winner, scoreSnapshot, () => {
-                redisdb.deleteGame(gamesessionid).then(() => {
-                    logger.info('expire: onWinGame.', `${gamesessionid} game deleted...`);
-                });
+            logger.info(`gmsapp::onExpire`,`ok. Winner : ${winner}`);
+            onWinGame(gamesessionid, winner, scoreSnapshot, (cb) => {
+                if (cb.success) {
+                    redisdb.deleteGame(gamesessionid).then(() => {
+                        logger.info('expire: onWinGame.', `${gamesessionid} game deleted...`);
+                        resolve();
+                    });
+                }else{
+                    reject();
+                }
             })
+        }).catch((e)=>{
+            console.error('error : ',e);
         })
+    });
     };
 
 
@@ -788,4 +801,30 @@ redispubsubclient.psubscribeAsync("__keyevent@*__:expired").then(()=>{
     logger.error(`gmsapp::init`,`couldn't psubscribe to EXPIRE games.. error: ${JSON.stringify(e)}`);
     process.exit(1);
 });
+// trapping exit signals.
+const shutDown = async (signal) => {
+    logger.warn(`signal ${signal}`, `shutting down gracefully..`);
+    /* TODO - drop any games */
+    logger.warn(`signal ${signal}`,`dropping all games...`);
+    let activeGamesessionids= await redisdb.getAllActiveGamesessionids();
+    logger.warn(`signal ${signal}`, `games : ${JSON.stringify(activeGamesessionids)}`);
+    Promise.all(
+        activeGamesessionids.map((activeGamesessionid)=>{
+            return onExpire(activeGamesessionid);
+        })
+    ).then(async ()=>{
+        await server.close();
+        logger.warn(`signal ${signal}`, `Exit OK. Bye... 👋`);
+        process.exit(0);
+    }).catch(async (e)=>{
+        await server.close();
+        logger.warn(`signal ${signal}`, `EXIT ERROR. Did not exit gracefully. ${JSON.stringify(e)}. Bye... 👋`);
+        process.exit(1);
 
+    })
+
+}
+
+process.on(`SIGTERM`,()=>shutDown('TERM'));
+process.on(`SIGINT`,()=>shutDown('INT'));
+process.on(`SIGQUIT`,()=>shutDown('QUIT'));

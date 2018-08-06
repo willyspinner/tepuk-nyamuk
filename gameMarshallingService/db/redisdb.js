@@ -127,6 +127,8 @@ const self = module.exports = {
             chain = chain.set(`${gamesessionid}/gameid`,gameid);
             chain = chain.set(`${gamesessionid}/isalive`,1);
             chain = chain.set(`${gamesessionid}/timelimit`,timeLimitSeconds);
+            chain = chain.rpush(`active_games`,gamesessionid);
+
             // execute transaction.
             chain.execAsync().then((result)=>{
                 console.log(`redisdb::initializeGame: playerinturn now : ${players[0]}`);
@@ -138,6 +140,11 @@ const self = module.exports = {
             })
 
     });
+    },
+    // get all gamesessionids that are active.
+    getAllActiveGamesessionids: ()=>{
+        return redisclient.lrangeAsync(`active_games`,0 ,-1);
+
     },
     getTimeAndTtlInSecs: (gamesessionid)=>{
         return new Promise((resolve,reject)=>{
@@ -197,7 +204,11 @@ const self = module.exports = {
              // scan is a recursive function.
             scanAsync(0,`${gamesessionid}/*`, (keys)=>{
                 // below not needed.
-                    redisclient.delAsync(...keys).then((retcode)=>{
+                Promise.all([
+                    redisclient.delAsync(...keys),
+                    redisclient.lremAsync(`active_games`,-1,gamesessionid)
+                ]).then((data)  =>{
+                         let retcode = data[0];
                         if(keys.length === retcode)
                             resolve(retcode);
                         else{
