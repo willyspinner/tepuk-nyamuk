@@ -61,7 +61,7 @@ class GamePlayPage extends Component {
         }else{
             console.log('it isn\'t your turn ting.');
             console.log('playerinturn: ',this.props.gameplay.playerinturn,'myusername: ',this.props.myusername)
-
+            notification.destroy();
             notification.error({
                 message: "it isn't your turn!",
                 description:"you can't throw a card when it isn't your turn.",
@@ -72,6 +72,7 @@ class GamePlayPage extends Component {
     // method for me slapping.
     slap = () => {
         if(this.props.gameplay.pile.length === 0){
+            notification.destroy();
             notification.error({
                 message:'What are you slapping for?',
                 description:"there aren't any cards on the pile...",
@@ -193,6 +194,7 @@ class GamePlayPage extends Component {
     determineLoser = (loserusername,isaccidental) => {
         const description = isaccidental? `Loser is: ${loserusername}, who slapped accidentally!! :(`:
              `Loser is : ${loserusername}, who slapped in time: ${this.props.gameplay.players.filter((player)=>player.username === loserusername)[0].slapreactiontime}`;
+        notification.destroy();
         notification.info({
             message:'Match results',
             description,
@@ -266,12 +268,14 @@ class GamePlayPage extends Component {
     synchronize=()=>{
         console.log('trying to synchronize gameplay...')
         this.props.dispatch(startSynchronizeGameplay()).then((res)=>{
+            notification.destroy();
             notification.success({
                 message: "synchronization successful.",
                 description:`${JSON.stringify(res)}`,
                 duration: '1'
             })
         }).catch((e)=>{
+            notification.destroy();
             notification.error({
                 message: "synchronization failed.",
                 description:`${JSON.stringify(res)}`,
@@ -321,7 +325,7 @@ class GamePlayPage extends Component {
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
-                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px', marginTop: "100px"}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
+                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px' }}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
                         <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
                         <div>
                             {/* Pile */}
@@ -383,7 +387,7 @@ class GamePlayPage extends Component {
                             </Col>
                             <Col span={8}>
                         <span className={"showCounter"}>
-                        <p className={"game_font"} style={{fontSize:'135px', textAlign:'center'}}> {
+                        <p className={"game_font"} style={{fontSize:'135px', textAlign:'center', marginTop:'100px'}}> {
                             realnum
                         }</p>
                         </span>
