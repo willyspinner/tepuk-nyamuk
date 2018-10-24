@@ -65,7 +65,7 @@ class GamePlayPage extends Component {
             notification.error({
                 message: "it isn't your turn!",
                 description:"you can't throw a card when it isn't your turn.",
-                duration: '2'
+                duration: '1'
             });
         }
     };
@@ -75,15 +75,16 @@ class GamePlayPage extends Component {
             notification.error({
                 message:'What are you slapping for?',
                 description:"there aren't any cards on the pile...",
-                duration: 3
+                duration: 1
             })
+            return;
         }
         if(this.state.slapped)
             return;
         if (!this.props.gameplay.match) {
             this.props.dispatch(startPlayerSlap(123059123))
         }else{
-            const elapsed_time =performance.now() -  this.state.myreactiontime;
+            const elapsed_time = performance.now() -  this.state.myreactiontime;
             console.log(`this.state.myreactiontime : ${this.state.myreactiontime}`);
             console.log(`elapsed time slap : ${elapsed_time}`);
             this.props.dispatch(startPlayerSlap(elapsed_time)).catch((e)=>{
@@ -117,7 +118,7 @@ class GamePlayPage extends Component {
                 notification.open({
                     message:'reshuffle',
                     description,
-                    duration: 3
+                    duration: 1
                 })
 
             }
@@ -195,7 +196,7 @@ class GamePlayPage extends Component {
         notification.info({
             message:'Match results',
             description,
-            duration: 3
+            duration: 1
         })
         if(loserusername === this.props.user.username){
             this.setState({bgcolor: this.state.redbgcolor})
@@ -268,13 +269,13 @@ class GamePlayPage extends Component {
             notification.success({
                 message: "synchronization successful.",
                 description:`${JSON.stringify(res)}`,
-                duration: '5'
+                duration: '1'
             })
         }).catch((e)=>{
             notification.error({
                 message: "synchronization failed.",
                 description:`${JSON.stringify(res)}`,
-                duration: '5'
+                duration: '1'
             })
         })
     }
@@ -320,7 +321,7 @@ class GamePlayPage extends Component {
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
                     <div>
-                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px'}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
+                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px', marginTop: "100px"}}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
                         <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
                         <div>
                             {/* Pile */}
