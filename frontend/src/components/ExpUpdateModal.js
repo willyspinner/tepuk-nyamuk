@@ -28,7 +28,7 @@ componentDidMount(){
         /* calculate time for exp score. */
         let expTimeMs = 3000;
         // if NOT advancing initially already at max level
-       if( this.props.currentLevelObj.threshold ||this.props.currentLevelIdx !== this.props.previousLevelIdx)
+       if( this.props.currentLevelObj.threshold ||this.props.currentLevelIdx !== this.props.previousLevelIdx){
            expTimeMs = this.state.initialDelayMs;
            switch(this.props.currentLevelIdx - this.props.previousLevelIdx){
                case 0:
@@ -48,13 +48,14 @@ componentDidMount(){
                    expTimeMs += (((this.props.previousLevelObj.threshold- this.props.previousExp ) / this.state.pgbarExpInterval) * this.state.tickMs)
                    // between levels percentages.
                    expTimeMs += (this.props.currentLevelIdx - this.props.previousLevelIdx  ) * (this.state.levelingUpMs+ ((100 / this.state.percentageInterval) * this.state.tickMs))
-                       // till the end. If not at max level, then add
+                   // till the end. If not at max level, then add
                    if( this.props.currentLevelObj.threshold){
                        expTimeMs += (((this.props.currentExp - this.props.currentLevelObj.start ) / this.state.pgbarExpInterval) * this.state.tickMs)
                    }
 
 
 
+           }
        }
         const hasLeveledUp = this.props.previousLevelIdx < this.props.currentLevelIdx;
         return (
