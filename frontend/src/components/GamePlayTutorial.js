@@ -20,7 +20,6 @@ class GamePlayTutorial extends Component{
                 // slap: prevState.slap + 1,
                 allplayers: this.state.allplayers.map((player)=>{
                     if(player.username === username){
-                        console.log(`popping for:${player.username}`);
                         poppedcard = player.hand.pop();
                         return {
                             username,

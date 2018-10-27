@@ -5,7 +5,7 @@ import Typed from 'react-typed';
 import IMGTYPES from '../constants/imgTypes';
 class ExpUpdateModal extends React.Component {
 state= {
-    typeSpeed: 100
+    typeSpeed: 50
 }
 
     render() {
@@ -28,8 +28,8 @@ state= {
 
                     <img
                     src={IMGTYPES.expUpdate.stairsGoal}
-                    height={150}
-                    width={150}
+                    height={130}
+                    width={130}
                     style={{alignSelf:'center'}}
                     />
                     <p className="game_font" style={{fontSize: '30px', textAlign: 'center'}}
@@ -46,7 +46,7 @@ state= {
                             }}
                         />
                     </p>
-                    {hasLeveledUp ?
+                    {hasLeveledUp && !isNaN(this.props.currentLevelIdx) ?
                         (
                             <div style={{display:'flex',flexDirection:'column'}}>
                                 <p className="game_font" style={{
