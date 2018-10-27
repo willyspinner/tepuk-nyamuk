@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "add": "^2.0.6",
+    "animate.css": "^3.7.0",
     "antd": "^3.4.5",
     "babel-cli": "6.24.1",
     "babel-core": "^6.26.0",
@@ -27,6 +28,7 @@
     "raf": "3.3.2",
     "react": "16.0.0",
     "react-addons-shallow-compare": "^15.6.2",
+    "react-animated-number": "^0.4.4",
     "react-beforeunload": "^1.0.4",
     "react-dates": "^16.4.0",
     "react-dom": "16.0.0",

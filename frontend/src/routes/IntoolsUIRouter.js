@@ -148,12 +148,12 @@ class IntoolsUIRouter extends React.Component {
                             render={() => (
                                 <ExpUpdateModal
                                     isOpen={true}
-                                    previousLevelIdx={4}
-                                    previousExp={2000}
-                                    previousLevelObj={EXPLEVELS[4]}
-                                    currentLevelIdx={5}
-                                    currentExp={2700}
-                                    currentLevelObj={EXPLEVELS[5]}
+                                    previousLevelIdx={7}
+                                    previousExp={EXPLEVELS[7].threshold - 200}
+                                    previousLevelObj={EXPLEVELS[7]}
+                                    currentLevelIdx={8}
+                                    currentExp={EXPLEVELS[8].start+ 400}
+                                    currentLevelObj={EXPLEVELS[8]}
                                     onRequestClose={() => alert('on request close.')}
 
                                 />

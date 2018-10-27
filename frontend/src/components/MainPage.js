@@ -434,7 +434,7 @@ class MainPage extends Component {
                 {registerModal}
                 {LoadingModal}
                 {tutorialModal}
-                {MainpageExpUpdateModal}
+                {this.state.showExpModal? MainpageExpUpdateModal: undefined}
                 <AlertDialog
                     isShowingModal={this.state.error.showErrorModal}
                     handleClose={() => this.setState({error: {showErrorModal: false}})}
