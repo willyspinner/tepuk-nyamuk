@@ -19,7 +19,7 @@ module.exports ={
                 /* Rumbling Racqueteer  */ "/gameicons/megabot.png",
                 /* Mozzy magnet  */ "/gameicons/magnet-blast.png",
                 /* knight*/ "/gameicons/closed-barbute.png",
-                /* Prince */ "",
+                /* Prince */ "/gameicons/dwarf-king.png",
                 /* King of baygon*/ "/gameicons/queen-crown.png",
                 /* exterminator*/ "/gameicons/overlord-helm.png"
 
