@@ -1,3 +1,4 @@
+// this is the filler for expUpdateModal (standard)
 .filler {
   //background: #1DA598; // NOTE: implement the color by yourself.
   height: 99%;
@@ -5,12 +6,18 @@
   //transition: width .001s ease-in;
 }
 
+// filler for gameplay
+.fillerPile {
+  //background: #1DA598; // NOTE: implement the color by yourself.
+  height: 98%;
+  border-radius: inherit;
+  transition: width .1s ease-in;
+}
 .progress-bar {
   position: relative;
   //NOTE: implement height and width by yourself.
   //height: 20px;
   //width: 350px;
   border-radius: 50px;
-  border: 2px solid #333;
 }
 

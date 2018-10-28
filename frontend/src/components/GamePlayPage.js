@@ -7,7 +7,7 @@ import PlayingCard from './ui/PlayingCard';
 import GameplayResultsModal from './GameplayResultsModal';
 import ReactLoading from 'react-loading';
 import key from 'keymaster';
-import {Row, Col, notification, Progress, Button, Tooltip} from 'antd';
+import {Row, Col, notification, Progress, Button, Tooltip,  Switch} from 'antd';
 import socketclient from '../socket/socketclient';
 import {connectSocket, receiveInvitation, updateExpObject} from "../actions/user";
 import {addGame, removeGame, startedGame, startGetOpenGames} from "../actions/games";
@@ -15,6 +15,7 @@ import {receiveMessage} from "../actions/chatroom";
 import AlertDialog from "./ui/AlertDialog";
 import Sound from 'react-sound';
 import SOUNDTYPES from '../constants/soundTypes';
+import ProgressBar from "./ui/ProgressBar";
 /*
 props:
 tutorialLevel= 1 to 10 (difficulty of tutorial - 1 is easy, 10 is difficult)
@@ -29,6 +30,7 @@ class GamePlayPage extends Component {
             subject:'',
             message:''
         },
+        soundOn: true,
         slapped:false,
         soundUrl:'',
         timerblinking: false,
@@ -334,30 +336,50 @@ class GamePlayPage extends Component {
                     url={this.state.soundUrl}
                     playStatus={this.state.soundPlayingStatus}
                     onFinishedPlaying={()=>this.setState({soundPlayingStatus:Sound.status.STOPPED})}
+                    volume={this.state.soundOn? 100:0}
                 />
                 <Sound
                     url={SOUNDTYPES.gameplay.tikTok}
                     playStatus={this.state.timerblinking && !this.state.isShowingResultsModal? Sound.status.PLAYING: Sound.status.STOPPED}
                     loop={this.state.timerblinking && !this.state.isShowingResultsModal? true:false}
+                    volume={this.state.soundOn? 100:0}
                 />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}
                     onGoBackToHome={this.goBackToHome}
                 />
                 {this.props.gameplay && this.props.gameplay.initialized ?
-                    <div>
-                        <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px' }}> {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}</p>
-                        <h4>it is {this.props.gameplay.playerinturn}{this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"} turn.</h4>
+                    <div style={{paddingRight: "10px", paddingLeft:'10px'}}>
+                        <div style={{display:'flex',flexDirection: 'row', justifyContent:'space-between'}}>
+                            <p className="game_font" style={{color:this.state.timerblinking? 'red':'black',fontSize: '30px' }}>
+                                {Math.floor(this.state.timelimitsecs/60)}:{this.state.timelimitsecs % 60 <10? '0':null}{this.state.timelimitsecs % 60}
+                            </p>
+                            <div style={{display:'flex', flexDirection:'row'}}>
+                                <p> Sound: </p>
+                            <Switch checkedChildren="on" unCheckedChildren="mute"
+                                    checked={this.state.soundOn}
+                                    style={{marginLeft: '15px'}}
+                                onChange={(checked)=>this.setState({soundOn: checked})}
+                            />
+                            </div>
+
+                        </div>
+                        <h4>it is {this.props.gameplay.playerinturn === this.props.myusername ? "your" : (this.props.gameplay.playerinturn + (this.props.gameplay.playerinturn.endsWith('s')? "'":"'s"))} turn.</h4>
                         <div>
                             {/* Pile */}
-                            <h2>Pile:</h2>
-                            <Progress
-                                percent ={
+                            <h2>{this.props.gameplay.pile.length} card{this.props.gameplay.pile.length> 1? 's':''} in Pile</h2>
+                            <ProgressBar
+                                style={{margin:"0px 10px 10px 10px"}}
+                                height={"30px"}
+                                width={"100%"}
+                                percentage ={
                                     (this.props.gameplay.pile.length /(
                                         this.props.gameplay.pile.length +
                                         this.props.gameplay.players.map((player)=>player.nhand).reduce((acc,cur)=>acc+cur) ))* 100}
                                 format={()=>`pile: ${this.props.gameplay.pile.length}`}
-                                status={this.props.gameplay.pile.length > 13? 'exception':'active'}
+                                fillerClassName={'fillerPile'}
+                                color={this.props.gameplay.pile.length > 13?( this.props.gameplay.pile.length > 20? '#ff2643': '#ecbd10'):'#67d7f8'}
+                                borderColor={"rgb(215,215,215)"}
                             />
 
                         </div>
