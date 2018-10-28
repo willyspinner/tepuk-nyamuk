@@ -88,7 +88,7 @@ class ExpUpdateProgressBar extends Component{
                                         percentage: prevState.percentage + (this.props.percentageInterval? this.props.percentageInterval : 2)
                                     }))
                                 }
-                                if (this.state.exp === this.props.expTo){
+                                if (this.state.exp >= this.props.expTo && !this.state.isLevelingUp){
                                     // end position. Stop.
                                     clearInterval(this.state.interval);
                                     return;

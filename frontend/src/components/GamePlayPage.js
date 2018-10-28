@@ -146,7 +146,7 @@ class GamePlayPage extends Component {
             //initiate timer.
             this.setState({timelimitsecs: onrealgamestartobj.timelimitsecs, initialtimelimitsecs: onrealgamestartobj.timelimitsecs});
             const timer =setInterval(()=>{this.setState((prevState)=>{
-                if (prevState.timelimitsecs < (1/3) * prevState.initialtimelimitsecs){
+                if (prevState.timelimitsecs < (1/4) * prevState.initialtimelimitsecs){
                     return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0: prevState.timelimitsecs - 1, timerblinking: !prevState.timerblinking}
                 }
                 else
@@ -156,17 +156,11 @@ class GamePlayPage extends Component {
         };
         const onGameWinnerAnnounced = (gameFinishedObj)=>{
             this.props.dispatch(gameWinner(gameFinishedObj));
-            clearInterval(this.state.countdowntimer);
-            key.unbind('t');
-            key.unbind('space');
             notification.destroy();
             this.setState({isShowingResultsModal:true});
         };
         const onGameInterrupt = ()=>{
             //go back.
-            clearInterval(this.state.countdowntimer);
-            key.unbind('t');
-            key.unbind('space');
             notification.destroy();
             this.goBackToHome("error");
         }
@@ -190,7 +184,11 @@ class GamePlayPage extends Component {
             });
         });
     }
-
+    componentWillUnmount(){
+        clearInterval(this.state.countdowntimer);
+        key.unbind('t');
+        key.unbind('space');
+    }
     determineLoser = (loserusername,isaccidental) => {
         const description = isaccidental? `Loser is: ${loserusername}, who slapped accidentally!! :(`:
              `Loser is : ${loserusername}, who slapped in time: ${this.props.gameplay.players.filter((player)=>player.username === loserusername)[0].slapreactiontime}`;

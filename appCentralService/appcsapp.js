@@ -132,7 +132,7 @@ app.post('/appcs/user/new', (req, res) => {
                     });
 
                 res
-                    .cookie('tpk_app_token', token, {expiresIn})
+                    //.cookie('tpk_app_token', token, {expiresIn})
                     .status(201).json({
                     success: true,
                     token: token,

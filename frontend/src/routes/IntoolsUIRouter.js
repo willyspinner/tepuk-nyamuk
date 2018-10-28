@@ -148,9 +148,9 @@ class IntoolsUIRouter extends React.Component {
                             render={() => (
                                 <ExpUpdateModal
                                     isOpen={true}
-                                    previousLevelIdx={7}
-                                    previousExp={EXPLEVELS[7].threshold - 200}
-                                    previousLevelObj={EXPLEVELS[7]}
+                                    previousLevelIdx={5}
+                                    previousExp={EXPLEVELS[5].threshold - 200}
+                                    previousLevelObj={EXPLEVELS[5]}
                                     currentLevelIdx={8}
                                     currentExp={EXPLEVELS[8].start+ 400}
                                     currentLevelObj={EXPLEVELS[8]}
