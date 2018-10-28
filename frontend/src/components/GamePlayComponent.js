@@ -5,6 +5,7 @@ import {Row, Col,  Progress, Button, Tooltip } from 'antd';
 import ProgressBar from "./ui/ProgressBar";
 /* props:
 gameplay - gameplay object.
+myusername - my username
 cardsuit - the cardsuit
 slapped - whether the player him/herself has slapped.
 loser - the loser of some match event.

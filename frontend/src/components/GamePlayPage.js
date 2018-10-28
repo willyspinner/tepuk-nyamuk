@@ -361,6 +361,7 @@ class GamePlayPage extends Component {
 
                         </div>
                         <GamePlayComponent
+                            myusername={this.props.myusername}
                             gameplay={this.props.gameplay}
                             cardsuit={this.state.cardsuit}
                             slapped={this.state.slapped}
