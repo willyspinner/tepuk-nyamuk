@@ -75,7 +75,7 @@ class GamePlayTutorial extends Component{
             tittle: "Slapping",
             steps:[
             {target: "#gameplay-counter", content:`Observe the number on the counter. It is ${this.state.matchNum}.`,placement:"bottom"},
-            {target: "#gameplay-piletop-card", content:`Observe the number on the card. It is ${this.state.matchNum} as well. We have a match!`,placement:"bottom"},
+            {target: "#gameplay-piletop-card", content:`Observe the number on the card. It is ${this.state.matchNum} as well. We have a match!`,placement:"top"},
             {target: "#slap-button", content:`When we have a match, you must slap the pile and not be the last person to do so. Slap by pressing spacebar or the slap button now!`,placement:"bottom"},
         ]};
         /* post slap*/
@@ -83,7 +83,7 @@ class GamePlayTutorial extends Component{
             tittle: "After slapping",
             steps:[
                 {target: `#player-${this.props.myusername.replace(/ /g,"-")}`, content:`Nice, you slapped before everyone else! In game, this will display whether you slapped or not, and your time.`,placement:"right"},
-                {target: "#gameplay-streak", content:`You obtain streaks when you aren't the last to slap and have 0 cards on your hand. When you have 3 streaks, you win!`,placement:"bottom"},
+                {target: "#gameplay-streak", content:`You obtain streaks when you aren't the last to slap and have 0 cards on your hand. When you have 3 streaks, you win!`,placement:"right"},
             ]};
         /* end of tour */
 
