@@ -32,6 +32,7 @@
     "react-beforeunload": "^1.0.4",
     "react-dates": "^16.4.0",
     "react-dom": "16.0.0",
+    "react-joyride": "^2.0.0-15",
     "react-loading": "^2.0.2",
     "react-modal": "^3.3.2",
     "react-modal-dialog": "Dean177/react-modal-dialog#support/bump-react",

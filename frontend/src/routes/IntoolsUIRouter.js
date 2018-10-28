@@ -5,10 +5,12 @@ import ChatRoom from '../components/ui/ChatRoom';
 import ExpUpdateModal from '../components/ExpUpdateModal';
 import ScoreRankings from "../components/ui/ScoreRankings";
 import {Button} from 'antd';
+import Modal from 'react-modal';
 import PlayingCard from "../components/ui/PlayingCard";
 import Sound from 'react-sound';
 import SOUNDTYPES from '../constants/soundTypes';
 import RankingsList from "../components/RankingsList";
+import GamePlayTutorial from "../components/GamePlayTutorial";
 export const history = createHistory();
 const EXPLEVELS= require('../../../appCentralService/exp/expConfig').EXPLEVELS;
 const sampleMessageFeed= [
@@ -28,6 +30,9 @@ const sampleFinalScores= [
     {username: 'Romelu Lukaku', score: 34000}
 ];
 class IntoolsUIRouter extends React.Component {
+    state={
+        showTutorial:true
+    }
     render() {
         return (
             <Router history={history}>
@@ -36,6 +41,13 @@ class IntoolsUIRouter extends React.Component {
                     <p style={{textAlign: 'center'}}> FOR TESTING PURPOSES ONLY. Use for testing UI look and feel. This page is disabled in production.</p>
                     <div
                         style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', marginBottom: '15px'}}>
+                        <Button onClick={() => {
+                            this.setState({showTutorial: true});
+                            history.push('/intoolsUI/gameplayTutorial')
+                        }}
+                        >
+                            Gameplay Tutorial
+                        </Button>
                         <Button onClick={() => history.push('/intoolsUI/ChatRoom')}>
                             ChatRoom
                         </Button>
@@ -62,6 +74,28 @@ class IntoolsUIRouter extends React.Component {
                         </Button>
                     </div>
                     <Switch>
+
+                        <Route
+                            path="/intoolsUI/gameplayTutorial"
+                            exact={true}
+                            render={() => (
+                                <Modal
+                                    isOpen={this.state.showTutorial}
+                                    ariaHideApp={false}
+                                    onRequestClose={() => {
+                                        this.setState({showTutorial: false});
+                                    }
+                                    }
+                                >
+                                    <GamePlayTutorial
+                                        myusername={"intools user"}
+                                        onComplete={() => {
+                                            this.setState({showTutorial: false});
+                                        }}
+                                    />
+                                </Modal>
+                                )}
+                            />
                         <Route
                             path="/intoolsUI/ChatRoom"
                             exact={true}

@@ -9,7 +9,6 @@ import {
     receiveInvitation,
     updateExpObject
 } from "../actions/user";
-import IMGTYPES from '../constants/imgTypes';
 import ExpUpdateModal from './ExpUpdateModal';
 import {initChat, receiveMessage, startSendMessage} from "../actions/chatroom";
 import {joinGame, startGetOpenGames, addGame, removeGame, gamesEmptyReduxState} from "../actions/games";
@@ -20,7 +19,6 @@ import ReactLoading from 'react-loading';
 import {Icon, Button} from 'antd';
 import {connect} from 'react-redux';
 import AuthenticationModal from './RegisterModal';
-import {finishGame, initializeGame} from "../actions/gameplay";
 import ChatRoom from './ui/ChatRoom';
 import CreateGameForm from './ui/CreateGameForm';
 import socketclient from '../socket/socketclient';
@@ -282,19 +280,7 @@ class MainPage extends Component {
     }
 
     onTutorialStartHandler = () => {
-        const allplayers = [this.props.user.username, "bob", "berdog", "Jonathan", "Mike"];
-        const playerinturn = this.props.user.username;
-        let nhands = 10;
-        this.props.dispatch(finishGame());
-        this.props.dispatch(initializeGame(
-            playerinturn,
-            allplayers,
-            nhands
-        ));
         this.setState((prevState) => ({
-            allplayers,
-            nhands,
-            playerinturn,
             showTutorial: true,
         }));
     }
@@ -398,10 +384,10 @@ class MainPage extends Component {
                 }
             >
                 <GamePlayTutorial
-                    tutorialLevel={3}
-                    nhands={this.state.nhands}
-                    allplayers={this.state.allplayers}
-                    playerinturn={this.state.playerinturn}
+                    myusername={this.props.user.username}
+                    onComplete={() => {
+                        this.setState({showTutorial: false});
+                    }}
                 />
             </Modal>
 
