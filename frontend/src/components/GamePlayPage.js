@@ -134,8 +134,13 @@ class GamePlayPage extends Component {
                 result.scoreUpdate,
             ));
             this.setState({
-                slapped:false
-            })
+                slapped:false,
+                loser: result.loser,
+            });
+            let timeout = setTimeout(()=>{
+                this.setState({loser: ""});
+                clearTimeout(timeout);
+            },500);
         };
         const onGameStart = (onrealgamestartobj)=>{
             this.props.dispatch(initializeGame(
@@ -180,11 +185,12 @@ class GamePlayPage extends Component {
                 })
         }).catch((e)=>{
             this.setState({isError:true},()=>{
-                this.alertError('ERROR',"Sorry. You can't join this game. Please go back to the home page.");
+                this.alertError('Error',"Sorry. You can't join this game. Please go back to the home page.");
             });
         });
     }
     componentWillUnmount(){
+        console.log("clearing interval timer");
         clearInterval(this.state.countdowntimer);
         key.unbind('t');
         key.unbind('space');
@@ -311,7 +317,15 @@ class GamePlayPage extends Component {
                 handleClose={() => this.setState({error: {showErrorModal: false}})}
                 subject={this.state.error.subject}
                 message={this.state.error.message}
-                />
+                >
+                    <Button style={{margin: "auto"}} onClick={
+                        ()=>{
+                            this.props.history.push("/");
+                        }
+                    }>
+                        Go back to Home
+                    </Button>
+                </AlertDialog>
                 <Sound
                     url={this.state.soundUrl}
                     playStatus={this.state.soundPlayingStatus}
@@ -340,22 +354,25 @@ class GamePlayPage extends Component {
                         </div>
                         <Row type="flex" justify="center" align="top">
                             <Col span={8}>
-                                <div style={{flex: 1, flexDirection: "row"}}>
+                                <div style={{ marginLeft: "10px"}}>
                                     {this.props.gameplay.players.map((player, idx) => {
+                                        const bg = this.state.loser === player.username? "#ee4f34": (player.username === this.props.gameplay.playerinturn? "#4eaffc": "#FFFFFF");
                                         return (
-                                            <div key={idx}>
+                                            <div key={idx} style={{margin:'10px 25px 0px 25px' , padding: "20px 8px 20px 20px", border: "6px solid #F5F5F5",borderRadius:"20px" , background: bg, width: "80%"}}>
                                                 <h2>{player.username}</h2>
-                                                <p> cards in hand: {player.nhand} </p>
-                                                <p> score: {Math.round(player.score)} </p>
+                                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                                    <div>
+                                                        <p> cards: {player.nhand} </p>
+                                                        <p> score: {Math.round(player.score)} </p>
+                                                        <p>{player.hasslapped ? `SLAPPED ${Math.round(player.slapreactiontime)}ms` : " "}</p>
+                                                    </div>
                                                 <Progress
+                                                    style={{marginLeft: '10px',height: "65%", width:"65%"}}
                                                     type="circle"
                                                       status={player.streak >= 3? 'success': 'active'}
                                                       percent={player.streak * 33.33333}
                                                       format={percent => `${player.streak} streak${player.streak > 1 ? 's':''}`}/>
-                                                <br/>
-                                                {player.hasslapped ? "SLAPPED" : null}
-                                                <br/>
-                                                {player.hasslapped ? `reaction time : ${player.slapreactiontime}` : null}
+                                                </div>
                                             </div>
                                         );
                                     })}

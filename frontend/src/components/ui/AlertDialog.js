@@ -1,6 +1,6 @@
 import React from 'react';
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
-import {Icon} from 'antd';
+import {Button, Icon} from 'antd';
 /*
 props:
 handleClose: function to do when requested to close.
@@ -24,6 +24,7 @@ class AlertDialog extends React.Component {
                             <Icon type={this.props.icontype? this.props.icontype:"frown-o"} style={{fontSize:35, marginBottom:'10px'}}/>
                         </div>
                         <p>{this.props.message}</p>
+                        {this.props.children}
                     </ModalDialog>
                 </ModalContainer>
             }
