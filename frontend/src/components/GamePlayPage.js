@@ -152,7 +152,7 @@ class GamePlayPage extends Component {
             this.setState({timelimitsecs: onrealgamestartobj.timelimitsecs, initialtimelimitsecs: onrealgamestartobj.timelimitsecs});
             const timer =setInterval(()=>{this.setState((prevState)=>{
                 if (prevState.timelimitsecs < (1/4) * prevState.initialtimelimitsecs){
-                    return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0: prevState.timelimitsecs - 1, timerblinking: !prevState.timerblinking}
+                    return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0: prevState.timelimitsecs - 1, timerblinking: true /*!prevState.timerblinking*/}
                 }
                 else
                 return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0:  prevState.timelimitsecs - 1};
@@ -162,7 +162,10 @@ class GamePlayPage extends Component {
         const onGameWinnerAnnounced = (gameFinishedObj)=>{
             this.props.dispatch(gameWinner(gameFinishedObj));
             notification.destroy();
-            this.setState({isShowingResultsModal:true});
+            this.setState({
+                isShowingResultsModal:true,
+                timerblinking:false
+            });
         };
         const onGameInterrupt = ()=>{
             //go back.
@@ -228,7 +231,6 @@ class GamePlayPage extends Component {
         if ( this.props.gameplay.pile && prevProps.gameplay.pile && prevProps.gameplay.pile.length !== this.props.gameplay.pile.length) {
             if (this.props.gameplay.match) {
                 this.setState({myreactiontime: performance.now()},()=> {
-                    console.log(`setting state myreaction time: ${this.state.myreactiontime}`)
                 });
             }
        }
@@ -330,6 +332,11 @@ class GamePlayPage extends Component {
                     url={this.state.soundUrl}
                     playStatus={this.state.soundPlayingStatus}
                     onFinishedPlaying={()=>this.setState({soundPlayingStatus:Sound.status.STOPPED})}
+                />
+                <Sound
+                    url={SOUNDTYPES.gameplay.tikTok}
+                    playStatus={this.state.timerblinking? Sound.status.PLAYING: Sound.status.STOPPED}
+                    loop={true}
                 />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}

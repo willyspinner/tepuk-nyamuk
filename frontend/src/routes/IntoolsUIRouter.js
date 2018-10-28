@@ -48,7 +48,13 @@ class IntoolsUIRouter extends React.Component {
                         <Button onClick={() => history.push('/intoolsUI/sound')}>
                             Joined Game Lobby sound
                         </Button>
-                        <Button onClick={() => history.push('/intoolsUI/expUpdateModal')}>
+                        <Button onClick={() => history.push('/intoolsUI/tiktok')}>
+                            tiktok sound.
+                        </Button>
+                        <Button onClick={() =>{
+                            this.setState({expUpdateModalOpen:true})
+                            history.push('/intoolsUI/expUpdateModal')
+                        }}>
                             expUpdateModal
                         </Button>
                         <Button onClick={() => history.push('/intoolsUI/rankingsList')}>
@@ -95,6 +101,26 @@ class IntoolsUIRouter extends React.Component {
                             }
                         />
                         <Route
+                            path={"/intoolsUI/tiktok"}
+                            exact={true}
+                            render={() => (
+                                <div>
+                                    <Sound
+                                        url={SOUNDTYPES.gameplay.tikTok}
+                                        playStatus={Sound.status.PLAYING}
+                                        loop={true}
+                                    />
+                                    <p>
+                                        These sounds are served from our frontend server. They are requested from the
+                                        client, and loaded into the
+                                        react-sound component ('Sound').
+
+                                    </p>
+                                </div>
+
+                            )}
+                        />
+                        <Route
                             path={"/intoolsUI/sound"}
                             exact={true}
                             render={() => (
@@ -122,6 +148,10 @@ class IntoolsUIRouter extends React.Component {
                             exact={true}
                             render={() => (
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <Sound
+                                        url={SOUNDTYPES.gameplay.slapped}
+                                        playStatus={Sound.status.PLAYING}
+                                    />
                                     <div style={{marginLeft: '15px'}}>
                                         <h2>has slapped:</h2>
                                         <PlayingCard
@@ -147,14 +177,16 @@ class IntoolsUIRouter extends React.Component {
                             exact={true}
                             render={() => (
                                 <ExpUpdateModal
-                                    isOpen={true}
+                                    isOpen={this.state.expUpdateModalOpen}
                                     previousLevelIdx={5}
                                     previousExp={EXPLEVELS[5].threshold - 200}
                                     previousLevelObj={EXPLEVELS[5]}
                                     currentLevelIdx={8}
                                     currentExp={EXPLEVELS[8].start+ 400}
                                     currentLevelObj={EXPLEVELS[8]}
-                                    onRequestClose={() => alert('on request close.')}
+                                    onRequestClose={() =>{
+                                        this.setState({expUpdateModalOpen: false})
+                                    }}
 
                                 />
                             )}
