@@ -151,6 +151,8 @@ class GamePlayPage extends Component {
             //initiate timer.
             this.setState({timelimitsecs: onrealgamestartobj.timelimitsecs, initialtimelimitsecs: onrealgamestartobj.timelimitsecs});
             const timer =setInterval(()=>{this.setState((prevState)=>{
+                if( prevState.timelimitsecs <= 0)
+                    clearInterval(this.state.countdowntimer);
                 if (prevState.timelimitsecs < (1/4) * prevState.initialtimelimitsecs){
                     return{timelimitsecs:( prevState.timelimitsecs -1 )<0? 0: prevState.timelimitsecs - 1, timerblinking: true /*!prevState.timerblinking*/}
                 }
@@ -335,8 +337,8 @@ class GamePlayPage extends Component {
                 />
                 <Sound
                     url={SOUNDTYPES.gameplay.tikTok}
-                    playStatus={this.state.timerblinking? Sound.status.PLAYING: Sound.status.STOPPED}
-                    loop={true}
+                    playStatus={this.state.timerblinking && !this.state.isShowingResultsModal? Sound.status.PLAYING: Sound.status.STOPPED}
+                    loop={this.state.timerblinking && !this.state.isShowingResultsModal? true:false}
                 />
                 <GameplayResultsModal
                     isOpen={this.state.isShowingResultsModal}
