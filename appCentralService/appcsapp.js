@@ -599,11 +599,11 @@ app.post(`/appcs/game/interrupt/:gameid`, GMSAuthMiddleware, (req, res) => {
 
 });
 app.post(`/appcs/game/finish/:gameid`, GMSAuthMiddleware, (req, res) => {
-    //TODO: make expUpdateObj.
     Promise.all(
         [
         db.gmsFinishGame(req.params.gameid, req.body.resultObj),
-        exp.bulkIncrementExpAndLevel(exp.calculateExpGains(req.body.resultObj,req.body.totalgametime))
+        exp.bulkIncrementExpAndLevel(exp.calculateExpGains(req.body.resultObj,req.body.totalgametime)),
+        chatroomdb.deleteRoomchat(req.params.gameid),
     ]
     ).then((data) => {
         const expUpdates = data[1];
