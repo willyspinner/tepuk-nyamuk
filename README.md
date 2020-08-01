@@ -1,7 +1,6 @@
 # The Tepuk Nyamuk game
 ![](readmeStuff/title.png?raw=true "Title")
-Live!
-https://tepuknyamuk.com
+The website is now shut down. Feel free to self-host it to try it out :)
 ## What is it?
 
 Tepuk nyamuk, or 'Mosquito Slapping', is an indonesian card game which is very fun to play!  How it works is as follows:
